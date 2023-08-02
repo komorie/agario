@@ -1,0 +1,15 @@
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.csproj.AssemblyReference.cache
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.AssemblyInfoInputs.cache
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.AssemblyInfo.cs
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.csproj.CoreCompileInputs.cache
+D:\projects\Unity\agario\server\Core\bin\Debug\net6.0\Core.exe
+D:\projects\Unity\agario\server\Core\bin\Debug\net6.0\Core.deps.json
+D:\projects\Unity\agario\server\Core\bin\Debug\net6.0\Core.runtimeconfig.json
+D:\projects\Unity\agario\server\Core\bin\Debug\net6.0\Core.dll
+D:\projects\Unity\agario\server\Core\bin\Debug\net6.0\Core.pdb
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.dll
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\refint\Core.dll
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.pdb
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\Core.genruntimeconfig.cache
+D:\projects\Unity\agario\server\Core\obj\Debug\net6.0\ref\Core.dll
