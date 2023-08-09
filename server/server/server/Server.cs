@@ -4,7 +4,7 @@ using System.Text;
 
 namespace server
 {
-    internal class Program
+    internal class Server
     {
         static void Main(string[] args)
         {

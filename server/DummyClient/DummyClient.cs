@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DummyClient
 {
-    internal class Program
+    internal class DummyClient
     {
         static void Main(string[] args)
         {

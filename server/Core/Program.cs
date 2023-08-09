@@ -12,21 +12,20 @@ namespace Core
         {
             try
             {
-                byte[] recvBuff = new byte[1024];
-                int recvBytes = clientSocket.Receive(recvBuff);
-                string recvData = Encoding.UTF8.GetString(recvBuff, 0, recvBytes); //바이트 배열 문자열로 디코딩
-
-                Console.WriteLine(recvData);
+                Session session = new Session();
+                session.Start(clientSocket);
 
                 byte[] sendBuff = Encoding.UTF8.GetBytes("Welcome!"); //문자열 바이트 배열로 인코딩
-                clientSocket.Send(sendBuff);
+                session.Send(sendBuff);
 
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                Thread.Sleep(1000);
+
+                session.Disconnect();
+
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.ToString());
+
                 throw;
             }
         }
