@@ -17,7 +17,7 @@ namespace Core
         {
             int processLen = 0;
 
-            //기본적으로 TCP는 패킷이 나뉘어져 올 위험이 있음
+            //기본적으로 TCP는 패킷이 나뉘어져 올 위험이 있음. 그러나 순서는 보장되므로 합칠 수 있다.
             while (true)
             {
                 if (buffer.Count < HeaderSize) break; //ushort
@@ -41,7 +41,7 @@ namespace Core
         public abstract void OnRecvPacket(ArraySegment<byte> buffer);
     }
 
-    public abstract class Session //소켓을 통한 데이터 송수신 담당(클라이언트와 서버 양 측 다 세션을 사용하여 통신)
+    public abstract class Session //소켓을 통한 데이터 송수신 담당(클라이언트와 서버 양 측 다 세션을 사용하여 통신). 상대 측의 대리인
     {
         Socket sessionSocket;
 
