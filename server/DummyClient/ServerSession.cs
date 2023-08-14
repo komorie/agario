@@ -1,34 +1,52 @@
 ﻿using Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DummyClient
 {
-    abstract class Packet
-    {
-        public ushort size; //네트워크로 보내니 최대한 사이즈 줄이기
-        public ushort packetId;
 
-        public abstract ArraySegment<byte> Write();
-        public abstract void Read(ArraySegment<byte> seg);
-
-    }
-
-    class PlayerInfoReq : Packet //플레이어 데이터 요청 패킷
+    class PlayerInfoReq//플레이어 데이터 요청 패킷
     {
         public long playerId;
         public string name;
 
-        public PlayerInfoReq()
+        public List<SkillInfo> skills = new List<SkillInfo>();
+
+        public struct SkillInfo
         {
-            packetId = (ushort)PacketID.PlayerInfoReq;
+            public int id;
+            public short level;
+            public float duration;
+
+            public bool Write(Span<byte> seg, ref ushort count)
+            {
+                bool success = true;
+
+                success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), id); //샌드 버퍼의 부분에 값 작성
+                count += sizeof(int);
+
+                success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), level); //샌드 버퍼의 부분에 값 작성
+                count += sizeof(short);
+
+                success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), duration); //샌드 버퍼의 부분에 값 작성
+                count += sizeof(float);
+
+                return success;
+
+            }
+
+            public void Read(ReadOnlySpan<byte> seg, ref ushort count)
+            {
+                id = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
+                count += sizeof(int);
+                level = BitConverter.ToInt16(seg.Slice(count, seg.Length - count));
+                count += sizeof(short);
+                duration = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+                count += sizeof(float);
+            }
         }
 
-        public override void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+        public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
         {
             ushort count = 0;
 
@@ -42,14 +60,27 @@ namespace DummyClient
 
             //string 가져오려면, 먼저 사이즈 가져오기
             ushort nameLen = BitConverter.ToUInt16(seg.Slice(count, seg.Length - count));
-            count += sizeof(ushort);    
+            count += sizeof(ushort);
 
             //가져온 사이즈만큼, 문자열 가져오기
-            name = Encoding.Unicode.GetString(seg.Slice(count, seg.Length - count));    
+            name = Encoding.Unicode.GetString(seg.Slice(count, nameLen));
+            count += nameLen;
+
+            //스킬 구조체 리스트를 가져오기
+            ushort skillLen = BitConverter.ToUInt16(seg.Slice(count, seg.Length - count)); //사이즈
+            count += sizeof(ushort);
+
+            for (int i = 0; i < skillLen; i++)
+            {
+                SkillInfo skill = new SkillInfo();
+                skill.Read(seg, ref count); //구조체 Read 함수
+                skills.Add(skill);
+            }
+
 
         }
 
-        public override ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+        public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
         {
             ArraySegment<byte> seg = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
 
@@ -78,6 +109,16 @@ namespace DummyClient
             count += sizeof(ushort);
             count += nameLen;
 
+            success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Count - count), (ushort)skills.Count); //리스트를 보내기 위해, 먼저 사이즈 넣고
+            count += sizeof(ushort);
+
+            foreach (SkillInfo skill in skills)
+            {
+                success &= skill.Write(seg, ref count); //구조체별로 미리 만들어둔 write 함수
+            }
+
+
+
             success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
 
             if (!success) return null;
@@ -86,17 +127,17 @@ namespace DummyClient
         }
     }
 
-    class PlayerInfoOk : Packet
+    class PlayerInfoOk
     {
         public int hp;
         public int attack;
 
-        public override void Read(ArraySegment<byte> seg)
+        public void Read(ArraySegment<byte> seg)
         {
             throw new NotImplementedException();
         }
 
-        public override ArraySegment<byte> Write()
+        public ArraySegment<byte> Write()
         {
             throw new NotImplementedException();
         }
@@ -116,6 +157,11 @@ namespace DummyClient
             Console.WriteLine($"OnConnected: {endPoint}");
 
             PlayerInfoReq packet = new PlayerInfoReq() { playerId = 10222, name = "YIM JUN BEOM" };
+            packet.skills.Add(new PlayerInfoReq.SkillInfo() { id = 1, level = 1, duration = 3.0f });
+            packet.skills.Add(new PlayerInfoReq.SkillInfo() { id = 2, level = 1, duration = 3.0f });
+            packet.skills.Add(new PlayerInfoReq.SkillInfo() { id = 3, level = 3, duration = 5.0f });
+            packet.skills.Add(new PlayerInfoReq.SkillInfo() { id = 4, level = 2, duration = 6.0f });
+
 
             for (int i = 0; i < 5; i++)
             {
