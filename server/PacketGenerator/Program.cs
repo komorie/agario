@@ -8,12 +8,17 @@ namespace PacketGenerator
     {
         private static int packetId; //Enum용 패킷 번호
         private static string packetEnums; //패킷 구분할, 이름 모아놓은 Enum
+
+        private static string clientRegister; //패킷 종류에 따라 생성하는 함수 등록  (클라쪽)
+        private static string serverRegister; //패킷 종류에 따라 생성하는 함수 등록 (서버쪽)
+
+
         private static string genPackets; //패킷 XML 파싱해서 생성한 본체들
 
         static void Main(string[] args) //XML 파일로부터 패킷 클래스들이 모인 cs파일을 생성하는 과정.
         {
 
-            string pdlPath = "../../PDL.xml";
+            string pdlPath = "PDL.xml";
 
             if(args.Length >= 1)
             {
@@ -41,6 +46,11 @@ namespace PacketGenerator
                 string fileText = string.Format(OurPacketFormat.fileFormat, packetEnums, genPackets);
                 File.WriteAllText("GenPackets.cs", fileText); //패킷 틀 문자열의 빈칸을 채워서, cs 파일로 생성. 이를 파일 끝까지 반복
 
+                string clientManagerText = string.Format(OurPacketFormat.managerFormat, clientRegister);
+                File.WriteAllText("ClientPacketManager.cs", clientManagerText); //패킷 매니저 틀 문자열의 빈칸을 채워서, cs 파일로 생성. (클라가 받을 패킷만)
+
+                string serverManagerText = string.Format(OurPacketFormat.managerFormat, serverRegister);
+                File.WriteAllText("ServerPacketManager.cs", serverManagerText); //패킷 매니저 틀 문자열의 빈칸을 채워서, cs 파일로 생성. (서버가 받을 패킷만)
             }
 
 
@@ -63,6 +73,17 @@ namespace PacketGenerator
             Tuple<string, string, string> t = ParseMembers(r); //패킷 변수, Read함수, Write함수 포맷 만들어서 리턴
             genPackets += string.Format(OurPacketFormat.packetFormat, packetName, t.Item1, t.Item2, t.Item3); //세마리 모아서 엑조디아 패킷 만들기
             packetEnums += string.Format(OurPacketFormat.packetEnumFormat, packetName, ++packetId) + Environment.NewLine + "\t"; //Enum에 패킷이름 집어넣기
+            
+            //패킷 매니저 포맷에 Enum에 패킷이름 집어넣고, newline, tap 2번 넣기 (패킷 이름에 따라 어느쪽에 들어갈 지 구분)
+            //굳이 나누는 이유는, packet은 둘 다 알아야 하지만 packethandler의 경우 받는 쪽만 구현해도 되기 때문이다.
+            if(packetName.StartsWith("S_") || packetName.StartsWith("s_")) //서버가 보내는 패킷임
+            {
+                clientRegister += (string.Format(OurPacketFormat.managerRegisterFormat, packetName) + Environment.NewLine + "\t\t"); //그럼 클라 쪽 매니저에 추가
+            }
+            else //클라가 보내는 패킷임
+            {
+                serverRegister += (string.Format(OurPacketFormat.managerRegisterFormat, packetName) + Environment.NewLine + "\t\t");
+            }
         }
 
         public static Tuple<string, string, string> ParseMembers(XmlReader r)

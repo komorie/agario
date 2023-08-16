@@ -18,7 +18,6 @@ D:\projects\Unity\agario\server\PacketGenerator\bin\Debug\PacketGenerator.deps.j
 D:\projects\Unity\agario\server\PacketGenerator\bin\Debug\PacketGenerator.runtimeconfig.json
 D:\projects\Unity\agario\server\PacketGenerator\bin\Debug\PacketGenerator.dll
 D:\projects\Unity\agario\server\PacketGenerator\bin\Debug\PacketGenerator.pdb
-D:\projects\Unity\agario\server\PacketGenerator\obj\Debug\PacketGenerator.csproj.AssemblyReference.cache
 D:\projects\Unity\agario\server\PacketGenerator\obj\Debug\PacketGenerator.GeneratedMSBuildEditorConfig.editorconfig
 D:\projects\Unity\agario\server\PacketGenerator\obj\Debug\PacketGenerator.AssemblyInfoInputs.cache
 D:\projects\Unity\agario\server\PacketGenerator\obj\Debug\PacketGenerator.AssemblyInfo.cs

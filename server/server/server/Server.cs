@@ -1,12 +1,5 @@
 ﻿using Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Server
 {
@@ -14,6 +7,8 @@ namespace Server
     {
         static void Main(string[] args)
         {
+
+            PacketManager.Instance.Register();
 
             string host = Dns.GetHostName();
             IPHostEntry ipHost = Dns.GetHostEntry(host);

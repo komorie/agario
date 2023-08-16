@@ -22,32 +22,7 @@ namespace Server
 
         public override void OnRecvPacket(ArraySegment<byte> buffer)
         {
-            ushort count = 0;
-
-            ushort size = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
-            count += 2;
-            ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
-            count += 2;
-            Console.WriteLine($"PacketSize: {size}, PacketId: {id}");
-
-            switch ((PacketID)id) //해당 패킷의 읽기 함수 사용
-            {
-                case PacketID.PlayerInfoReq:
-                    {
-                        PlayerInfoReq pac = new PlayerInfoReq();
-                        pac.Read(buffer); 
-                        Console.WriteLine($"PlayerInfoReq: {pac.playerId}, {pac.name}");
-
-                        foreach (PlayerInfoReq.Skill skill in pac.skills)
-                        {
-                            Console.WriteLine($"Skill: {skill.id}, {skill.level}, {skill.duration}");
-                        }
-                        break;
-                    }
-                default:
-                    break;
-            }
-
+            PacketManager.Instance.OnRecvPacket(this, buffer);
         }
 
         public override void OnSend(int numOfBytes)

@@ -8,6 +8,72 @@ namespace PacketGenerator
 {
     internal class OurPacketFormat //XML에서 패킷의 데이터를 가져와 문자열로 만든 패킷 포맷의 빈칸을 치환하여 패킷 클래스를 생성
     {
+        // 0: Register가 들어감
+        public static string managerFormat =
+@"
+using Core;
+using System;
+using System.Collections.Generic;
+
+class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 과정을 추상화해서 자동적으로 수행(OnRecvPacket만 호출해 주면 됨)
+{{
+    #region Singleton   
+    static PacketManager _instance;
+
+    public static PacketManager Instance
+    {{
+        get
+        {{
+            if (_instance == null)
+                _instance = new PacketManager();
+            return _instance;
+        }}
+    }}
+    #endregion
+
+    //바이트 배열로부터 패킷을 생성할 때, 종류 Enum에 따라 수행할 생성 함수를 구분하는 딕셔너리
+    Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>>();
+
+    //생성된 패킷의 종류에 따라 수행될 이벤트 핸들러 함수를 종류 Enum으로 구분
+    Dictionary<ushort, Action<PacketSession, IPacket>> handler = new Dictionary<ushort, Action<PacketSession, IPacket>>();  
+        
+    public void Register() //패킷의 종류에 따라 딕셔너리에 Action을 등록하는 함수   
+    {{
+        {0}
+    }}
+
+    private void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer) where T : IPacket, new() //바이트 배열에서 패킷 생성 후, 생성 이벤트 핸들러 수행
+    {{
+        T p = new T();
+        p.Read(buffer); 
+
+        Action<PacketSession, IPacket> action = null;
+        if (handler.TryGetValue(p.Protocol, out action))
+            action.Invoke(session, p);  
+    }}
+
+    public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer) //어떤 세션에서, 받은 바이트 배열이 어떤 패킷인지 판단 후, 생성 함수 호출
+    {{
+        ushort count = 0;
+
+        ushort size = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
+        count += 2;
+        ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
+        count += 2;
+        Console.WriteLine($""PacketSize: {{size}}, PacketId: {{id}}""); //공통적인 패킷 정보 가져오기
+
+        Action<PacketSession, ArraySegment<byte>> action = null;    
+        if (onRecv.TryGetValue(id, out action)) //받은 패킷의 종류에 따라, 해당하는 패킷 생성 함수를 수행
+            action.Invoke(session, buffer);
+    }}
+}}
+";
+        public static string managerRegisterFormat =
+@"
+        onRecv.Add((ushort)PacketID.{0}, MakePacket<{0}>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.{0}, PacketHandler.{0}Handler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+";
+
         //0 패킷 구별할 이름/번호 목록 (enum)
         //1 패킷 목록
         public static string fileFormat =
@@ -20,6 +86,13 @@ using Core;
 public enum PacketID
 {{
 	{0}
+}}
+
+interface IPacket
+{{
+	ushort Protocol {{ get; }} //ID 리턴하는 부분임
+	void Read(ArraySegment<byte> segment); //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+	ArraySegment<byte> Write(); //패킷을 바이트배열로 직렬화 리턴
 }}
 
 {1}
@@ -37,9 +110,12 @@ public enum PacketID
 
         public static string packetFormat =
 @"
-class {0}
+class {0} : IPacket
 {{
     {1}
+
+    public ushort Protocol {{ get {{ return (ushort)PacketID.{0}; }} }}    
+
     public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
     {{
         ushort count = 0;
