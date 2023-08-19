@@ -12,19 +12,21 @@ namespace Core
     {
         Func<Session> sessionFactory; //어떤 세션을 생성할지
 
-        public void Connect(IPEndPoint endPoint, Func<Session> sessionFactory)
+        public void Connect(IPEndPoint endPoint, Func<Session> sessionFactory, int count = 1)
         {
+            for (int i = 0; i < count; i++) //count 수만큼 만들어서 접속 시도
+            {
+                this.sessionFactory = sessionFactory;
 
-            this.sessionFactory = sessionFactory;
+                Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp); //TCP 소켓 생성
 
-            Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp); //TCP 소켓 생성
+                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                args.Completed += OnConnectColmpleted;
+                args.RemoteEndPoint = endPoint;  //상대방 주소 넣고
+                args.UserToken = socket; //이 소켓이 연결을 한다고.. 유저토큰으로 전달
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += OnConnectColmpleted;
-            args.RemoteEndPoint = endPoint;  //상대방 주소 넣고
-            args.UserToken = socket; //이 소켓이 연결을 한다고.. 유저토큰으로 전달
-
-            RegisterConnect(args);
+                RegisterConnect(args);
+            }
         }
 
         private void RegisterConnect(SocketAsyncEventArgs args)

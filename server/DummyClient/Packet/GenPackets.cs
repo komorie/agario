@@ -8,6 +8,8 @@ public enum PacketID
 {
 	C_PlayerInfoReq = 1,
 	S_PlayerInfoRes = 2,
+	C_Chat = 3,
+	S_Chat = 4,
 	
 }
 
@@ -325,6 +327,123 @@ class S_PlayerInfoRes : IPacket
 		{
 		    success &= skill.Write(seg, ref count); //구조체별로 미리 만들어둔 write 함수
 		}
+		
+        success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
+
+        if (!success) return null;
+
+        return SendBufferHelper.Close(count); //버퍼에 작성된 용량 이후로 버퍼 인덱스 이동 + 실제로 작성된 버퍼의 부분만 참조
+    }
+}
+
+class C_Chat : IPacket
+{
+    public string chat;
+
+    public ushort Protocol { get { return (ushort)PacketID.C_Chat; } }    
+
+    public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+    {
+        ushort count = 0;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+        count += sizeof(ushort); //size, packetId가 있는 부분
+        
+		//string 가져오려면, 먼저 사이즈 가져오기
+		ushort chatLen = BitConverter.ToUInt16(seg.Slice(count, seg.Length - count));
+		count += sizeof(ushort);
+		
+		//가져온 사이즈만큼, 문자열 가져오기
+		this.chat = Encoding.Unicode.GetString(seg.Slice(count, chatLen));
+		count += chatLen;
+		
+
+    }
+
+    public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+    {
+        ArraySegment<byte> segment = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
+
+        ushort count = 0;
+        bool success = true;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+
+        success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.C_Chat); //샌드 버퍼의 부분에 값 작성
+        count += sizeof(ushort);          
+        
+		ushort chatLen = (ushort)Encoding.Unicode.GetBytes(this.chat, 0, this.chat.Length, segment.Array, segment.Offset + count + sizeof(ushort));          
+		//문자열의 길이만큼, 바이트로 변환 후 seg에 작성을 한번에! 대신 nameLen을 앞에 작성해야 하므로 위치는 ushort 크기만큼 뒤로 보냄
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), chatLen); //문자열의 크기 seg에 작성
+		count += sizeof(ushort);
+		count += chatLen;
+		
+        success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
+
+        if (!success) return null;
+
+        return SendBufferHelper.Close(count); //버퍼에 작성된 용량 이후로 버퍼 인덱스 이동 + 실제로 작성된 버퍼의 부분만 참조
+    }
+}
+
+class S_Chat : IPacket
+{
+    public int playerId;
+	public string chat;
+
+    public ushort Protocol { get { return (ushort)PacketID.S_Chat; } }    
+
+    public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+    {
+        ushort count = 0;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+        count += sizeof(ushort); //size, packetId가 있는 부분
+        
+		this.playerId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
+		count += sizeof(int);
+		
+		
+		//string 가져오려면, 먼저 사이즈 가져오기
+		ushort chatLen = BitConverter.ToUInt16(seg.Slice(count, seg.Length - count));
+		count += sizeof(ushort);
+		
+		//가져온 사이즈만큼, 문자열 가져오기
+		this.chat = Encoding.Unicode.GetString(seg.Slice(count, chatLen));
+		count += chatLen;
+		
+
+    }
+
+    public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+    {
+        ArraySegment<byte> segment = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
+
+        ushort count = 0;
+        bool success = true;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+
+        success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.S_Chat); //샌드 버퍼의 부분에 값 작성
+        count += sizeof(ushort);          
+        
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.playerId); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(int);
+		
+		
+		ushort chatLen = (ushort)Encoding.Unicode.GetBytes(this.chat, 0, this.chat.Length, segment.Array, segment.Offset + count + sizeof(ushort));          
+		//문자열의 길이만큼, 바이트로 변환 후 seg에 작성을 한번에! 대신 nameLen을 앞에 작성해야 하므로 위치는 ushort 크기만큼 뒤로 보냄
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), chatLen); //문자열의 크기 seg에 작성
+		count += sizeof(ushort);
+		count += chatLen;
 		
         success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
 

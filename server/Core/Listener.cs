@@ -13,7 +13,7 @@ namespace Core
         Socket listenSocket;
         Func<Session> sessionFactory; //생성할 세션 종류를 받음
 
-        public void Init(IPEndPoint endPoint, Func<Session> sessionFactory)
+        public void Init(IPEndPoint endPoint, Func<Session> sessionFactory, int register = 10, int backlog = 100)
         {
             this.sessionFactory += sessionFactory;
 
@@ -21,9 +21,9 @@ namespace Core
 
             listenSocket.Bind(endPoint); //서버의 엔드포인트에 소켓 연동
 
-            listenSocket.Listen(10); //최대 10개까지 요청 대기
+            listenSocket.Listen(backlog); //최대 몇개까지 요청 대기하고 그이상 차면 컷
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < register; i++) //register 수만큼 만들어서 접속 대기 (동시다발적인 연결 요청을 전부 처리)     
             {
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                 args.UserToken = i;

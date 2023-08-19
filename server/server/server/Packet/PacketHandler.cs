@@ -1,4 +1,6 @@
 ﻿using Core;
+using Server;
+using Server.Session;
 using System;
 using System.Collections.Generic;
 
@@ -16,5 +18,16 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
             Console.WriteLine($"Skill: {skill.id}, {skill.level}, {skill.duration}");
         }
 
+    }
+
+    public static void C_ChatHandler(PacketSession session, IPacket packet) //클라에게서 채팅 패킷이 왔을 때
+    {
+        C_Chat p = packet as C_Chat;
+        ClientSession clientSession = session as ClientSession;
+
+        if (clientSession.Room == null) return;
+
+        GameRoom room = clientSession.Room;
+        room.Push(() => { room.BroadCast(clientSession, p.chat); });
     }
 }

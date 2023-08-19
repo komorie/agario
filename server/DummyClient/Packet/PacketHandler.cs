@@ -1,4 +1,5 @@
 ﻿using Core;
+using DummyClient.Session;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +16,16 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         {
             Console.WriteLine($"Skill: {skill.id}, {skill.level}, {skill.duration}");
         }
-
     }
+
+    public static void S_ChatHandler(PacketSession session, IPacket packet)
+    {
+        S_Chat p = packet as S_Chat;
+        ServerSession serverSession = session as ServerSession;
+
+
+/*        Console.WriteLine($"ChatRoom {serverSession.SessionId}: {p.playerId}: {p.chat}");*/
+
+    }   
+
 }

@@ -18,18 +18,15 @@ using System.Collections.Generic;
 class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 과정을 추상화해서 자동적으로 수행(OnRecvPacket만 호출해 주면 됨)
 {{
     #region Singleton   
-    static PacketManager _instance;
+    static PacketManager _instance = new PacketManager();
 
-    public static PacketManager Instance
-    {{
-        get
-        {{
-            if (_instance == null)
-                _instance = new PacketManager();
-            return _instance;
-        }}
-    }}
+    public static PacketManager Instance {{ get {{ return _instance; }} }}
     #endregion
+
+    PacketManager()
+    {{
+        Register();
+    }}  
 
     //바이트 배열로부터 패킷을 생성할 때, 종류 Enum에 따라 수행할 생성 함수를 구분하는 딕셔너리
     Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>>();

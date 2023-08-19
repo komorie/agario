@@ -10,7 +10,7 @@ namespace Core
     {
         public static ThreadLocal<SendBuffer> CurrentBuffer = new ThreadLocal<SendBuffer>( () => { return null;  } );
 
-        public static int chunkSize { get; set; } = 4096;
+        public static int chunkSize { get; set; } = 6553500;
 
         public static ArraySegment<byte> Open(int reserveSize) //자동으로 범위 체크하고, 스레드마다 전역으로 생성된 센드 버퍼에서 가져오도록 함
         {

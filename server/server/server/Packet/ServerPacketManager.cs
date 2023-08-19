@@ -6,18 +6,15 @@ using System.Collections.Generic;
 class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 과정을 추상화해서 자동적으로 수행(OnRecvPacket만 호출해 주면 됨)
 {
     #region Singleton   
-    static PacketManager _instance;
+    static PacketManager _instance = new PacketManager();
 
-    public static PacketManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = new PacketManager();
-            return _instance;
-        }
-    }
+    public static PacketManager Instance { get { return _instance; } }
     #endregion
+
+    PacketManager()
+    {
+        Register();
+    }  
 
     //바이트 배열로부터 패킷을 생성할 때, 종류 Enum에 따라 수행할 생성 함수를 구분하는 딕셔너리
     Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>>();
@@ -30,6 +27,10 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
         
         onRecv.Add((ushort)PacketID.C_PlayerInfoReq, MakePacket<C_PlayerInfoReq>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
         handler.Add((ushort)PacketID.C_PlayerInfoReq, PacketHandler.C_PlayerInfoReqHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+
+		
+        onRecv.Add((ushort)PacketID.C_Chat, MakePacket<C_Chat>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.C_Chat, PacketHandler.C_ChatHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 
 		
     }
@@ -52,7 +53,6 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
         count += 2;
         ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
         count += 2;
-        Console.WriteLine($"PacketSize: {size}, PacketId: {id}"); //공통적인 패킷 정보 가져오기
 
         Action<PacketSession, ArraySegment<byte>> action = null;    
         if (onRecv.TryGetValue(id, out action)) //받은 패킷의 종류에 따라, 해당하는 패킷 생성 함수를 수행

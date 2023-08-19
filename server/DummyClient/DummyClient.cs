@@ -2,6 +2,7 @@
 using System.Net;
 using System.Text;
 using Core;
+using DummyClient.Session;
 
 namespace DummyClient
 { 
@@ -17,11 +18,20 @@ namespace DummyClient
 
             Connecter connector = new Connecter(); 
 
-            connector.Connect(endPoint, () => { return new ServerSession(); }); //서버에 연결 요청, 성공 시 GameSession 생성
+            connector.Connect(endPoint, () => { return SessionManager.Instance.Generate(); }, 100); //서버에 연결 요청, 성공 시 Session 생성, 10회 시도(연결 세션이 10개 생성)
 
             while (true)
             {
+                try
+                {
+                    SessionManager.Instance.SendForEach(); //현재 서버와 연결된 세션이 10개 생성 -> 10번 패킷 보냄(10개의 클라와 연결됐을때의 서버 동작을 확인하기 위함)
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
 
+                Thread.Sleep(250);
             }
        
         }

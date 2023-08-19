@@ -16,6 +16,8 @@ namespace Core
         public override sealed int OnRecv(ArraySegment<byte> buffer) //sealed: 오버라이드 막기, 패킷 분석
         {
             int processLen = 0;
+            int packetCount = 0;    
+
 
             //기본적으로 TCP는 패킷이 나뉘어져 올 위험이 있음. 그러나 순서는 보장되므로 합칠 수 있다.
             while (true)
@@ -30,10 +32,14 @@ namespace Core
                 OnRecvPacket(new ArraySegment<byte>(buffer.Array, buffer.Offset, dataSize)); //사이즈만큼의 부분을 조립하기 위해...
 
                 processLen += dataSize;
+                packetCount++;
 
                 buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, buffer.Count - dataSize); //다음 패킷을 가리키는 부분 배열로 위 과정을 반복한다
                 //일단 클라에게서 온 패킷들을 전부 다 처리하기 위함. 언젠가 break가 될 때까지
             }
+
+            if (packetCount > 1)
+                Console.WriteLine($"받은 패킷들을 분리해서 처리함. 패킷 개수: {packetCount}");
 
             return processLen;
         }
@@ -48,7 +54,7 @@ namespace Core
         int disconnected = 0;
         Queue<ArraySegment<byte>> sendQueue = new Queue<ArraySegment<byte>>();
 
-        RecvBuffer recvBuffer = new RecvBuffer(1024);
+        RecvBuffer recvBuffer = new RecvBuffer(65535);
 
         List<ArraySegment<byte>> pendingList = new List<ArraySegment<byte>>(); //대기중인 바이트 배열의 '배열의 부분' 구조체
         SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
@@ -62,6 +68,11 @@ namespace Core
         public abstract void OnSend(int numOfBytes);
         public abstract void OnDisconnected(EndPoint endPoint);   
 
+        private void Clear()
+        {
+            sendQueue.Clear();  
+            pendingList.Clear();
+        }
 
         public void Start(Socket socket)
         {
@@ -86,6 +97,8 @@ namespace Core
 
             sessionSocket.Shutdown(SocketShutdown.Both);
             sessionSocket.Close();
+
+            Clear();
         }
 
         public void Send(ArraySegment<byte> sendBuff) 
@@ -101,11 +114,32 @@ namespace Core
             }
         }
 
+        public void Send(List<ArraySegment<byte>> sendBuffList)
+        {
+            if (sendBuffList.Count == 0)
+            {
+                return;
+            }
+
+            lock (_lock) //자료구조에 접근한다면 락
+            {
+                foreach (ArraySegment<byte> sendBuff in sendBuffList)
+                {
+                    sendQueue.Enqueue(sendBuff);    //보내기 큐에 넣기
+                }
+
+                if(pendingList.Count == 0) 
+                    RegisterSend(); //다른 스레드에서 Args로 Send 시도중이면 그냥 종료
+            }
+        }
+
         #region 네트워크 통신
 
 
         private void RegisterSend()
         {
+            if(disconnected == 1) return; //연결 해제된 경우
+
             while (sendQueue.Count > 0) //현재 클라이언트에게 보내기로 요청된 바이트 배열 전부 꺼내서, socket에 리스트로 추가
             {
                 ArraySegment<byte> sendBuff = sendQueue.Dequeue(); //여기서, 다른 여러 스레드의 TLS로 생성된 CurrentBuffer -> SendBuffer에 접근할 수 있지만...
@@ -114,8 +148,16 @@ namespace Core
 
             sendArgs.BufferList = pendingList; //그 사이에 요청된 바이트 배열들을 모아서 SendAsync 한번에 보낼 수 있음 (횟수 최적화)
 
-            bool pending = sessionSocket.SendAsync(sendArgs); //비동기 전송
-            if (!pending) OnSendCompleted(null, sendArgs);
+            try
+            {
+                bool pending = sessionSocket.SendAsync(sendArgs); //비동기 전송
+                if (!pending) OnSendCompleted(null, sendArgs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Register Failed! {e}");
+                throw;
+            }
         }
 
         private void OnSendCompleted(object? sender, SocketAsyncEventArgs args)
@@ -155,14 +197,22 @@ namespace Core
             recvBuffer.Clean();
 
             ArraySegment<byte> segment = recvBuffer.WriteSegment; //남은 공간만큼 가져오기
-            recvArgs.SetBuffer(segment.Array, segment.Offset, segment.Count); 
+            recvArgs.SetBuffer(segment.Array, segment.Offset, segment.Count);
 
             //ArraySegment는 기본적으로 구조체긴 한데, 안에는 배열에 대한 참조를 갖고 있음.
             //즉 복사한다고 해도 배열의 참조값이 복사되는 거지 배열을 통째로 복사하는 건 아니며
             //setbuffer로 recvbuffer의 arraysegment를 지역 참조변수로 지정해도, 원본이 지정이 되는 것임.
 
-            bool pending = sessionSocket.ReceiveAsync(recvArgs); //패킷 받으면 해당되는 정보를 args에 저장, Completed 실행
-            if (!pending) OnRecvCompleted(null, recvArgs);
+            try
+            {
+                bool pending = sessionSocket.ReceiveAsync(recvArgs); //패킷 받으면 해당되는 정보를 args에 저장, Completed 실행
+                if (!pending) OnRecvCompleted(null, recvArgs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Register Failed! {e}");
+                throw;
+            }
         }
 
         private void OnRecvCompleted(object? sender, SocketAsyncEventArgs args)
