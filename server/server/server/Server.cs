@@ -7,7 +7,13 @@ namespace Server
     internal class Server
     {
         private static Listener listener = new Listener(); //연결 대기
-        public static GameRoom gameRoom = new GameRoom(); //채팅방 생성    
+        public static GameRoom gameRoom = new GameRoom(); //채팅방 생성
+                                 
+        private static void FlushRoom()
+        {
+            gameRoom.Push(gameRoom.Flush); //채팅방에 있는 클라들에게 채팅 전달(일단 1번 실행)
+            JobTimer.Instance.Push(FlushRoom, 250); //250ms마다 채팅 전달하도록 잡타이머에 넣기
+        }   
 
         static void Main(string[] args)
         {
@@ -19,10 +25,11 @@ namespace Server
 
             listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); }, 1000); //연결 시 GameSession 생성
 
+            JobTimer.Instance.Push(FlushRoom);
+
             while (true)
             {
-                gameRoom.Push(() => { gameRoom.Flush(); }); //0.25초마다 쌓여있는 패킷들 한번에 보내도록 지시
-                Thread.Sleep(250);
+                JobTimer.Instance.Flush(); //잡타이머에 넣은 작업들 실행    
             }
 
         }
