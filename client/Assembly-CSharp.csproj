@@ -59,12 +59,13 @@
     <Compile Include="Assets\Scripts\Packet\PacketHandler.cs" />
     <Compile Include="Assets\Scripts\Packet\ClientPacketManager.cs" />
     <Compile Include="Assets\Scripts\Network\Session.cs" />
+    <Compile Include="Assets\Scripts\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Network\ServerSession.cs" />
     <Compile Include="Assets\Scripts\Network\SendBuffer.cs" />
     <Compile Include="Assets\Scripts\Packet\GenPackets.cs" />
     <Compile Include="Assets\Scripts\Network\RecvBuffer.cs" />
     <Compile Include="Assets\Scripts\Network\Connecter.cs" />
-    <Compile Include="Assets\Scripts\NetworkManager.cs" />
+    <Compile Include="Assets\Scripts\Packet\PacketQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

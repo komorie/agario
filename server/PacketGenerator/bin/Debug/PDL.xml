@@ -1,33 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <PDL>
-  <packet name="C_PlayerInfoReq">
-    <long name ="playerId"/>
-    <byte name ="testByte"/>
-    <string name = "name"/>
-    <list name = "skill">
-      <int name = "id"/>
-      <short name = "level"/>
-      <float name = "duration"/>
-      <list name ="attribute">
-        <int name = "att"/>
-      </list>
-    </list>
-  </packet>
-  <packet name="S_PlayerInfoRes">
-    <long name ="playerId"/>
-    <byte name ="testByte"/>
-    <string name = "name"/>
-    <list name = "skill">
-      <int name = "id"/>
-      <short name = "level"/>
-      <float name = "duration"/>
-    </list>
-  </packet>
-  <packet name ="C_Chat">
-    <string name="chat"/>
-  </packet>
-  <packet name ="S_Chat">
+  <packet name ="S_BroadcastEnterGame">
+    <!--누군가 로그인했음을 방 안의 다른 인원들에게 알려주는 패킷-->
     <int name="playerId"/>
-    <string name="chat"/>
+    <float name="posX"/>
+    <float name="posY"/>
+    <float name="posZ"/>
   </packet>
+
+  <packet name="C_LeaveGame">
+    <!--저 나갑니다-->
+  </packet>
+
+  <packet name="S_BroadcastLeaveGame">
+    <!--얘 나간다~-->
+    <int name="playerId"/>
+  </packet>
+
+  <packet name="S_PlayerList">
+    <!--현재 방에 있는 모든 플레이어들 정보 알려준다-->
+    <list name="player">
+      <bool name="isSelf"/> <!--받는 클라랑 같은 플레이어인지 여부-->
+      <int name="playerId"/>
+      <float name="posX"/>
+      <float name="posY"/>
+      <float name="posZ"/>
+    </list>
+  </packet>
+
+  <packet name="C_Move"> <!--저 여기로 이동할게요-->
+    <float name="posX"/>
+    <float name="posY"/>
+    <float name="posZ"/>
+  </packet>
+
+  <packet name="S_BroadcastMove"> <!--얘 여기로 이동했다-->
+    <int name="playerId"/>
+    <float name="posX"/>
+    <float name="posY"/>
+    <float name="posZ"/>
+  </packet>
+
 </PDL>

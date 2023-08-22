@@ -20,7 +20,7 @@ public class ServerSession : PacketSession //특정 서버와의 통신용 소�
 
     public override void OnRecvPacket(ArraySegment<byte> buffer)
     {
-        PacketManager.Instance.OnRecvPacket(this, buffer);  
+        PacketManager.Instance.OnRecvPacket(this, buffer, (session, packet) => { PacketQueue.Instance.Push(packet); }); //패킷 받았을 때의 핸들러 함수를 콜백으로
     }
 
     public override void OnSend(int numOfBytes)

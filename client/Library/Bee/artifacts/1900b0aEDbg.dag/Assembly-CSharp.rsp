@@ -354,6 +354,7 @@
 "Assets/Scripts/Packet/ClientPacketManager.cs"
 "Assets/Scripts/Packet/GenPackets.cs"
 "Assets/Scripts/Packet/PacketHandler.cs"
+"Assets/Scripts/Packet/PacketQueue.cs"
 -langversion:9.0
 
 /deterministic

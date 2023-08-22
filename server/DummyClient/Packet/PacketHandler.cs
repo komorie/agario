@@ -6,26 +6,32 @@ using System.Collections.Generic;
 
 internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이, 해당 패킷으로 할 동작만 여기서 구현해 주면 될 것.
 {
-    public static void S_PlayerInfoResHandler(PacketSession session, IPacket packet)
+    public static void S_BroadcastEnterGameHandler(PacketSession session, IPacket packet)
     {
-        S_PlayerInfoRes p = packet as S_PlayerInfoRes;
-
-        Console.WriteLine($"PlayerInfoReq: {p.playerId}, {p.name}");
-
-        foreach (S_PlayerInfoRes.Skill skill in p.skills)
-        {
-            Console.WriteLine($"Skill: {skill.id}, {skill.level}, {skill.duration}");
-        }
+        
     }
 
-    public static void S_ChatHandler(PacketSession session, IPacket packet)
+    public static void S_BroadcastLeaveGameHandler(PacketSession session, IPacket packet)
     {
-        S_Chat p = packet as S_Chat;
-        ServerSession serverSession = session as ServerSession;
+      
+    }
 
+    public static void S_PlayerListHandler(PacketSession session, IPacket packet)
+    {
+        S_PlayerList playerList = packet as S_PlayerList; 
 
-/*        Console.WriteLine($"ChatRoom {serverSession.SessionId}: {p.playerId}: {p.chat}");*/
+        //플레이어 리스트 순환하며 값 출력
+        foreach (S_PlayerList.Player p in playerList.players)
+        {
+            Console.WriteLine($"Player({p.playerId}): Pos({p.posX}, {p.posY}, {p.posZ})");
+        }       
+ 
+    }
 
-    }   
-
+    public static void S_BroadcastMoveHandler(PacketSession session, IPacket packet)
+    {
+        //패킷 값 출력
+        S_BroadcastMove movePacket = packet as S_BroadcastMove; 
+        Console.WriteLine($"Player({movePacket.playerId}): Pos({movePacket.posX}, {movePacket.posY}, {movePacket.posZ})");
+    }
 }

@@ -9,10 +9,15 @@ namespace Server.Session
         public int SessionId { get; set; }
         public GameRoom Room { get; set; }
 
+        public float PosX { get; set; } //클라 위치
+        public float PosY { get; set; }
+        public float PosZ { get; set; } 
+
         private object _lock = new object();
 
         public override void OnConnected(EndPoint endPoint)
         {
+            //방에 추가
             Server.gameRoom.Push(() => { Server.gameRoom.Enter(this); });
             Thread.Sleep(1000);
         }

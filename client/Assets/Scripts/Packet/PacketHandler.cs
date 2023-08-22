@@ -20,7 +20,7 @@ public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이
     {
         S_Chat p = packet as S_Chat;
         ServerSession serverSession = session as ServerSession;
-        Debug.Log($"ChatRoom {serverSession.SessionId}: {p.playerId}: {p.chat}");
+        Debug.Log($"{p.playerId}: {p.chat}");
 
     }   
 

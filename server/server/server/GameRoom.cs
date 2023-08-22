@@ -19,27 +19,69 @@ namespace Server
             jobQueue.Push(job); 
         }
 
-        public void Enter(ClientSession session) //게임방 입장
+        public void Enter(ClientSession session) //클라 A가 게임방 입장
         {    
-            sessions.Add(session);
-            session.Room = this;
+            sessions.Add(session); //들어온 애 세션 리스트에 추가
+            session.Room = this; //들어온 애의 방을 이 방으로 설정   
+
+            //들어온 플레이어에게, (새로 들어온 플레이어 정보까지 갱신된) 모든 플레이어 리스트를 보내준다
+            S_PlayerList playerList = new S_PlayerList();
+            foreach (ClientSession s in sessions)
+            {
+                playerList.players.Add(new S_PlayerList.Player() //일단 새로 들어온 Player 넣어주고
+                {
+                    isSelf = (s == session), //(해당 클라 입장에서) 리스트에 있는 플레이어가 자기 자신인지 아닌지 여부
+                    playerId = s.SessionId,
+                    posX = s.PosX,
+                    posY = s.PosY,
+                    posZ = s.PosZ
+                }); 
+            }
+
+            session.Send(playerList.Write()); //새로 들어온 애한테만 보내기
+
+            S_BroadcastEnterGame enterGame = new S_BroadcastEnterGame(); //새로 들어온 애의 정보를 모든 플레이어에게 보내기  
+            enterGame.playerId = session.SessionId;
+            enterGame.posX = 0;
+            enterGame.posY = 0;
+            enterGame.posZ = 0;
+            BroadCast(enterGame.Write()); //모든 클라에게 보내기
+
         } 
 
-        public void Leave(ClientSession session) //방 퇴장
+        public void Leave(ClientSession session) //얘 나간다
         {
             sessions.Remove(session);
             session.Room = null;
+
+            //모든 클라에게 알리기
+            S_BroadcastLeaveGame leaveGame = new S_BroadcastLeaveGame();
+            leaveGame.playerId = session.SessionId;
+            BroadCast(leaveGame.Write());
         }
 
-        public void BroadCast(ClientSession session, string chat) //어떠한 클라한테 채팅이 오면... 내 방에 있는 모든 클라에게 채팅 전달
+        public void Move(ClientSession session, C_Move movePacket) //얘 움직인다
         {
-            S_Chat packet = new S_Chat();
-            packet.playerId = session.SessionId;
-            packet.chat = $"Hello Server, I am {packet.playerId}";
-            ArraySegment<byte> segment = packet.Write();    //패킷 생성
+            //좌표 변경
+            session.PosX = movePacket.posX;
+            session.PosY = movePacket.posY;
+            session.PosZ = movePacket.posZ;
 
-            pendingList.Add(segment);   //패킷을 보내야 할 리스트에 추가 
+            //얘 이동했다고 알리기
+            S_BroadcastMove move = new S_BroadcastMove();
+            move.playerId = session.SessionId;
+            move.posX = session.PosX;
+            move.posY = session.PosY;
+            move.posZ = session.PosZ;   
+            BroadCast(move.Write());    
         }
+
+        public void BroadCast(ArraySegment<byte> segment) 
+        {
+            pendingList.Add(segment);   //패킷 바이트 배열을 보내야 할 리스트에 추가 -> Flush()에서 연결된 모든 클라에게 보낸다
+        }
+
+
         public void Flush()
         {
             foreach (ClientSession s in sessions)

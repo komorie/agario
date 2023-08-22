@@ -29,7 +29,7 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
     }}  
 
     //바이트 배열로부터 패킷을 생성할 때, 종류 Enum에 따라 수행할 생성 함수를 구분하는 딕셔너리
-    Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>>();
+    Dictionary<ushort, Func<PacketSession, ArraySegment<byte>, IPacket>> makeFunc = new Dictionary<ushort, Func<PacketSession, ArraySegment<byte>, IPacket>>();
 
     //생성된 패킷의 종류에 따라 수행될 이벤트 핸들러 함수를 종류 Enum으로 구분
     Dictionary<ushort, Action<PacketSession, IPacket>> handler = new Dictionary<ushort, Action<PacketSession, IPacket>>();  
@@ -39,17 +39,22 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
         {0}
     }}
 
-    private void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer) where T : IPacket, new() //바이트 배열에서 패킷 생성 후, 생성 이벤트 핸들러 수행
+    private T MakePacket<T>(PacketSession session, ArraySegment<byte> buffer) where T : IPacket, new() //바이트 배열에서 ID에 따른 패킷 생성
     {{
         T p = new T();
-        p.Read(buffer); 
-
-        Action<PacketSession, IPacket> action = null;
-        if (handler.TryGetValue(p.Protocol, out action))
-            action.Invoke(session, p);  
+        p.Read(buffer);
+        return p;
     }}
 
-    public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer) //어떤 세션에서, 받은 바이트 배열이 어떤 패킷인지 판단 후, 생성 함수 호출
+    public void HandlerPacket(PacketSession session, IPacket packet) //패킷 생성 이후, 이벤트 핸들러 수행
+    {{
+        Action<PacketSession, IPacket> action = null;
+        if (handler.TryGetValue(packet.Protocol, out action))
+            action.Invoke(session, packet);
+    }}
+
+    public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer, Action<PacketSession, IPacket> callback = null) 
+        //어떤 세션에서, 받은 바이트 배열이 어떤 패킷인지 판단 후, 생성 함수 호출
     {{
         ushort count = 0;
 
@@ -57,17 +62,23 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
         count += 2;
         ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
         count += 2;
-        Console.WriteLine($""PacketSize: {{size}}, PacketId: {{id}}""); //공통적인 패킷 정보 가져오기
 
-        Action<PacketSession, ArraySegment<byte>> action = null;    
-        if (onRecv.TryGetValue(id, out action)) //받은 패킷의 종류에 따라, 해당하는 패킷 생성 함수를 수행
-            action.Invoke(session, buffer);
+        Func<PacketSession, ArraySegment<byte>, IPacket> func = null;    
+        if (makeFunc.TryGetValue(id, out func)) //받은 패킷의 ID에 따라, 해당하는 패킷 생성 함수를 가져오고
+        {{
+            IPacket packet = func.Invoke(session, buffer); //있으면 수행
+            
+            if(callback != null) //따로 패킷을 가지고 수행할 콜백함수를 넣어줬으면 그거 실행하고(유니티에서는 패킷 만들기만 하고 패킷 큐에 넣어주면 되니까 이걸로)
+                callback.Invoke(session, packet);
+            else
+                HandlerPacket(session, packet); //없으면 정해진 이벤트 핸들러 수행    
+        }}
     }}
 }}
 ";
         public static string managerRegisterFormat =
 @"
-        onRecv.Add((ushort)PacketID.{0}, MakePacket<{0}>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        makeFunc.Add((ushort)PacketID.{0}, MakePacket<{0}>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
         handler.Add((ushort)PacketID.{0}, PacketHandler.{0}Handler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 ";
 
@@ -85,7 +96,7 @@ public enum PacketID
 	{0}
 }}
 
-interface IPacket
+public interface IPacket
 {{
 	ushort Protocol {{ get; }} //ID 리턴하는 부분임
 	void Read(ArraySegment<byte> segment); //버퍼로 받은 값 역직렬화해서 패킷에 넣기
@@ -107,7 +118,7 @@ interface IPacket
 
         public static string packetFormat =
 @"
-class {0} : IPacket
+public class {0} : IPacket
 {{
     {1}
 

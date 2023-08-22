@@ -12,7 +12,7 @@ namespace Server.Session
         private static SessionManager sessionManager = new SessionManager();
         public static SessionManager Instance { get { return sessionManager; } }
 
-        int sessionId = 0;
+        int sessionCount = 0;
         Dictionary<int, ClientSession> sessions = new Dictionary<int, ClientSession>();
         object _lock = new object();
 
@@ -20,7 +20,7 @@ namespace Server.Session
         {
             lock (_lock)
             {
-                int sessionId = ++this.sessionId;
+                int sessionId = ++this.sessionCount;
                 ClientSession session = new ClientSession();
                 session.SessionId = sessionId;
                 sessions.Add(sessionId, session);

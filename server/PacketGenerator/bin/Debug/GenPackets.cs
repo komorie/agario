@@ -13,7 +13,7 @@ public enum PacketID
 	
 }
 
-interface IPacket
+public interface IPacket
 {
 	ushort Protocol { get; } //ID 리턴하는 부분임
 	void Read(ArraySegment<byte> segment); //버퍼로 받은 값 역직렬화해서 패킷에 넣기

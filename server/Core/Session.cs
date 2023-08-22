@@ -38,8 +38,8 @@ namespace Core
                 //일단 클라에게서 온 패킷들을 전부 다 처리하기 위함. 언젠가 break가 될 때까지
             }
 
-            if (packetCount > 1)
-                Console.WriteLine($"받은 패킷들을 분리해서 처리함. 패킷 개수: {packetCount}");
+/*            if (packetCount > 1)
+                Console.WriteLine($"받은 패킷들을 분리해서 처리함. 패킷 개수: {packetCount}");*/
 
             return processLen;
         }
