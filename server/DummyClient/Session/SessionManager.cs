@@ -23,7 +23,9 @@ namespace DummyClient.Session
             lock (_lock)
             {
                 ServerSession session = new ServerSession();
+                session.SessionId = sessions.Count;
                 sessions.Add(session);  
+
                 return session;
             }
         }
@@ -34,11 +36,11 @@ namespace DummyClient.Session
             {
                 foreach (ServerSession session in sessions)
                 {
-                    //랜덤한 방향으로 이동 패킷 만들어 보내기
+                    //랜덤한 방향으로 이동하는 패킷 만들어 보내기
                     C_Move movePacket = new C_Move();
-                    movePacket.posX = rand.Next(-50, 50);
-                    movePacket.posY = rand.Next(-50, 50);
-                    movePacket.posZ = rand.Next(-50, 50);
+                    movePacket.posX = rand.Next(-1, 2);
+                    movePacket.posY = rand.Next(-1, 2);
+                    movePacket.posZ = 0;
                     session.Send(movePacket.Write());
                 }   
             }

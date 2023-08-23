@@ -30,8 +30,6 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
 
     public static void S_BroadcastMoveHandler(PacketSession session, IPacket packet)
     {
-        //패킷 값 출력
-        S_BroadcastMove movePacket = packet as S_BroadcastMove; 
-        Console.WriteLine($"Player({movePacket.playerId}): Pos({movePacket.posX}, {movePacket.posY}, {movePacket.posZ})");
+
     }
 }

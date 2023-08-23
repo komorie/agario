@@ -8,6 +8,8 @@ namespace DummyClient
 { 
     internal class DummyClient
     {
+        public static Dictionary<int, DummyPlayer> players = new Dictionary<int, DummyPlayer>();
+
         static void Main(string[] args)
         {
 
@@ -18,7 +20,7 @@ namespace DummyClient
 
             Connecter connector = new Connecter(); 
 
-            connector.Connect(endPoint, () => { return SessionManager.Instance.Generate(); }, 10); //서버에 연결 요청, 성공 시 Session 생성, 10회 시도(연결 세션이 10개 생성)
+            connector.Connect(endPoint, () => { return SessionManager.Instance.Generate(); }, 5); //서버에 연결 요청, 성공 시 Session 생성, 10회 시도(연결 세션이 10개 생성)
 
             while (true)
             {
