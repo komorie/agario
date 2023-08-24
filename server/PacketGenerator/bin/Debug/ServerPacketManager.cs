@@ -25,12 +25,12 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
     public void Register() //패킷의 종류에 따라 딕셔너리에 Action을 등록하는 함수   
     {
         
-        makeFunc.Add((ushort)PacketID.C_PlayerInfoReq, MakePacket<C_PlayerInfoReq>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
-        handler.Add((ushort)PacketID.C_PlayerInfoReq, PacketHandler.C_PlayerInfoReqHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+        makeFunc.Add((ushort)PacketID.C_LeaveGame, MakePacket<C_LeaveGame>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.C_LeaveGame, PacketHandler.C_LeaveGameHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 
 		
-        makeFunc.Add((ushort)PacketID.C_Chat, MakePacket<C_Chat>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
-        handler.Add((ushort)PacketID.C_Chat, PacketHandler.C_ChatHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+        makeFunc.Add((ushort)PacketID.C_Move, MakePacket<C_Move>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.C_Move, PacketHandler.C_MoveHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 
 		
     }
@@ -58,7 +58,6 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
         count += 2;
         ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
         count += 2;
-        Console.WriteLine($"PacketSize: {size}, PacketId: {id}"); //공통적인 패킷 정보 가져오기
 
         Func<PacketSession, ArraySegment<byte>, IPacket> func = null;    
         if (makeFunc.TryGetValue(id, out func)) //받은 패킷의 ID에 따라, 해당하는 패킷 생성 함수를 가져오고

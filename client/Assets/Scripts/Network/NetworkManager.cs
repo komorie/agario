@@ -14,10 +14,8 @@ public class NetworkManager : GOSingleton<NetworkManager>
         session.Send(sendBuff);
     }   
 
-    protected override void Awake()
+    private void Awake()
     {
-        DontDestroyOnLoad(this.gameObject);
-
         string host = Dns.GetHostName();
         IPHostEntry ipHost = Dns.GetHostEntry(host);
         IPAddress iPAddr = ipHost.AddressList[0];

@@ -1,27 +1,29 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerManager : GOSingleton<PlayerManager>   
 {
     Myplayer myPlayer;
-    Dictionary<int, Player> players = new Dictionary<int, Player>();
+    public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
     GameObject playerPrefab;
+    GameObject myPlayerPrefab;
 
-    protected void Awake()
+    private void Awake()
     {
         playerPrefab = Resources.Load<GameObject>("Prefabs/Player");    
+        myPlayerPrefab = Resources.Load<GameObject>("Prefabs/MyPlayer");    
     }
 
     public void Add(S_PlayerList packet) //처음에 접속한 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
     {
         foreach (S_PlayerList.Player p in packet.players)
         {
-            GameObject go = Instantiate(playerPrefab);
-
             if(p.isSelf)
             {
+                GameObject go = Instantiate(myPlayerPrefab);
                 Myplayer mPlayer = go.AddComponent<Myplayer>();    
                 mPlayer.transform.position = new Vector3(p.posX, p.posY, p.posZ);
                 myPlayer = mPlayer;
@@ -29,9 +31,10 @@ public class PlayerManager : GOSingleton<PlayerManager>
             }
             else
             {
+                GameObject go = Instantiate(playerPrefab);
                 Player player = go.AddComponent<Player>();
                 player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
-                players.Add(p.playerId, player);
+                Players.Add(p.playerId, player);
             }
             
         }
@@ -48,23 +51,22 @@ public class PlayerManager : GOSingleton<PlayerManager>
 
         Player player = go.AddComponent<Player>(); //새 플레이어 추가
         player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
-        players.Add(p.playerId, player);
+        Players.Add(p.playerId, player);
 
     }
 
     public void Move(S_BroadcastMove p)
     {
-        //일단 나인경우와 다른 플레이어인 경우 상관 없이 위치만 바꿔줌
-        if (myPlayer.PlayerId == p.playerId)
-        {
-            myPlayer.transform.position = new Vector3(p.posX, p.posY, p.posZ);
-        }
-        else
+        //다른 플레이어인 경우 온 패킷대로 위치 조정, 나인 경우는 무시
+        if (myPlayer.PlayerId != p.playerId)
         {
             Player player;
-            if (players.TryGetValue(p.playerId, out player))
+            if (Players.TryGetValue(p.playerId, out player))
             {
-                player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
+                player.MoveVector = new Vector2(p.dirX, p.dirY); //다른 플레이어의 이동 방향
+                player.TargetPosition = new Vector3(p.posX, p.posY, p.posZ);  //다른 플레이어의 실제 현재 위치
+
+                player.IsLerping = true; //이제 보간 시작
             }
         }
     }
@@ -79,10 +81,10 @@ public class PlayerManager : GOSingleton<PlayerManager>
         else
         {
             Player player;
-            if(players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
+            if(Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
             {
                 Destroy(player.gameObject);
-                players.Remove(p.playerId);
+                Players.Remove(p.playerId);
             }       
         }
     }

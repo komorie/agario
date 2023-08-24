@@ -1,36 +1,75 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Myplayer : Player
 {
-    NetworkManager network;
+    private NetworkManager network;
+    private DefaultInputActions inputActions;
+    private InputAction moveAction;
 
-    void Start()
+    protected override void Awake()
     {
-        network = GameObject.Find("NetworkManager").GetComponent<NetworkManager>();
-/*        StartCoroutine(CoSendPacket());*/
+        base.Awake();
+
+        network = NetworkManager.Instance;
+        inputActions = new DefaultInputActions();
+        inputActions.Enable();
+        moveAction = inputActions.Player.Move;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        
+        moveAction.performed += OnMovePerformed;
+        moveAction.canceled += OnMoveCanceled;
     }
 
-    //C_Move 패킷 보내기 반복(나 여기로 이동했다)
-    private IEnumerator CoSendPacket()
+    private void OnDisable()
     {
-        while(true)
+        moveAction.performed -= OnMovePerformed; 
+    }
+
+    protected override void Update()
+    {
+        //IsMoving이면 MoveVector에 따라서 이동 
+        if (IsMoving)
         {
-            C_Move movePacket = new C_Move();
-            movePacket.posX = transform.position.x;
-            movePacket.posY = transform.position.y;
-            movePacket.posZ = 0;
-
-            network.Send(movePacket.Write());
-
-            yield return new WaitForSeconds(0.25f);
+            transform.position += new Vector3(MoveVector.x, MoveVector.y, 0) * Speed * Time.deltaTime;  
         }
+
+    }   
+
+    private void OnMovePerformed(InputAction.CallbackContext context)
+    {
+        //moveVector에 context에서 vector2값 가져오기
+        if(IsMoving == false || MoveVector != context.ReadValue<Vector2>()) //이동방향 달라지면 나 이동했어요  
+        {
+            MoveVector = context.ReadValue<Vector2>();
+            SendMovePacket();
+            IsMoving = true;
+        }
+    }
+
+    private void OnMoveCanceled(InputAction.CallbackContext context)
+    {
+        MoveVector = Vector2.zero;
+        IsMoving = false;
+        SendMovePacket();
+    }
+
+    private void SendMovePacket()
+    {
+        C_Move movePacket = new C_Move();
+
+        movePacket.dirX = MoveVector.x;
+        movePacket.dirY = MoveVector.y;
+        movePacket.posX = transform.position.x;
+        movePacket.posY = transform.position.y;
+        movePacket.posZ = 0;
+
+        network.Send(movePacket.Write());
+        
     }
 }

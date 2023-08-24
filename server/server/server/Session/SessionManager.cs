@@ -20,7 +20,7 @@ namespace Server.Session
         {
             lock (_lock)
             {
-                int sessionId = ++this.sessionCount;
+                int sessionId = this.sessionCount++;
                 ClientSession session = new ClientSession();
                 session.SessionId = sessionId;
                 sessions.Add(sessionId, session);

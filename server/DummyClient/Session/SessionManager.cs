@@ -23,9 +23,9 @@ namespace DummyClient.Session
             lock (_lock)
             {
                 ServerSession session = new ServerSession();
-                session.SessionId = sessions.Count;
                 sessions.Add(session);  
-
+                session.DirX = rand.Next(-1, 2);    
+                session.DirY = rand.Next(-1, 2);    
                 return session;
             }
         }
@@ -36,12 +36,48 @@ namespace DummyClient.Session
             {
                 foreach (ServerSession session in sessions)
                 {
-                    //랜덤한 방향으로 이동하는 패킷 만들어 보내기
+                    if(session.SessionId == -1)
+                    {
+                        continue;
+                    }   
+
+                    //랜덤한 방향으로 이동하는 패킷 만들어 보내기(나 일로 갔다)
                     C_Move movePacket = new C_Move();
-                    movePacket.posX = rand.Next(-1, 2);
-                    movePacket.posY = rand.Next(-1, 2);
+
+                    movePacket.dirX = session.DirX; 
+                    movePacket.dirY = session.DirY;
+
+                    if(movePacket.dirX == 1 && movePacket.dirY == 1) //대각선 방향이므로 제곱근 씌워서 방향벡터의 크기를 구하기
+                    {
+                        movePacket.dirX = (float)Math.Sqrt(0.5);
+                        movePacket.dirY = (float)Math.Sqrt(0.5);
+                    }
+                    else if(movePacket.dirX == -1 && movePacket.dirY == -1)
+                    {
+                        movePacket.dirX = -(float)Math.Sqrt(0.5);
+                        movePacket.dirY = -(float)Math.Sqrt(0.5);
+                    }
+                    else if(movePacket.dirX == -1 && movePacket.dirY == 1)
+                    {
+                        movePacket.dirX = -(float)Math.Sqrt(0.5);
+                        movePacket.dirY = (float)Math.Sqrt(0.5);
+                    }
+                    else if(movePacket.dirX == 1 && movePacket.dirY == -1)
+                    {
+                        movePacket.dirX = (float)Math.Sqrt(0.5);
+                        movePacket.dirY = -(float)Math.Sqrt(0.5);
+                    }   
+
+                    movePacket.posX = session.PosX;
+                    movePacket.posY = session.PosY;
                     movePacket.posZ = 0;
                     session.Send(movePacket.Write());
+
+                    //다음 위치에서 다른 방향을 가진 패킷을 보내기 위해
+                    session.DirX = rand.Next(-1, 2);    
+                    session.DirY = rand.Next(-1, 2);
+                    session.PosX += movePacket.dirX * 10;
+                    session.PosY += movePacket.dirY * 10;    
                 }   
             }
         }

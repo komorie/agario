@@ -22,9 +22,9 @@ namespace Server
 
         public void Enter(ClientSession session) //클라 A가 게임방 입장
         {    
-            //해당 클라 session의 시작 포지션을 -50 50 사이에서 랜덤 결정
-            session.PosX = rand.Next(-50, 50);
-            session.PosY = rand.Next(-50, 50);
+            //해당 클라 session의 시작 포지션을 -40 40 사이에서 랜덤 결정
+            session.PosX = rand.Next(-40, 40);
+            session.PosY = rand.Next(-40, 40);
             session.PosZ = 0;
 
             sessions.Add(session); //들어온 애 세션 리스트에 추가
@@ -70,15 +70,19 @@ namespace Server
 
         public void Move(ClientSession session, C_Move movePacket) //얘 움직인다
         {
-            //좌표 변경
-            session.PosX += movePacket.posX;
-            session.PosY += movePacket.posY;
-            session.PosZ += movePacket.posZ;
+            //해당하는 클라 좌표 변경
+            session.DirX = movePacket.dirX;
+            session.DirY = movePacket.dirY; 
+            session.PosX = movePacket.posX;
+            session.PosY = movePacket.posY;
+            session.PosZ = movePacket.posZ;
 
 
-            //얘 여기로 이동했다고 알리기(나중에는 증가량으로 수정해야 할 듯)
+            //다른 클라들한테 얘 여기에서 어디로 이동한다고 알리기
             S_BroadcastMove move = new S_BroadcastMove();
             move.playerId = session.SessionId;
+            move.dirX = session.DirX;
+            move.dirY = session.DirY;
             move.posX = session.PosX;
             move.posY = session.PosY;
             move.posZ = session.PosZ;   

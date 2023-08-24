@@ -8,7 +8,8 @@ namespace Server.Session
     {
         public int SessionId { get; set; }
         public GameRoom Room { get; set; }
-
+        public float DirX { get; set; } //방향
+        public float DirY { get; set; }
         public float PosX { get; set; } //클라 위치
         public float PosY { get; set; }
         public float PosZ { get; set; } 

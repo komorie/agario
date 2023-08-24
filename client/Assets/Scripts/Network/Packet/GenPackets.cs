@@ -192,6 +192,8 @@ public class S_PlayerList : IPacket
 	{
 	    public bool isSelf;
 		public int playerId;
+		public float dirX;
+		public float dirY;
 		public float posX;
 		public float posY;
 		public float posZ;
@@ -206,6 +208,14 @@ public class S_PlayerList : IPacket
 			
 			success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.playerId); //샌드 버퍼의 부분에 값 작성
 			count += sizeof(int);
+			
+			
+			success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirX); //샌드 버퍼의 부분에 값 작성
+			count += sizeof(float);
+			
+			
+			success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirY); //샌드 버퍼의 부분에 값 작성
+			count += sizeof(float);
 			
 			
 			success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.posX); //샌드 버퍼의 부분에 값 작성
@@ -231,6 +241,14 @@ public class S_PlayerList : IPacket
 			
 			this.playerId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
 			count += sizeof(int);
+			
+			
+			this.dirX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+			count += sizeof(float);
+			
+			
+			this.dirY = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+			count += sizeof(float);
 			
 			
 			this.posX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
@@ -302,7 +320,9 @@ public class S_PlayerList : IPacket
 
 public class C_Move : IPacket
 {
-    public float posX;
+    public float dirX;
+	public float dirY;
+	public float posX;
 	public float posY;
 	public float posZ;
 
@@ -317,6 +337,14 @@ public class C_Move : IPacket
         count += sizeof(ushort);
         count += sizeof(ushort); //size, packetId가 있는 부분
         
+		this.dirX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+		
+		this.dirY = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+		
 		this.posX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
 		count += sizeof(float);
 		
@@ -345,6 +373,14 @@ public class C_Move : IPacket
         success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.C_Move); //샌드 버퍼의 부분에 값 작성
         count += sizeof(ushort);          
         
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirX); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirY); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+		
 		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.posX); //샌드 버퍼의 부분에 값 작성
 		count += sizeof(float);
 		
@@ -367,6 +403,8 @@ public class C_Move : IPacket
 public class S_BroadcastMove : IPacket
 {
     public int playerId;
+	public float dirX;
+	public float dirY;
 	public float posX;
 	public float posY;
 	public float posZ;
@@ -384,6 +422,14 @@ public class S_BroadcastMove : IPacket
         
 		this.playerId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
 		count += sizeof(int);
+		
+		
+		this.dirX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+		
+		this.dirY = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
 		
 		
 		this.posX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
@@ -416,6 +462,14 @@ public class S_BroadcastMove : IPacket
         
 		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.playerId); //샌드 버퍼의 부분에 값 작성
 		count += sizeof(int);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirX); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirY); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
 		
 		
 		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.posX); //샌드 버퍼의 부분에 값 작성
