@@ -62,6 +62,7 @@
     <Compile Include="Assets\Scripts\Util\Singleton.cs" />
     <Compile Include="Assets\Scripts\Network\Core\ServerSession.cs" />
     <Compile Include="Assets\Scripts\Player\Player.cs" />
+    <Compile Include="Assets\Scripts\Food\Food.cs" />
     <Compile Include="Assets\Scripts\Network\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Network\Core\SendBuffer.cs" />
     <Compile Include="Assets\Scripts\Player\Myplayer.cs" />
@@ -69,8 +70,9 @@
     <Compile Include="Assets\Scripts\Network\Packet\GenPackets.cs" />
     <Compile Include="Assets\Scripts\Network\Core\RecvBuffer.cs" />
     <Compile Include="Assets\Scripts\Network\Core\Connecter.cs" />
-    <Compile Include="Assets\Scripts\Player\PlayerManager.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayManager.cs" />
     <Compile Include="Assets\Scripts\Network\Packet\PacketQueue.cs" />
+    <Compile Include="Assets\Scripts\Player\DummyPlayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

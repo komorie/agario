@@ -1,5 +1,5 @@
 ﻿using Core;
-using Server;
+using Server.Game;
 using Server.Session;
 using System;
 using System.Collections.Generic;
@@ -27,5 +27,14 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         GameRoom room = clientSession.Room;
         room.Push(() => { room.Move(clientSession, movePacket); }); //클라가 보낸 패킷을 이용해 이동 처리  
         
+    }
+
+    public static void C_EatFoodHandler(PacketSession session, IPacket packet) //클라에게서 음식 먹었다고 옴
+    {
+        C_EatFood eatPacket = packet as C_EatFood;
+        ClientSession clientSession = session as ClientSession;
+
+        GameRoom room = clientSession.Room;
+        room.Push(() => { room.EatFood(clientSession, eatPacket); });
     }
 }

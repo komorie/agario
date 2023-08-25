@@ -66,18 +66,21 @@ namespace DummyClient.Session
                     {
                         movePacket.dirX = (float)Math.Sqrt(0.5);
                         movePacket.dirY = -(float)Math.Sqrt(0.5);
-                    }   
+                    }
 
+                    DateTime now = DateTime.UtcNow;
+                    float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
                     movePacket.posX = session.PosX;
                     movePacket.posY = session.PosY;
                     movePacket.posZ = 0;
+                    movePacket.time = currentSecond;    
                     session.Send(movePacket.Write());
 
-                    //다음 위치에서 다른 방향을 가진 패킷을 보내기 위해
-                    session.DirX = rand.Next(-1, 2);    
-                    session.DirY = rand.Next(-1, 2);
-                    session.PosX += movePacket.dirX * 10;
-                    session.PosY += movePacket.dirY * 10;    
+                    //이동 패킷 -> 1초 후 -> 정지 패킷 -> 1초 후 -> 이동 패킷
+                    session.DirX = session.DirX == 0 ? rand.Next(-1, 2) : 0;    
+                    session.DirY = session.DirX == 0 ? rand.Next(-1, 2) : 0;
+                    session.PosX += movePacket.dirX * 20;
+                    session.PosY += movePacket.dirY * 20;    
                 }   
             }
         }

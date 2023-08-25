@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <PDL>
   <packet name ="S_BroadcastEnterGame">
-    <!--누군가 로그인했음을 방 안의 다른 인원들에게 알려주는 패킷-->
+    <!--야 얘 로그인했다ㅋㅋ-->
     <int name="playerId"/>
     <float name="posX"/>
     <float name="posY"/>
@@ -17,8 +17,8 @@
     <int name="playerId"/>
   </packet>
 
-  <packet name="S_PlayerList">
-    <!--현재 방에 있는 모든 플레이어들 정보 알려준다-->
+  <packet name="S_RoomList">
+    <!--현재 방에 있는 모든 정보 알려준다-->
     <list name="player">
       <bool name="isSelf"/> <!--받는 클라랑 같은 플레이어인지 여부-->
       <int name="playerId"/>
@@ -28,6 +28,12 @@
       <float name="posY"/>
       <float name="posZ"/>
     </list>
+    <list name="food">
+      <!--음식들 위치-->
+      <int name="foodType"/>
+      <float name="posX"/>
+      <float name="posY"/>
+    </list>
   </packet>
 
   <packet name="C_Move"> <!--저 어디서부터 이렇게 이동할게요-->
@@ -36,6 +42,7 @@
     <float name="posX"/>
     <float name="posY"/>
     <float name="posZ"/>
+    <float name="time"/>
   </packet>
 
   <packet name="S_BroadcastMove"> <!--얘 어디서부터 이렇게 이동한다-->
@@ -45,6 +52,19 @@
     <float name="posX"/>
     <float name="posY"/>
     <float name="posZ"/>
+    <float name="time"/>
   </packet>
 
+  <packet name="C_EatFood">
+    <!--제가 이 음식 먹었으묘-->
+    <int name ="foodId"/>
+  </packet>
+
+  <packet name="S_BroadcastEatFood">
+    <!--얘가 음식 먹었고, 해당 음식의 새 위치는 여기임-->
+    <int name="playerId"/>
+    <int name="foodId"/>
+    <float name="posX"/>
+    <float name="posY"/>
+  </packet>
 </PDL>

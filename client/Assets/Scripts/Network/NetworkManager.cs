@@ -8,7 +8,6 @@ using UnityEngine;
 public class NetworkManager : GOSingleton<NetworkManager> 
 {
     private ServerSession session = new ServerSession();
-    
     public void Send(ArraySegment<byte> sendBuff)
     {
         session.Send(sendBuff);
@@ -44,4 +43,7 @@ public class NetworkManager : GOSingleton<NetworkManager>
     {
         session.Disconnect();
     }
+
+    // 일정 주기마다 지속적으로 호출
+
 }

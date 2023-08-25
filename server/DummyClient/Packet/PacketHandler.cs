@@ -16,13 +16,13 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
       
     }
 
-    public static void S_PlayerListHandler(PacketSession session, IPacket packet)
+    public static void S_RoomListHandler(PacketSession session, IPacket packet)
     {
-        S_PlayerList playerList = packet as S_PlayerList; 
+        S_RoomList roomList = packet as S_RoomList; 
         ServerSession s = session as ServerSession;
 
-        //플레이어 리스트 순환하며 값 출력
-        foreach (S_PlayerList.Player p in playerList.players)
+        //방 리스트 순환하며 값 출력
+        foreach (S_RoomList.Player p in roomList.players)
         {
             if(p.isSelf) //자신인 경우 -> 세션 ID와 포지션 서버에서 받아온 걸로 지정
             {
@@ -45,5 +45,10 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         {
             Console.WriteLine($"Player({p.playerId}): Pos({p.posX}, {p.posY}, {p.posZ})");
         }   
+    }
+
+    internal static void S_BroadcastEatFoodHandler(PacketSession session, IPacket packet)
+    {
+        throw new NotImplementedException();
     }
 }
