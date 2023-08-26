@@ -25,6 +25,7 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         if (clientSession.Room == null) return;
 
         GameRoom room = clientSession.Room;
+        Thread.Sleep(100);  //0.1초 지연
         room.Push(() => { room.Move(clientSession, movePacket); }); //클라가 보낸 패킷을 이용해 이동 처리  
         
     }

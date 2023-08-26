@@ -120,6 +120,7 @@ namespace Server.Game
             move.posY = sp.PosY;
             move.posZ = sp.PosZ;
             move.time = movePacket.time;
+
             BroadCast(move);
         }
 
