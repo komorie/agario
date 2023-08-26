@@ -47,8 +47,19 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         }   
     }
 
-    internal static void S_BroadcastEatFoodHandler(PacketSession session, IPacket packet)
+    public static void S_BroadcastEatFoodHandler(PacketSession session, IPacket packet)
     {
-        throw new NotImplementedException();
+
+    }
+
+    public static void S_BroadcastEatPlayerHandler(PacketSession session, IPacket packet)
+    {
+        ServerSession s = session as ServerSession; 
+        S_BroadcastEatPlayer p = packet as S_BroadcastEatPlayer;
+
+        if(s.SessionId == p.preyId)
+        {
+            s.Disconnect();
+        }
     }
 }

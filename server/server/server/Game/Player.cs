@@ -15,6 +15,6 @@ namespace Server.Game
         public float PosY { get; set; }
         public float PosZ { get; set; } //위치
 
-        public int Size { get; set; }   //크기
+        public float Radius { get; set; }   //크기(반지름)
     }
 }

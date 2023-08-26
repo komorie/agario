@@ -25,9 +25,8 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         if (clientSession.Room == null) return;
 
         GameRoom room = clientSession.Room;
-        Thread.Sleep(100);  //0.1초 지연
+        Thread.Sleep(50);  //0.05초 지연
         room.Push(() => { room.Move(clientSession, movePacket); }); //클라가 보낸 패킷을 이용해 이동 처리  
-        
     }
 
     public static void C_EatFoodHandler(PacketSession session, IPacket packet) //클라에게서 음식 먹었다고 옴
@@ -37,5 +36,14 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
 
         GameRoom room = clientSession.Room;
         room.Push(() => { room.EatFood(clientSession, eatPacket); });
+    }
+
+    public static void C_EatPlayerHandler(PacketSession session, IPacket packet)
+    {
+        C_EatPlayer eatPlayerPacket = packet as C_EatPlayer;    
+        ClientSession clientSession = session as ClientSession;
+
+        GameRoom room = clientSession.Room;
+        room.Push(() => { room.EatPlayer(clientSession, eatPlayerPacket); });   
     }
 }

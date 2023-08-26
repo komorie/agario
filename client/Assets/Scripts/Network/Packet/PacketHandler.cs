@@ -36,4 +36,10 @@ public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이
         S_BroadcastEatFood p = packet as S_BroadcastEatFood;
         RoomManager.Instance.EatFood(p);
     }
+
+    internal static void S_BroadcastEatPlayerHandler(PacketSession session, IPacket packet)
+    {
+        S_BroadcastEatPlayer p = packet as S_BroadcastEatPlayer;    
+        RoomManager.Instance.EatPlayer(p);  
+    }
 }

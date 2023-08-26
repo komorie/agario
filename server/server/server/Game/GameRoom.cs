@@ -11,7 +11,6 @@ namespace Server.Game
         List<Food> foodList = new List<Food>(); //방의 푸드 리스트
         
         JobQueue jobQueue = new JobQueue();
-        PosSimulatior PosSim = new PosSimulatior();
 /*        List<ArraySegment<byte>> pendingList = new List<ArraySegment<byte>>();*/
         Random rand = new Random();
         private object _lock = new object();
@@ -44,7 +43,8 @@ namespace Server.Game
                 PlayerId = session.SessionId,
                 PosX = rand.Next(-40, 40),
                 PosY = rand.Next(-40, 40),
-                PosZ = 0
+                PosZ = 0,
+                Radius = 1.5f //초기 반지름
             };
 
             session.MyPlayer = sp; //해당 세션의 플레이어를 방금 만든 플레이어로 설정
@@ -60,7 +60,8 @@ namespace Server.Game
                     playerId = s.MyPlayer.PlayerId,
                     posX = s.MyPlayer.PosX,
                     posY = s.MyPlayer.PosY,
-                    posZ = 0
+                    posZ = 0,
+                    radius = s.MyPlayer.Radius  
                 }); //리스트 만들기
             }
 
@@ -81,7 +82,7 @@ namespace Server.Game
                 playerId = sp.PlayerId,
                 posX = sp.PosX,
                 posY = sp.PosY,
-                posZ = 0
+                posZ = 0,
             }; //새로 들어온 애의 정보를 모든 플레이어에게 보내기  
             BroadCast(enterGame); //모든 클라에게 보내기
         }
@@ -126,9 +127,13 @@ namespace Server.Game
 
         public void EatFood(ClientSession session, C_EatFood eatPacket)
         {
+            Player sp = session.MyPlayer;
+            sp.Radius += 0.05f; //반지름 증가
+
             Food f = foodList[eatPacket.foodId];
 
             float newFoodX, newFoodY;
+
 
             //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
             do
@@ -151,13 +156,32 @@ namespace Server.Game
             BroadCast(eat); //모든 클라에게 보내기   
         }
 
+        public void EatPlayer(ClientSession clientSession, C_EatPlayer eatPlayerPacket) //얘가 누구 먹었대
+        {
+            S_BroadcastEatPlayer eatPlayer = new S_BroadcastEatPlayer();    
+            eatPlayer.predatorId = clientSession.MyPlayer.PlayerId; //먹은 애
+
+            for (int i = 0; i < Sessions.Count; i++)
+            {
+                if (Sessions[i].SessionId == eatPlayerPacket.preyId) //먹힌 애 찾아서
+                {
+                    eatPlayer.preyId = Sessions[i].SessionId; //먹힌 애
+                    clientSession.MyPlayer.Radius += (Sessions[i].MyPlayer.Radius / 2); //포식자 크기 증가
+                    Console.WriteLine("먹은 애 반지름 : " + clientSession.MyPlayer.Radius);
+                    break;
+                }
+            }
+
+            BroadCast(eatPlayer); //모든 클라에게 알리기
+        }
+
         //sessions를 돌면서, 플레이어의 좌표 posx, posy와 겹치는 위치인지 확인
         private bool OverlapWithPlayer(float x, float y)
         {
             foreach (var s in Sessions)
             {
                 float distance = (float)Math.Sqrt(Math.Pow(s.MyPlayer.PosX - x, 2) + Math.Pow(s.MyPlayer.PosY - y, 2));
-                if (distance < s.MyPlayer.Size)
+                if (distance < s.MyPlayer.Radius)
                 {
                     return true;  // 겹치는 플레이어 발견
                 }

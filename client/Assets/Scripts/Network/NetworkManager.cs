@@ -13,6 +13,11 @@ public class NetworkManager : GOSingleton<NetworkManager>
         session.Send(sendBuff);
     }   
 
+    public void Disconnect()
+    {
+        session.Disconnect();
+    }
+
     private void Awake()
     {
         string host = Dns.GetHostName();

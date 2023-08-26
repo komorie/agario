@@ -27,6 +27,7 @@
       <float name="posX"/>
       <float name="posY"/>
       <float name="posZ"/>
+      <float name="radius"/> <!--캐릭터 크기-->
     </list>
     <list name="food">
       <!--음식들 위치-->
@@ -66,5 +67,18 @@
     <int name="foodId"/>
     <float name="posX"/>
     <float name="posY"/>
+  </packet>
+  
+  <packet name="C_EatPlayer">
+    <!--제가 이 녀석 먹었음-->
+    <int name ="predatorId"/>
+    <int name ="preyId"/>
+  </packet>
+
+
+  <packet name="S_BroadcastEatPlayer">
+    <!--얘가 이 녀석 먹었다-->
+    <int name ="predatorId"/>
+    <int name ="preyId"/>
   </packet>
 </PDL>
