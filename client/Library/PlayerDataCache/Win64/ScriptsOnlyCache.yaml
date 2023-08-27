@@ -127,9 +127,9 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 6812}
     - Class: 114
-      Script: {instanceID: 7550}
+      Script: {instanceID: 7166}
     - Class: 114
-      Script: {instanceID: 26674}
+      Script: {instanceID: 7552}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 157
@@ -912,7 +912,7 @@ ScriptsOnlyBuild:
     className: ConfirmUI
   - hash:
       serializedVersion: 2
-      Hash: 9e10c08f85d6122a1ae0d3196fa7c26c
+      Hash: 48433d6167455bc7983f75789e78b161
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Myplayer
@@ -1069,6 +1069,12 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: GameScene
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
     assemblyName: UnityEngine.TestRunner.dll
     namespaceName: UnityEngine.TestTools.TestRunner.Callbacks
     className: RemoteTestResultSender
@@ -1216,12 +1222,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.VisualScripting.Core.dll
     namespaceName: Unity.VisualScripting
     className: UnityOnSliderValueChangedMessageListener
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: GameScene
   platform: 19
   scenePathNames:
   - Assets/Scenes/TitleScene.unity

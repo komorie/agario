@@ -32,7 +32,6 @@ namespace Server.Session
                 room.Push(() => { room.Leave(this); });
                 Room = null;
             }
-            Console.WriteLine($"Disconnect: {endPoint}");
         }
 
         public override void OnRecvPacket(ArraySegment<byte> buffer)

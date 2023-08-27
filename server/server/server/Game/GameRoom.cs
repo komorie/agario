@@ -36,8 +36,6 @@ namespace Server.Game
             DateTime now = DateTime.UtcNow;
             currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
 
-            Console.WriteLine("GameRoom Created");  
-
             Simulate();
         }
 
@@ -95,7 +93,7 @@ namespace Server.Game
             };
 
             session.MyPlayer = sp; //해당 세션의 플레이어를 방금 만든 플레이어로 설정
-            Console.WriteLine($"Player {sp.PlayerId} Enter GameRoom"); //로그 출력
+            Console.WriteLine($"Player {sp.PlayerId}: X: {sp.PosX}, Y:{sp.PosY}, Z:{sp.PosZ}"); //로그 출력
 
 
             //들어온 플레이어에게, (새로 들어온 플레이어 정보까지 갱신된) 모든 플레이어 리스트를 보내준다
@@ -141,10 +139,12 @@ namespace Server.Game
             //모든 클라에게 알리기
             S_BroadcastLeaveGame leaveGame = new S_BroadcastLeaveGame();
             leaveGame.playerId = session.SessionId;
+            Console.WriteLine($"Player {session.SessionId} Leaved"); //로그 출력
 
             Sessions.Remove(session);
             session.Room = null;
             session.MyPlayer = null;
+
 
             BroadCast(leaveGame);
         }
@@ -174,6 +174,8 @@ namespace Server.Game
             move.posZ = sp.PosZ;
             move.time = movePacket.time;
 
+            Console.WriteLine($"Player {sp.PlayerId} Move to DirX: {sp.DirX}, DirY: {sp.DirY}"); //로그 출력
+
             BroadCast(move);
         }
 
@@ -185,7 +187,6 @@ namespace Server.Game
             Food f = foodList[eatPacket.foodId];
 
             float newFoodX, newFoodY;
-
 
             //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
             do
@@ -205,6 +206,8 @@ namespace Server.Game
             eat.posX = f.posX;
             eat.posY = f.posY; //음식 위치 이동
 
+            Console.WriteLine($"Player {sp.PlayerId}: Eat Food"); //로그 출력
+
             BroadCast(eat); //모든 클라에게 보내기   
         }
 
@@ -219,7 +222,7 @@ namespace Server.Game
                 {
                     eatPlayer.preyId = Sessions[i].SessionId; //먹힌 애
                     clientSession.MyPlayer.Radius += (Sessions[i].MyPlayer.Radius / 2); //포식자 크기 증가
-                    Console.WriteLine("먹은 애 반지름 : " + clientSession.MyPlayer.Radius);
+                    Console.WriteLine($"Player {eatPlayer.predatorId} killed Player {eatPlayer.preyId}");
                     break;
                 }
             }
