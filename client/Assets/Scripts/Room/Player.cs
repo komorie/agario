@@ -48,12 +48,12 @@ public class Player : MonoBehaviour
             float currentDistance = Vector3.Distance(transform.position, TargetPosition); //상대 클라가 서버로 보낸 위치(+예측 들어간 위치)와 그전까지 내 클라가 추측해서 이동시킨 위치의 거리 비교
 
 
-/*            if(currentDistance > 10f) //오차가 너무 크면 그냥 그 위치로 이동
+/*            if (currentDistance > 10f) //오차가 너무 크면 그냥 그 위치로 이동
             {
                 transform.position = TargetPosition;
                 IsLerping = false;
                 return;
-            }   */
+            }*/
 
             Vector3 newDes = Vector3.Lerp(transform.position, TargetPosition, 0.5f);   //상대의 현재 추정 위치로 이동하되, 선형 보간법을 사용해 현재 위치와 목표 위치의 중간 위치 지정
 
@@ -61,7 +61,7 @@ public class Player : MonoBehaviour
 
             TargetPosition += new Vector3(MoveVector.x, MoveVector.y, 0) * Speed * Time.deltaTime; //일단 상대 클라의 다음 프레임 추정 위치 예측
 
-            if (currentDistance < 0.01f) //거의 일치하는 시점에서 움직임 정지
+            if (currentDistance < 0.5f) //거의 일치하는 시점에서 움직임 정지
             {
                 IsLerping = false;  
             }   

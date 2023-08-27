@@ -23,6 +23,7 @@ namespace Server
 
             while (true)
             {
+                JobTimer.Instance.Flush(); //타이머 계속 체크
             }
 
         }

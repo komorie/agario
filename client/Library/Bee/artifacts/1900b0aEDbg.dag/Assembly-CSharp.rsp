@@ -361,6 +361,9 @@
 "Assets/Scripts/Room/Myplayer.cs"
 "Assets/Scripts/Room/Player.cs"
 "Assets/Scripts/Room/RoomManager.cs"
+"Assets/Scripts/UI/ConfirmUI.cs"
+"Assets/Scripts/UI/TextButton.cs"
+"Assets/Scripts/UI/TitleUI.cs"
 "Assets/Scripts/Util/GOSingleton.cs"
 "Assets/Scripts/Util/Singleton.cs"
 -langversion:9.0

@@ -16,8 +16,6 @@ public abstract class GOSingleton<T> : MonoBehaviour where T : Component
     public static T Instance {
         get
         {
-            if (isDestroyed) return null;
-
             if (instance == null)
             {
                 // 현재 씬에 싱글톤이 있나 찾아본다. 
@@ -45,9 +43,9 @@ public abstract class GOSingleton<T> : MonoBehaviour where T : Component
         }
     }
 
-    public static bool isDestroyed = false; //객체 파괴 이벤트로 싱글톤에 접근하는 경우가 있음 -> 이러면 유니티 에디터에서 종료 시 싱글톤 객체 파괴 후 다시 생성하는 오류 발생함
+/*    public static bool isDestroyed = false; //객체 파괴 이벤트로 싱글톤에 접근하는 경우가 있음 -> 이러면 유니티 에디터에서 종료 시 싱글톤 객체 파괴 후 다시 생성하는 오류 발생함
     public virtual void OnDestroy()
     {
         isDestroyed = true;
-    }
+    }*/
 }

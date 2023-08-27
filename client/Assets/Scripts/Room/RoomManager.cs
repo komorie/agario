@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using static S_RoomList;
+using UnityEngine.SceneManagement;
 
 public class RoomManager : GOSingleton<RoomManager>   
 {
@@ -14,12 +12,14 @@ public class RoomManager : GOSingleton<RoomManager>
     GameObject playerPrefab;
     GameObject myPlayerPrefab;
     GameObject foodPrefab;
+    GameObject ConfirmUI;
 
     private void Awake()
     {
         playerPrefab = Resources.Load<GameObject>("Prefabs/Player");    
         myPlayerPrefab = Resources.Load<GameObject>("Prefabs/MyPlayer");
         foodPrefab = Resources.Load<GameObject>("Prefabs/Food");
+        ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
     }
 
     public void InitRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
@@ -80,6 +80,10 @@ public class RoomManager : GOSingleton<RoomManager>
 
     public void Move(S_BroadcastMove p)
     {
+
+        if (myPlayer == null) return;
+
+
         //다른 플레이어인 경우 온 패킷대로 위치 조정, 나인 경우는 무시
         if (myPlayer.PlayerId != p.playerId)
         {
@@ -106,21 +110,16 @@ public class RoomManager : GOSingleton<RoomManager>
         }
     }
 
-    public void LeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료했다는 패킷이 왔을 때
+    public void LeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
     {
-        if(myPlayer.PlayerId == p.playerId)
-        {
-            Destroy(myPlayer.gameObject);
-            myPlayer = null;
-        }
-        else
+        if(myPlayer.PlayerId != p.playerId) //다른 사람이 종료한 경우
         {
             Player player;
-            if(Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
+            if (Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
             {
                 Destroy(player.gameObject);
                 Players.Remove(p.playerId);
-            }       
+            }
         }
     }
 
@@ -152,11 +151,31 @@ public class RoomManager : GOSingleton<RoomManager>
 
         if (p.preyId == myPlayer.PlayerId) //내가 먹힌거면? 나 죽음
         {
+            //방 오브젝트 전부 파괴
             Destroy(myPlayer.gameObject);
             myPlayer = null;
-            Players = null;
-            Foods = null;
-            NetworkManager.Instance.Disconnect(); //초기화하고 접속 끊기
+
+            foreach (var player in Players.Values)
+            {
+                Destroy(player.gameObject);
+            }
+            Players.Clear();
+
+            foreach (var food in Foods.Values)
+            {
+                Destroy(food.gameObject);
+            }
+            Foods.Clear();
+
+            NetworkManager.Instance.Disconnect(); //접속 끊기
+            ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
+            gameOverUI.Init
+                (
+                    "게임 오버", 
+                    () => { 
+                        SceneManager.LoadScene("TitleScene"); 
+                    }
+                );
             return;
         }
 
@@ -169,6 +188,29 @@ public class RoomManager : GOSingleton<RoomManager>
                 Players.Remove(p.preyId); //먹힌 플레이어 딕셔너리에서 삭제
                 Destroy(prey.gameObject); //먹힌 플레이어 오브젝트 삭제
             }
+        }
+
+        if(Players.Count == 0) //나말고 다 죽었다
+        {
+            //방 오브젝트 전부 파괴
+            Destroy(myPlayer.gameObject);
+            myPlayer = null;
+
+            foreach (var player in Players.Values)
+            {
+                Destroy(player.gameObject);
+            }
+            Players.Clear();
+
+            foreach (var food in Foods.Values)
+            {
+                Destroy(food.gameObject);
+            }
+            Foods.Clear();
+
+            NetworkManager.Instance.Disconnect(); //접속 끊기
+            ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>();
+            gameOverUI.Init("게임 승리", () => { SceneManager.LoadScene("TitleScene"); }); //승리 UI
         }
 
     }    

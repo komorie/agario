@@ -1,4 +1,4 @@
-﻿/*using Server.Session;
+﻿using Server.Session;
 using System.Numerics;
 
 
@@ -23,7 +23,7 @@ namespace Server.Game
 
         public void Update()
         {
-            
+
             float currentTime = (float)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
             float elapsedTime = currentTime - lastReceivedTime;
 
@@ -43,4 +43,3 @@ namespace Server.Game
         }
     }
 }
-*/

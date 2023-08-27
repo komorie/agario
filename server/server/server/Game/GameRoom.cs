@@ -6,6 +6,12 @@ namespace Server.Game
 {
     public class GameRoom : IJobQueue //게임 방
     {
+
+        private int playerSpeed = 20;
+        private float roomSizeX = 50;
+        private float roomSizeY = 50;
+        private float currentSecond;
+
         List<ClientSession> Sessions { get; set; } = new List<ClientSession>();
 
         List<Food> foodList = new List<Food>(); //방의 푸드 리스트
@@ -26,7 +32,48 @@ namespace Server.Game
                     posY = (float)(rand.NextDouble() * 90 - 45)
                 });
             }
+
+            DateTime now = DateTime.UtcNow;
+            currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
+
+            Simulate();
         }
+
+        public void Simulate()
+        {
+            Push(SimulatePlayersPosition); //SimulatePlayersPosition 함수를 호출하도록 jobQueue에 넣음
+            JobTimer.Instance.Push(Simulate, 100); //100ms 뒤에 Simulate 또 호출 -> 이렇게 하면 1초에 10번 플레이어 위치 계산
+        }
+
+        public void SimulatePlayersPosition() //함수가 호출되는 시점에서, 현재 방에 있는 플레이어들의 위치를 흐른 시간 time에 비례해, dir 방향으로 pos를 업데이트해야 함. 1초당 이동 속도는 Speed
+        {
+            DateTime now = DateTime.UtcNow;
+            float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
+            float deltaTime = currentSecond - this.currentSecond;   
+
+            foreach (ClientSession s in Sessions)
+            {
+                Player p = s.MyPlayer;
+                p.PosX += p.DirX * playerSpeed * deltaTime; //위치를 방향 * 속력 * 흐른 시간만큼 이동 
+                p.PosY += p.DirY * playerSpeed * deltaTime;
+
+                //방의 범위를 넘어가려고 하면, 다시 방 안으로 넣어준다
+                if (p.PosX < -roomSizeX + p.Radius)
+                    p.PosX = -roomSizeX + p.Radius;
+                else if (p.PosX > roomSizeX - p.Radius)
+                    p.PosX = roomSizeX - p.Radius;
+
+                if (p.PosY < -roomSizeY + p.Radius)
+                    p.PosY = -roomSizeY + p.Radius;
+                else if (p.PosY > roomSizeY - p.Radius)
+                    p.PosY = roomSizeY - p.Radius;
+
+                Console.WriteLine($"Player {p.PlayerId} PosX: {p.PosX} PosY: {p.PosY}");
+            }
+
+            this.currentSecond = currentSecond;
+        }   
+
 
         public void Push(Action job)
         {
@@ -103,6 +150,9 @@ namespace Server.Game
         public void Move(ClientSession session, C_Move movePacket) //얘 움직인다
         {
             Player sp = session.MyPlayer;
+
+
+            //기본적으로 플레이어가 보낸 위치로 서버에서 플레이어 좌표 변경하되, 서버에 저장된 좌표와 너무 차이가 크면 무시한다 -> 해당 플레이어를 서버에 저장된 좌표로 강제 이동
 
             //해당하는 플레이어 좌표 변경
             sp.DirX = movePacket.dirX;
