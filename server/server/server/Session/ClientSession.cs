@@ -17,6 +17,8 @@ namespace Server.Session
 
         public override void OnConnected(EndPoint endPoint)
         {
+            Console.WriteLine($"OnConnected : {endPoint}"); 
+
             //방에 추가
             Server.gameRoom.Push(() => { Server.gameRoom.Enter(this); });
             Thread.Sleep(1000);
