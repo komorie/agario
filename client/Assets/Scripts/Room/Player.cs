@@ -81,7 +81,7 @@ public class Player : MonoBehaviour
     {
         foreach (Collider col in touchingColliders)
         {
-            //충돌 지점에서 현재 오브젝트의 벡터를 뺀 -> 충돌 지점의 벽과 수직이 되는 방향 벡터를 가져옵니다.
+            //충돌 지점에서 현재 오브젝트의 벡터를 뺀 -> 충돌 지점의 벽과 수직이 되는 방향 벡c터를 가져옵니다.
             Vector3 wallNormal = transform.position - col.ClosestPoint(transform.position);
             wallNormal.Normalize();
             Vector2 wallNormal2D = new Vector2(wallNormal.x, wallNormal.y);
