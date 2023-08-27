@@ -17,16 +17,15 @@ public class NetworkManager : GOSingleton<NetworkManager>
 
     public void Connect()
     {
-        connector.Connect(endPoint, () => { 
-            session = new ServerSession();  
-            return session; 
+        connector.Connect(endPoint, () => {
+            session = new ServerSession();
+            return session;
         }, 1); //서버에 연결 요청, 성공 시 Session 생성
     }
 
     public void Disconnect()
     {
         session.Disconnect();
-        session = null;
     }
 
     private void Awake()
@@ -35,7 +34,6 @@ public class NetworkManager : GOSingleton<NetworkManager>
         IPHostEntry ipHost = Dns.GetHostEntry(host);
         IPAddress iPAddr = IPAddress.Parse("fe80::e090:d9bc:4ae7:9a9d%16");
         endPoint = new IPEndPoint(iPAddr, 777); //현재 호스트의 IP주소와 포트 번호 가져오기
-
     }
 
 
@@ -54,7 +52,7 @@ public class NetworkManager : GOSingleton<NetworkManager>
 
     private void OnApplicationQuit()
     {
-/*        session.Disconnect();*/
+        session.Disconnect();
     }
 
     // 일정 주기마다 지속적으로 호출

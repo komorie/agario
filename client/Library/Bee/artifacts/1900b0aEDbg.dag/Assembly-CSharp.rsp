@@ -347,6 +347,7 @@
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.UI.ref.dll"
+"Assets/Scripts/GameScene.cs"
 "Assets/Scripts/Network/Core/Connecter.cs"
 "Assets/Scripts/Network/Core/RecvBuffer.cs"
 "Assets/Scripts/Network/Core/SendBuffer.cs"

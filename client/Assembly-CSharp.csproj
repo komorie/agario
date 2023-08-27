@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Network\Packet\PacketHandler.cs" />
+    <Compile Include="Assets\Scripts\UI\TitleUI.cs" />
     <Compile Include="Assets\Scripts\Network\Packet\ClientPacketManager.cs" />
     <Compile Include="Assets\Scripts\Network\Core\Session.cs" />
     <Compile Include="Assets\Scripts\Util\Singleton.cs" />
@@ -65,6 +66,8 @@
     <Compile Include="Assets\Scripts\Room\Food.cs" />
     <Compile Include="Assets\Scripts\Network\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Network\Core\SendBuffer.cs" />
+    <Compile Include="Assets\Scripts\UI\TextButton.cs" />
+    <Compile Include="Assets\Scripts\UI\ConfirmUI.cs" />
     <Compile Include="Assets\Scripts\Room\Myplayer.cs" />
     <Compile Include="Assets\Scripts\Util\GOSingleton.cs" />
     <Compile Include="Assets\Scripts\Network\Packet\GenPackets.cs" />
@@ -72,9 +75,7 @@
     <Compile Include="Assets\Scripts\Network\Core\Connecter.cs" />
     <Compile Include="Assets\Scripts\Room\RoomManager.cs" />
     <Compile Include="Assets\Scripts\Network\Packet\PacketQueue.cs" />
-    <Compile Include="Assets\Scripts\UI\ConfirmUI.cs" />
-    <Compile Include="Assets\Scripts\UI\TitleUI.cs" />
-    <Compile Include="Assets\Scripts\UI\TextButton.cs" />
+    <Compile Include="Assets\Scripts\GameScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

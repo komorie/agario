@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class RoomManager : GOSingleton<RoomManager>   
 {
     Myplayer myPlayer;
+    NetworkManager network;
     public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
     public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>(); 
 
@@ -20,10 +21,12 @@ public class RoomManager : GOSingleton<RoomManager>
         myPlayerPrefab = Resources.Load<GameObject>("Prefabs/MyPlayer");
         foodPrefab = Resources.Load<GameObject>("Prefabs/Food");
         ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
+        network = NetworkManager.Instance;
     }
 
     public void InitRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
     {
+
         foreach (S_RoomList.Player p in packet.players)
         {
             if(p.isSelf) //내 플레이어인 경우 플레이어 아이디와 초기 위치 받아오고, 나머지는 그냥 초기화
@@ -59,23 +62,51 @@ public class RoomManager : GOSingleton<RoomManager>
             food.transform.position = new Vector3(packet.foods[f].posX, packet.foods[f].posY, 0);
             Foods.Add(f, food);
         }
+
+        if (packet.players.Count < 2) //내가 첫번째로 접속한 경우면 실행 불가
+        {
+            //confirmUI를 띄워서 매칭 중이라고 표시하고 다른 플레이어 대기
+            GameObject go = Instantiate(Resources.Load<GameObject>("Prefabs/ConfirmUI"));
+            go.name = "MatchUI";
+            ConfirmUI confirmUI = go.GetComponent<ConfirmUI>();
+            confirmUI.Init(
+                "매칭 중입니다.",
+                "취소하기",
+                () => {
+                    Destroy(go);
+                    myPlayer = null;
+                    Players.Clear();
+                    Foods.Clear();
+                    network.Disconnect();
+                    SceneManager.LoadScene("TitleScene"); //취소하면 연결 끊고 전부 초기화, 타이틀로 돌아가기
+                }
+            );
+            myPlayer.moveAction.Disable(); //매칭 중에는 움직이지 못하게
+        }
     }
 
     public void EnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다! 라는 패킷을 받는 경우 -> 일단 MyPlayer일리는 없음(고려 안함)
     {
-        if(p.playerId == myPlayer.PlayerId) //내가 들어왔다는 알림인 경우
+        if(p.playerId != myPlayer.PlayerId) //내가 들어왔다는 알림이 아닌 경우
         {
-            return;
+            GameObject go = Instantiate(playerPrefab);
+
+            Player player = go.AddComponent<Player>(); //새 플레이어 추가
+            player.PlayerId = p.playerId;
+            player.Radius = 1.5f; //초기값 
+            player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
+            Players.Add(p.playerId, player);
+
+            if(Players.Count == 1) //매칭 대기중인 상황에서 누가 들어옴
+            {
+                GameObject matchUI = GameObject.Find("MatchUI");
+                if (matchUI != null)
+                {
+                    Destroy(matchUI); //대기 UI 삭제
+                    myPlayer.moveAction.Enable(); //움직일 수 있게    
+                }
+            }
         }   
-
-        GameObject go = Instantiate(playerPrefab);  
-
-        Player player = go.AddComponent<Player>(); //새 플레이어 추가
-        player.PlayerId = p.playerId;
-        player.Radius = 1.5f; //초기값 
-        player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
-        Players.Add(p.playerId, player);
-
     }
 
     public void Move(S_BroadcastMove p)
@@ -112,6 +143,8 @@ public class RoomManager : GOSingleton<RoomManager>
 
     public void LeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
     {
+        if(myPlayer == null) return;
+
         if(myPlayer.PlayerId != p.playerId) //다른 사람이 종료한 경우
         {
             Player player;
@@ -167,11 +200,12 @@ public class RoomManager : GOSingleton<RoomManager>
             }
             Foods.Clear();
 
-            NetworkManager.Instance.Disconnect(); //접속 끊기
+            network.Disconnect(); //접속 끊기
             ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
             gameOverUI.Init
                 (
                     "게임 오버", 
+                    "타이틀로",
                     () => { 
                         SceneManager.LoadScene("TitleScene"); 
                     }
@@ -208,9 +242,9 @@ public class RoomManager : GOSingleton<RoomManager>
             }
             Foods.Clear();
 
-            NetworkManager.Instance.Disconnect(); //접속 끊기
+            network.Disconnect(); //접속 끊기
             ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>();
-            gameOverUI.Init("게임 승리", () => { SceneManager.LoadScene("TitleScene"); }); //승리 UI
+            gameOverUI.Init("게임 승리", "타이틀로", () => { SceneManager.LoadScene("TitleScene"); }); //승리 UI
         }
 
     }    

@@ -36,6 +36,8 @@ namespace Server.Game
             DateTime now = DateTime.UtcNow;
             currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
 
+            Console.WriteLine("GameRoom Created");  
+
             Simulate();
         }
 
@@ -67,8 +69,6 @@ namespace Server.Game
                     p.PosY = -roomSizeY + p.Radius;
                 else if (p.PosY > roomSizeY - p.Radius)
                     p.PosY = roomSizeY - p.Radius;
-
-                Console.WriteLine($"Player {p.PlayerId} PosX: {p.PosX} PosY: {p.PosY}");
             }
 
             this.currentSecond = currentSecond;
@@ -95,9 +95,11 @@ namespace Server.Game
             };
 
             session.MyPlayer = sp; //해당 세션의 플레이어를 방금 만든 플레이어로 설정
+            Console.WriteLine($"Player {sp.PlayerId} Enter GameRoom"); //로그 출력
+
 
             //들어온 플레이어에게, (새로 들어온 플레이어 정보까지 갱신된) 모든 플레이어 리스트를 보내준다
-            S_RoomList roomList = new S_RoomList();
+             S_RoomList roomList = new S_RoomList();
 
             foreach (ClientSession s in Sessions)
             {
