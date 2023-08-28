@@ -85,7 +85,7 @@ public class RoomManager : GOSingleton<RoomManager>
         }
     }
 
-    public void EnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다! 라는 패킷을 받는 경우 -> 일단 MyPlayer일리는 없음(고려 안함)
+    public void EnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우 -> 일단 MyPlayer일리는 없음(고려 안함)
     {
         if(p.playerId != myPlayer.PlayerId) //내가 들어왔다는 알림이 아닌 경우
         {
@@ -134,9 +134,7 @@ public class RoomManager : GOSingleton<RoomManager>
                 //다른 플레이어의 실제 위치 예측
                 //Myplayer는 프레임당 dir * Speed * Time.deltaTime 만큼 더한 위치로 이동하며 Time.deltaTime은 프레임당 흐른 시간초이다. 즉 dir * Speed는 1초당 이동한 속도가 된다. 즉 1초당 이동거리가 20
                 //그럼 dir * Speed * RTT는 RTT초 만큼 이동한 위치이다. 서버에서 온 위치 + dir * Speed * RTT 가 상대의 현재 위치라고 가정하고, 내 클라에서 돌린 위치랑 보간을 실시
-                float currentDistance = Vector3.Distance(player.transform.position, player.TargetPosition); //상대 클라가 서버로 보낸 위치와 내 클라가 추측해서 이동시킨 위치의 거리 비교
-/*                Debug.Log($"{RTT}초동안 이동한 거리: {p.dirY * player.Speed * RTT}");  */ 
-                player.IsLerping = true; //이제 보간 시작
+                player.IsLerping = true; 
             }
         }
     }
@@ -156,7 +154,7 @@ public class RoomManager : GOSingleton<RoomManager>
         }
     }
 
-    public void EatFood(S_BroadcastEatFood p) //누가 음식 먹었대
+    public void EatFood(S_BroadcastEatFood p) //음식 먹었다는 패킷 받음
     {
         if(p.playerId != myPlayer.PlayerId) //먹은 플레이어 크기 올리기
         {
@@ -182,7 +180,7 @@ public class RoomManager : GOSingleton<RoomManager>
         Player prey;
         Player predator;
 
-        if (p.preyId == myPlayer.PlayerId) //내가 먹힌거면? 나 죽음
+        if (p.preyId == myPlayer.PlayerId) //내가 먹힌거면
         {
             //방 오브젝트 전부 파괴
             Destroy(myPlayer.gameObject);
@@ -224,7 +222,7 @@ public class RoomManager : GOSingleton<RoomManager>
             }
         }
 
-        if(Players.Count == 0) //나말고 다 죽었다
+        if(Players.Count == 0) //나말고 다 죽은 경우
         {
             //방 오브젝트 전부 파괴
             Destroy(myPlayer.gameObject);

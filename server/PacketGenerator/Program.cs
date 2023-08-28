@@ -71,7 +71,7 @@ namespace PacketGenerator
             }
 
             Tuple<string, string, string> t = ParseMembers(r); //패킷 변수, Read함수, Write함수 포맷 만들어서 리턴
-            genPackets += string.Format(OurPacketFormat.packetFormat, packetName, t.Item1, t.Item2, t.Item3); //세마리 모아서 엑조디아 패킷 만들기
+            genPackets += string.Format(OurPacketFormat.packetFormat, packetName, t.Item1, t.Item2, t.Item3); 
             packetEnums += string.Format(OurPacketFormat.packetEnumFormat, packetName, ++packetId) + Environment.NewLine + "\t"; //Enum에 패킷이름 집어넣기
             
             //패킷 매니저 포맷에 Enum에 패킷이름 집어넣고, newline, tap 2번 넣기 (패킷 이름에 따라 어느쪽에 들어갈 지 구분)

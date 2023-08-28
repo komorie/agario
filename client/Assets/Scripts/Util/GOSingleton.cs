@@ -21,7 +21,7 @@ public abstract class GOSingleton<T> : MonoBehaviour where T : Component
                 // 현재 씬에 싱글톤이 있나 찾아본다. 
                 instance = FindObjectOfType<T>();
 
-                // 또 체크 (이렇게 안 하니까 가끔씩 오류나는데 이유를 모르겠음)
+                // 또 체크
                 if (instance == null)
                 {
                     string componentName = typeof(T).ToString();

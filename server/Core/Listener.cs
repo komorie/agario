@@ -46,7 +46,7 @@ namespace Core
             {
                 Session session = sessionFactory.Invoke();
                 
-                session.Start(args.AcceptSocket); //해당 클라이언트와의 통신 소켓으로 세션 시작~
+                session.Start(args.AcceptSocket); //해당 클라이언트와의 통신 소켓으로 세션 시작
                  session.OnConnected(args.AcceptSocket.RemoteEndPoint);
             }
 

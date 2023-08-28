@@ -57,7 +57,7 @@ public class Player : MonoBehaviour
 
             Vector3 newDes = Vector3.Lerp(transform.position, TargetPosition, 0.5f);   //상대의 현재 추정 위치로 이동하되, 선형 보간법을 사용해 현재 위치와 목표 위치의 중간 위치 지정
 
-            transform.position = Vector3.MoveTowards(transform.position, newDes, (Speed + currentDistance) * Time.deltaTime ); //거리 차이만큼의 가산점을 더해 최대 속도로 해서 부드럽게 동기화.. 아직 더 고급지게는 못하겠다
+            transform.position = Vector3.MoveTowards(transform.position, newDes, (Speed + currentDistance) * Time.deltaTime ); //거리 차이만큼의 가산점을 더해 최대 속도로 해서 부드럽게 동기화. 아직 더 정교하게는 못하겠다.
 
             TargetPosition += new Vector3(MoveVector.x, MoveVector.y, 0) * Speed * Time.deltaTime; //일단 상대 클라의 다음 프레임 추정 위치 예측
 
@@ -74,7 +74,7 @@ public class Player : MonoBehaviour
 
 
     //벽에 닿은 상태에서 움직일때, 충돌지점을 계산해 이동 벡터를 조정해주는 함수
-    //타 플레이어 캐릭터의 경우는 처음 벽에 닿을 때만 하면 될 듯. 어차피 다른 플레이어도 이동 패킷 보내기 전에 계산하고 이동하기 때문에...
+    //타 플레이어 캐릭터의 경우는 처음 벽에 닿을 때만 하면 될 듯. 어차피 다른 플레이어도 이동 패킷 보내기 전에 계산하고 이동하기 때문에
     //자기 플레이어 캐릭터인 경우는 벽에 닿을 때, 이동 방향이 바뀔때마다 호출해줘야 하고, 벽에서 벗어날 때는 원래 이동 방향으로 되돌려줘야 함
 
     protected void MoveAttachedOnWall()
@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
 
             if (dot < 0)
             {
-                MoveVector -= wallNormal2D * dot; //이동벡터에서 정사영의 크기만한 법선벡터만큼 추가로 이동 -> 벽을 향해 가는 요소(?) 제거
+                MoveVector -= wallNormal2D * dot; //이동벡터에서 정사영의 크기만한 법선벡터만큼 추가로 이동 -> 벽을 향해 가는 성분 제거
             }
         }
     }

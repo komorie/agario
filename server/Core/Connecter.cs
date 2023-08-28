@@ -23,7 +23,7 @@ namespace Core
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                 args.Completed += OnConnectCompleted;
                 args.RemoteEndPoint = endPoint;  //상대방 주소 넣고
-                args.UserToken = socket; //이 소켓이 연결을 한다고.. 유저토큰으로 전달
+                args.UserToken = socket; //이 소켓이 연결을 한다고 유저토큰으로 전달
 
                 RegisterConnect(args);
             }

@@ -46,7 +46,7 @@ public class Myplayer : Player
         { 
             transform.localScale += 0.1f * Vector3.one;  // 크기를 0.1만큼 증가
             Radius = transform.localScale.x * 0.5f; //반지름도 증가  
-            SendEatPacket(food.FoodId); //나 먹었소
+            SendEatPacket(food.FoodId);
             food.gameObject.SetActive(false); //먹은 음식은 비활성화
         }
 
@@ -101,14 +101,14 @@ public class Myplayer : Player
 
 
     //이 방법의 문제점이 평범한 플레이 방식이면 주기적으로 보내는 것보다 패킷을 덜 보낼 수도 있지만
-    //키보드를 일부러 연타하거나 하면 패킷을 엄청나게 많이 보내고 받게 될텐데... 그것에 관한 처리는 나중에 서버에 대한 배움이 깊어지면 생각해 보자
-    //아직 동기화의 방식이 실제로 이런식으로 수행되는게 맞는지도 제대로 모르기 때문에...
+    //키보드를 일부러 연타하거나 하면 패킷을 엄청나게 많이 보내고 받게 될텐데, 그것에 관한 처리는 나중에 서버에 대한 배움이 깊어지면 생각해 보자
+    //아직 동기화의 방식이 실제로 이런식으로 수행되는게 맞는지도 제대로 모르기 때문
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
         inputVector = context.ReadValue<Vector2>(); 
 
         //moveVector에 context에서 vector2값 가져오기
-        if (isMoving == false || MoveVector != context.ReadValue<Vector2>()) //이동방향 달라지면 나 이동했어요  
+        if (isMoving == false || MoveVector != context.ReadValue<Vector2>()) //이동방향 달라지면 
         {
             MoveVector = context.ReadValue<Vector2>();
             isMoving = true;
