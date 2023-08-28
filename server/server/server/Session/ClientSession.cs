@@ -20,7 +20,7 @@ namespace Server.Session
             Console.WriteLine($"OnConnected : {endPoint}"); 
 
             //방에 추가
-            Server.gameRoom.Push(() => { Server.gameRoom.Enter(this); });
+            Program.gameRoom.Push(() => { Program.gameRoom.Enter(this); });
             Thread.Sleep(1000);
         }
 
