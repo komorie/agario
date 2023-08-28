@@ -21,7 +21,7 @@ namespace Core
                 Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp); //TCP 소켓 생성
 
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-                args.Completed += OnConnectColmpleted;
+                args.Completed += OnConnectCompleted;
                 args.RemoteEndPoint = endPoint;  //상대방 주소 넣고
                 args.UserToken = socket; //이 소켓이 연결을 한다고.. 유저토큰으로 전달
 
@@ -38,11 +38,11 @@ namespace Core
             bool pending = socket.ConnectAsync(args);
             if (!pending)
             { 
-                OnConnectColmpleted(null, args); 
+                OnConnectCompleted(null, args); 
             }
         }
 
-        private void OnConnectColmpleted(object? sender, SocketAsyncEventArgs args)
+        private void OnConnectCompleted(object? sender, SocketAsyncEventArgs args)
         {
             if(args.SocketError == SocketError.Success)
             {
