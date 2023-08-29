@@ -1,0 +1,6 @@
+D:\projects\Unity\agario\server\server\server\bin\Release\net6.0\publish\Server.exe
+D:\projects\Unity\agario\server\server\server\bin\Release\net6.0\publish\Server.dll
+D:\projects\Unity\agario\server\server\server\bin\Release\net6.0\publish\Server.deps.json
+D:\projects\Unity\agario\server\server\server\bin\Release\net6.0\publish\Server.runtimeconfig.json
+D:\projects\Unity\agario\server\server\server\bin\Release\net6.0\publish\Core.dll
+D:\projects\Unity\agario\server\server\server\bin\Release\net6.0\publish\Core.pdb
