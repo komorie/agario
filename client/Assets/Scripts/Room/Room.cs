@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static S_RoomList;
 
 public class Room : GOSingleton<Room>   
 {
@@ -85,7 +86,7 @@ public class Room : GOSingleton<Room>
         }
     }
 
-    public void EnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우 -> 일단 MyPlayer일리는 없음(고려 안함)
+    public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우 -> 일단 MyPlayer일리는 없음(고려 안함)
     {
         if(p.playerId != myPlayer.PlayerId) //내가 들어왔다는 알림이 아닌 경우
         {
@@ -109,7 +110,7 @@ public class Room : GOSingleton<Room>
         }   
     }
 
-    public void Move(S_BroadcastMove p)
+    public void RecvMove(S_BroadcastMove p)
     {
 
         if (myPlayer == null) return;
@@ -139,7 +140,7 @@ public class Room : GOSingleton<Room>
         }
     }
 
-    public void LeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
+    public void RecvLeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
     {
         if(myPlayer == null) return;
 
@@ -154,7 +155,7 @@ public class Room : GOSingleton<Room>
         }
     }
 
-    public void EatFood(S_BroadcastEatFood p) //음식 먹었다는 패킷 받음
+    public void RecvEatFood(S_BroadcastEatFood p) //음식 먹었다는 패킷 받음
     {
         if(p.playerId != myPlayer.PlayerId) //먹은 플레이어 크기 올리기
         {
@@ -164,18 +165,18 @@ public class Room : GOSingleton<Room>
                 player.transform.localScale += 0.1f * Vector3.one;
                 player.Radius = player.transform.localScale.x * 0.5f;
             }
-        }   
+        }
+        else
+        {
+            myPlayer.transform.localScale += 0.1f * Vector3.one;
+            myPlayer.Radius = myPlayer.transform.localScale.x * 0.5f;
+        }
 
         Food food = Foods[p.foodId];
         food.transform.position = new Vector3(p.posX, p.posY, 0); //먹은 음식 새로운 위치로 스폰
-
-        if(p.playerId == myPlayer.PlayerId)
-        {
-            food.gameObject.SetActive(true); //내가 먹었던 음식이면 비활성화되어있을 것이므로 재활성화
-        }
     }
 
-    public void EatPlayer(S_BroadcastEatPlayer p)
+    public void RecvEatPlayer(S_BroadcastEatPlayer p)
     {
         Player prey;
         Player predator;

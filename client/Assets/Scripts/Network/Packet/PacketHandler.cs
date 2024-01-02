@@ -9,13 +9,13 @@ public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이
     public static void S_BroadcastEnterGameHandler(PacketSession session, IPacket packet)
     {
         S_BroadcastEnterGame p = packet as S_BroadcastEnterGame;
-        Room.Instance.EnterGame(p);
+        Room.Instance.RecvEnterGame(p);
     }
 
     public static void S_BroadcastLeaveGameHandler(PacketSession session, IPacket packet)
     {
         S_BroadcastLeaveGame p = packet as S_BroadcastLeaveGame;    
-        Room.Instance.LeaveGame(p);    
+        Room.Instance.RecvLeaveGame(p);    
     }
 
     public static void S_RoomListHandler(PacketSession session, IPacket packet) //플레이어들 리스트 패킷 받으면...
@@ -28,18 +28,18 @@ public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이
     {
         //패킷 값 출력
         S_BroadcastMove p = packet as S_BroadcastMove;
-        Room.Instance.Move(p);
+        Room.Instance.RecvMove(p);
     }
 
     public static void S_BroadcastEatFoodHandler(PacketSession session, IPacket packet)
     {
         S_BroadcastEatFood p = packet as S_BroadcastEatFood;
-        Room.Instance.EatFood(p);
+        Room.Instance.RecvEatFood(p);
     }
 
     internal static void S_BroadcastEatPlayerHandler(PacketSession session, IPacket packet)
     {
         S_BroadcastEatPlayer p = packet as S_BroadcastEatPlayer;    
-        Room.Instance.EatPlayer(p);  
+        Room.Instance.RecvEatPlayer(p);  
     }
 }

@@ -44,10 +44,7 @@ public class Myplayer : Player
         // 충돌한 객체가 'Food'
         if (other.TryGetComponent(out food) == true) 
         { 
-            transform.localScale += 0.1f * Vector3.one;  // 크기를 0.1만큼 증가
-            Radius = transform.localScale.x * 0.5f; //반지름도 증가  
             SendEatPacket(food.FoodId);
-            food.gameObject.SetActive(false); //먹은 음식은 비활성화
         }
 
         if (other.CompareTag("Wall"))

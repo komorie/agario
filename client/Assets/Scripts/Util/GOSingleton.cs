@@ -8,7 +8,7 @@ public abstract class GOSingleton<T> : MonoBehaviour where T : Component
 {
     //싱글톤으로 유일한 게임 오브젝트 + 컴포넌트 생성
     //Instance로 Singleton<T>를 상속받은 각각의 T 컴포넌트들의 유일한 컴포넌트에 접근
-    //일단 게임 종료시까지 절대 파괴되지 않을 객체에만 쓴다
+    //일단 게임 종료시까지 절대 파괴되지 않고 유일하게 존재해야 하는 객체에만 쓴다
 
     private static T instance;
     
