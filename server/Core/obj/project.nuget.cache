@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QoSBhTTiWmoKzWkxcZQWKnhTjrOqgWbG9rDNdJeJxG+htPukDl8V04bFhbvyKQ+rk7l1SoTbFRgSLZzaORwZ4A==",
+  "dgSpecHash": "JmH7Dg6trnxQmXtVjSERl4Yl3nqdo18BIPW0bxZiuYgUXIG7NUzoCjxS4ZANf3qWZCnyh1SDkb0HEzK7YK8bTg==",
   "success": true,
   "projectFilePath": "D:\\projects\\Unity\\agario\\server\\Core\\Core.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Minahara\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\6.0.21\\microsoft.netcore.app.runtime.win-x86.6.0.21.nupkg.sha512",
-    "C:\\Users\\Minahara\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\6.0.21\\microsoft.windowsdesktop.app.runtime.win-x86.6.0.21.nupkg.sha512",
-    "C:\\Users\\Minahara\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\6.0.21\\microsoft.aspnetcore.app.runtime.win-x86.6.0.21.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }

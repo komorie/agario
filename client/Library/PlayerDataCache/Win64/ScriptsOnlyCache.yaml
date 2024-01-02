@@ -1226,4 +1226,4 @@ ScriptsOnlyBuild:
   scenePathNames:
   - Assets/Scenes/TitleScene.unity
   - Assets/Scenes/GameScene.unity
-  playerPath: D:/projects/Unity/agario/Build/client.exe
+  playerPath: D:/Build/client.exe

@@ -361,7 +361,7 @@
 "Assets/Scripts/Room/Food.cs"
 "Assets/Scripts/Room/Myplayer.cs"
 "Assets/Scripts/Room/Player.cs"
-"Assets/Scripts/Room/RoomManager.cs"
+"Assets/Scripts/Room/Room.cs"
 "Assets/Scripts/UI/ConfirmUI.cs"
 "Assets/Scripts/UI/TextButton.cs"
 "Assets/Scripts/UI/TitleUI.cs"

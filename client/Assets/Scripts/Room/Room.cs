@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class RoomManager : GOSingleton<RoomManager>   
+public class Room : GOSingleton<Room>   
 {
     Myplayer myPlayer;
     NetworkManager network;
@@ -221,8 +221,18 @@ public class RoomManager : GOSingleton<RoomManager>
                 Destroy(prey.gameObject); //먹힌 플레이어 오브젝트 삭제
             }
         }
+        else //내가 먹은 경우
+        {
+            if (Players.TryGetValue(p.preyId, out prey))
+            {
+                myPlayer.transform.localScale += (prey.transform.localScale / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
+                myPlayer.Radius = myPlayer.transform.localScale.x * 0.5f;   //반지름 키우고
+                Players.Remove(p.preyId); //먹힌 플레이어 딕셔너리에서 삭제
+                Destroy(prey.gameObject); //먹힌 플레이어 오브젝트 삭제
+            }
+        }
 
-        if(Players.Count == 0) //나말고 다 죽은 경우
+        if (Players.Count == 0) //나말고 다 죽은 경우
         {
             //방 오브젝트 전부 파괴
             Destroy(myPlayer.gameObject);

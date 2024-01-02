@@ -63,13 +63,8 @@ public class Myplayer : Player
         {
             Debug.Log($"거리: {Vector3.Distance(preyPlayer.transform.position, transform.position)}");
             if (preyPlayer.Radius < Radius && Vector3.Distance(preyPlayer.transform.position, transform.position) < Radius)
-            //상대 플레이어 반지름이 나보다 작고, 상대 플레이어와 나의 거리가 나의 반지름보다 작으면
             {
-                RoomManager.Instance.Players.Remove(preyPlayer.PlayerId); //상대 플레이어 먹음 -> 제거
-                transform.localScale += (preyPlayer.transform.localScale / 2); //상대 플레이어 크기 반만큼 나도 커짐
-                Radius = transform.localScale.x * 0.5f; //반지름도 증가   
-                Destroy(preyPlayer.gameObject); //상대 플레이어 제거    
-                SendEatPlayerPacket(preyPlayer.PlayerId);
+                SendEatPlayerPacket(preyPlayer.PlayerId); //포식 시도 패킷
             }
         }
     }

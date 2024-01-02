@@ -74,7 +74,7 @@
     <Compile Include="Assets\Scripts\GameScene.cs" />
     <Compile Include="Assets\Scripts\Network\Core\RecvBuffer.cs" />
     <Compile Include="Assets\Scripts\Network\Core\Connecter.cs" />
-    <Compile Include="Assets\Scripts\Room\RoomManager.cs" />
+    <Compile Include="Assets\Scripts\Room\Room.cs" />
     <Compile Include="Assets\Scripts\Network\Packet\PacketQueue.cs" />
   </ItemGroup>
   <ItemGroup>
