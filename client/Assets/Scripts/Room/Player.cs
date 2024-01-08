@@ -81,7 +81,7 @@ public class Player : MonoBehaviour
     {
         foreach (Collider col in touchingColliders)
         {
-            //충돌 지점에서 현재 오브젝트의 벡터를 뺀 -> 충돌 지점의 벽과 수직이 되는 방향 벡c터를 가져옵니다.
+            //충돌 지점에서 현재 오브젝트의 벡터를 뺀 -> 충돌 지점의 벽과 수직이 되는 방향 벡터를 가져옵니다.
             Vector3 wallNormal = transform.position - col.ClosestPoint(transform.position);
             wallNormal.Normalize();
             Vector2 wallNormal2D = new Vector2(wallNormal.x, wallNormal.y);
@@ -89,7 +89,7 @@ public class Player : MonoBehaviour
             // MoveVector를 법선벡터와 내적
             float dot = Vector2.Dot(wallNormal, MoveVector);
 
-            // 내적 값이 플러스다 -> 두 벡터의 정사영의 길이 곱이 플러스 -> 같은 방향 -> 벽으로부터 멀어진다
+            // 내적 값이 플러스다 -> 코사인 세타가 플러스 -> 같은 방향 -> 벽으로부터 멀어진다
             // 내적 값이 마이너스다 -> 두 벡터가 둔각을 이룬다 -> 즉 MoveVector가 벽을 향해 간다는 것
 
             if (dot < 0)

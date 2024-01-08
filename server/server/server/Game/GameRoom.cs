@@ -7,6 +7,7 @@ namespace Server.Game
     public class GameRoom : IJobQueue //게임 방
     {
 
+        private int total = 0;
         private int playerSpeed = 20;
         private float roomSizeX = 50;
         private float roomSizeY = 50;
@@ -80,16 +81,26 @@ namespace Server.Game
 
         public void Enter(ClientSession session) //클라 A가 게임방 입장
         {
-            session.SessionId = Sessions.Count;
+
+            //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
+            int newPlayerX, newPlayerY;
+            do
+            {
+                newPlayerX = rand.Next(-40, 40);
+                newPlayerY = rand.Next(-40, 40);
+            }
+            while (OverlapWithPlayer(newPlayerX, newPlayerY));
+
+            session.SessionId = ++total;
             Console.WriteLine($"Player {session.SessionId} Entered"); //로그 출력
             Sessions.Add(session); //들어온 애 세션 리스트에 추가
-            session.Room = this; //들어온 애의 방을 이 방으로 설정   
+            session.Room = this; //들어온 애의 방을 이 방으로 설정 
 
             Player sp = new Player() //해당 세션의 플레이어 생성
             {
                 PlayerId = session.SessionId,
-                PosX = rand.Next(-40, 40),
-                PosY = rand.Next(-40, 40),
+                PosX = newPlayerX,
+                PosY = newPlayerY,
                 PosZ = 0,
                 Radius = 1.5f //초기 반지름
             };

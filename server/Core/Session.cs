@@ -18,7 +18,6 @@ namespace Core
             int processLen = 0;
             int packetCount = 0;    
 
-
             //기본적으로 TCP는 패킷이 나뉘어져 올 위험이 있음. 그러나 순서는 보장되므로 합칠 수 있다.
             while (true)
             {
