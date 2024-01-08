@@ -26,8 +26,6 @@ namespace Server.Session
 
         public override void OnDisconnected(EndPoint endPoint)
         {
-            SessionManager.Instance.Remove(this);   
-
             if(Room != null)
             {
                 GameRoom room = Room;

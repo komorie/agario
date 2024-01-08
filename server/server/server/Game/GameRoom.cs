@@ -80,6 +80,8 @@ namespace Server.Game
 
         public void Enter(ClientSession session) //클라 A가 게임방 입장
         {
+            session.SessionId = Sessions.Count;
+            Console.WriteLine($"Player {session.SessionId} Entered"); //로그 출력
             Sessions.Add(session); //들어온 애 세션 리스트에 추가
             session.Room = this; //들어온 애의 방을 이 방으로 설정   
 
