@@ -1,7 +1,14 @@
 !.gitignore
 /Common
 /DummyClient
+/Core/bin
+/Core/obj
+/PacketGenerator/bin
+/PacketGenerator/obj
+/server/.vs
 /server/server/bin
 /server/server/obj
 /server/server/Properties
 *.csproj
+*.sln
+*.csproj.user
