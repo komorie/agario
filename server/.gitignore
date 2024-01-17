@@ -1,0 +1,7 @@
+!.gitignore
+/Common
+/DummyClient
+/server/server/bin
+/server/server/obj
+/server/server/Properties
+*.csproj

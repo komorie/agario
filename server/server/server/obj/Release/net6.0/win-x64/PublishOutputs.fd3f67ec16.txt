@@ -1,2 +1,0 @@
-D:\projects\Unity\agario\S\Core.pdb
-D:\projects\Unity\agario\S\Server.exe

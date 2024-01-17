@@ -13,34 +13,34 @@ namespace Server
 
         public int CompareTo(JobTimerElem other) //남은 실행주기를 비교해 작은 쪽부터 꺼내도록, 우선순위큐에서 비교하기위해 구현해야함.
         {
-            return other.execTick - this.execTick;
+            return other.execTick - execTick;
         }
     }
 
     public class JobTimer
     {
-        PriorityQueue<JobTimerElem, JobTimerElem> pq = new PriorityQueue<JobTimerElem, JobTimerElem>(); 
-        object _lock = new object();    
+        PriorityQueue<JobTimerElem, JobTimerElem> pq = new PriorityQueue<JobTimerElem, JobTimerElem>();
+        object _lock = new object();
 
         public static JobTimer Instance { get; } = new JobTimer(); //싱글톤
 
         public void Push(Action action, int tickAfter = 0)
         {
             JobTimerElem job;
-            job.execTick = System.Environment.TickCount + tickAfter; //현재 시간 + 얼마 후에 실행될지 = 실행될 시간
+            job.execTick = Environment.TickCount + tickAfter; //현재 시간 + 얼마 후에 실행될지 = 실행될 시간
             job.action = action;
 
             lock (_lock)
             {
                 pq.Enqueue(job, job); //우선순위 큐에 넣기   
             }
-        }   
+        }
 
         public void Flush() //계속 실행시간 확인하면서 큐에 있는 작업들 실행  
         {
             while (true)
             {
-                int now = System.Environment.TickCount; //현재 시간
+                int now = Environment.TickCount; //현재 시간
                 JobTimerElem job;
 
                 lock (_lock)
@@ -56,7 +56,7 @@ namespace Server
                 }
 
                 job.action.Invoke(); //실행
-            }   
+            }
         }
     }
 }
