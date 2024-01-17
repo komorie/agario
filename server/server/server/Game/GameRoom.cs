@@ -9,6 +9,7 @@ namespace Server.Game
 
         private int total = 0;
         private int playerSpeed = 20;
+        private int foodCount = 20;
         private float roomSizeX = 50;
         private float roomSizeY = 50;
         private float currentSecond;
@@ -24,8 +25,8 @@ namespace Server.Game
 
         public GameRoom()
         {
-            //foodlist에 랜덤 -45, 45 float 좌표를 가진 food 6개 추가
-            for (int i = 0; i < 6; i++)
+            //foodlist에 랜덤 -45, 45 float 좌표를 가진 food 20개 추가
+            for (int i = 0; i < foodCount; i++)
             {
                 foodList.Add(new Food()
                 {

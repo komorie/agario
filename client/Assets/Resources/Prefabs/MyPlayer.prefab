@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3218436964734193795}
   - component: {fileID: 8665078986293992970}
   - component: {fileID: -4048487073592606373}
+  - component: {fileID: 6323837005520669850}
   m_Layer: 0
   m_Name: MyPlayer
   m_TagString: Player
@@ -145,3 +146,26 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6323837005520669850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218436964734193794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20cd84afb8fdb9a4280d1035c6cd531d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveAction:
+    m_Name: Move
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: e9db0018-a96d-4473-88e4-ab3b37fa593b
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  isMoving: 0
+  isAttachedOnWall: 0

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static S_RoomList;
@@ -7,22 +8,24 @@ using static S_RoomList;
 public class Room : GOSingleton<Room>   
 {
     Myplayer myPlayer;
+    RainSpawner rainSpawner;
     NetworkManager network;
     public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
-    public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>(); 
+    public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>();
 
     GameObject playerPrefab;
-    GameObject myPlayerPrefab;
     GameObject foodPrefab;
+    GameObject myPlayerPrefab;
     GameObject ConfirmUI;
 
     private void Awake()
     {
-        playerPrefab = Resources.Load<GameObject>("Prefabs/Player");    
+        playerPrefab = Resources.Load<GameObject>("Prefabs/Player");
+        foodPrefab = Resources.Load<GameObject>("Prefabs/food");
         myPlayerPrefab = Resources.Load<GameObject>("Prefabs/MyPlayer");
-        foodPrefab = Resources.Load<GameObject>("Prefabs/Food");
         ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
         network = NetworkManager.Instance;
+        rainSpawner = GameObject.Find("RainSpawner").GetOrAddComponent<RainSpawner>();
     }
 
     public void InitRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
@@ -32,8 +35,7 @@ public class Room : GOSingleton<Room>
         {
             if(p.isSelf) //내 플레이어인 경우 플레이어 아이디와 초기 위치 받아오고, 나머지는 그냥 초기화
             {
-                GameObject go = Instantiate(myPlayerPrefab);
-                Myplayer mPlayer = go.AddComponent<Myplayer>();    
+                Myplayer mPlayer = Instantiate(myPlayerPrefab).GetComponent<Myplayer>();    
 
                 mPlayer.transform.position = new Vector3(p.posX, p.posY, p.posZ);
                 myPlayer = mPlayer;
@@ -42,9 +44,8 @@ public class Room : GOSingleton<Room>
             }
             else //이미 접속해있던 남인 경우
             {
-                GameObject go = Instantiate(playerPrefab);
-                Player player = go.AddComponent<Player>();
- 
+                Player player = Instantiate(playerPrefab).GetComponent<Player>(); ;
+
                 player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
                 player.PlayerId = p.playerId;
                 player.Radius = p.radius;
@@ -56,8 +57,7 @@ public class Room : GOSingleton<Room>
 
         for (int f = 0; f < packet.foods.Count; f++) //맵에 있는 음식들 관리 딕셔너리에 추가
         {
-            GameObject go = Instantiate(foodPrefab);
-            Food food = go.GetComponent<Food>();
+            Food food = Instantiate(foodPrefab).GetComponent<Food>();
 
             food.FoodId = f;   
             food.transform.position = new Vector3(packet.foods[f].posX, packet.foods[f].posY, 0);
@@ -90,9 +90,7 @@ public class Room : GOSingleton<Room>
     {
         if(p.playerId != myPlayer.PlayerId) //내가 들어왔다는 알림이 아닌 경우
         {
-            GameObject go = Instantiate(playerPrefab);
-
-            Player player = go.AddComponent<Player>(); //새 플레이어 추가
+            Player player = Instantiate(playerPrefab).GetComponent<Player>(); //새 플레이어 추가
             player.PlayerId = p.playerId;
             player.Radius = 1.5f; //초기값 
             player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
@@ -149,8 +147,8 @@ public class Room : GOSingleton<Room>
             Player player;
             if (Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
             {
-                Destroy(player.gameObject);
                 Players.Remove(p.playerId);
+                Destroy(player.gameObject);
             }
         }
     }
@@ -173,13 +171,15 @@ public class Room : GOSingleton<Room>
         }
 
         Food food = Foods[p.foodId];
-        food.transform.position = new Vector3(p.posX, p.posY, 0); //먹은 음식 새로운 위치로 스폰
+        food.transform.position = new Vector3(p.posX, p.posY, 0); //음식 새로운 위치로 스폰
     }
 
     public void RecvEatPlayer(S_BroadcastEatPlayer p)
     {
         Player prey;
         Player predator;
+
+        if (myPlayer == null) return;
 
         if (p.preyId == myPlayer.PlayerId) //내가 먹힌거면
         {
@@ -200,6 +200,7 @@ public class Room : GOSingleton<Room>
             Foods.Clear();
 
             network.Disconnect(); //접속 끊기
+            Destroy(rainSpawner.gameObject);    
             ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
             gameOverUI.Init
                 (
@@ -252,6 +253,7 @@ public class Room : GOSingleton<Room>
             Foods.Clear();
 
             network.Disconnect(); //접속 끊기
+            Destroy(rainSpawner.gameObject);
             ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>();
             gameOverUI.Init("게임 승리", "타이틀로", () => { SceneManager.LoadScene("TitleScene"); }); //승리 UI
         }
