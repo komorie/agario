@@ -1,0 +1,8 @@
+/*
+!.gitignore
+!index.md
+!README.md
+!/Assets/
+/Assets/*
+!/Assets/Scripts/
+*.meta
