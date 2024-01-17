@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class GOSingleton<T> : MonoBehaviour where T : Component
@@ -34,9 +30,6 @@ public abstract class GOSingleton<T> : MonoBehaviour where T : Component
                     }
 
                     instance = findObject.AddComponent<T>();
-
-                    // 씬이 변경되어도 객체가 유지되도록 설정
-                    DontDestroyOnLoad(instance);
                 }
             }
             return instance;

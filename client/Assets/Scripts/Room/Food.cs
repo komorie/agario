@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Food : MonoBehaviour
 {
-    public int FoodId { get; set; } 
+    public int FoodId { get; set; }
 }
