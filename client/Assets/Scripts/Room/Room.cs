@@ -10,6 +10,8 @@ public class Room : GOSingleton<Room>
     Myplayer myPlayer;
     RainSpawner rainSpawner;
     NetworkManager network;
+    PacketReceiver packetReceiver;
+
     public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
     public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>();
 
@@ -25,8 +27,49 @@ public class Room : GOSingleton<Room>
         myPlayerPrefab = Resources.Load<GameObject>("Prefabs/MyPlayer");
         ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
         network = NetworkManager.Instance;
+        packetReceiver = PacketReceiver.Instance;
         rainSpawner = GameObject.Find("RainSpawner").GetOrAddComponent<RainSpawner>();
     }
+
+    private void OnEnable() //특정 패킷 받을 시 수행할 함수들 구독
+    {
+        packetReceiver.OnRoomList += InitRoom;
+        packetReceiver.OnBroadcastEnterGame += RecvEnterGame;
+        packetReceiver.OnBroadcastLeaveGame += RecvLeaveGame;
+        packetReceiver.OnBroadcastMove += RecvMove;
+        packetReceiver.OnBroadcastEatFood += RecvEatFood;
+        packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer;
+    }
+
+    private void OnDisable()
+    {
+        packetReceiver.OnRoomList -= InitRoom;
+        packetReceiver.OnBroadcastEnterGame -= RecvEnterGame;
+        packetReceiver.OnBroadcastLeaveGame -= RecvLeaveGame;
+        packetReceiver.OnBroadcastMove -= RecvMove;
+        packetReceiver.OnBroadcastEatFood -= RecvEatFood;
+        packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
+    }
+
+/*    public void CheckPlayerInMap()
+    {
+        if (myPlayer != null)
+        {
+            Vector3 myPos = myPlayer.transform.position;
+
+            //프레임이 낮으면 벽 넘어갈 수도 있으므로 체크
+            if (myPos.x < -roomSizeX + myPlayer.Radius)
+                myPos.x = -roomSizeX + myPlayer.Radius;
+            else if (myPos.x > roomSizeX - myPlayer.Radius)
+                myPos.x = roomSizeX - myPlayer.Radius;
+            if (myPos.y < -roomSizeY + myPlayer.Radius)
+                myPos.y = -roomSizeY + myPlayer.Radius;
+            else if (myPos.y > roomSizeY - myPlayer.Radius)
+                myPos.y = roomSizeY - myPlayer.Radius;
+
+            myPlayer.transform.position = myPos;
+        }
+    }*/
 
     public void InitRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
     {
@@ -124,8 +167,8 @@ public class Room : GOSingleton<Room>
 
 
             //벡터3 좌표 오차 구하기
-            
-/*            Debug.Log($"RTT: {RTT}"); //발송 시간과 도착 시간의 초 차이*/
+
+            /*            Debug.Log($"RTT: {RTT}"); //발송 시간과 도착 시간의 초 차이*/
             if (Players.TryGetValue(p.playerId, out player))
             {
                 player.MoveVector = new Vector2(p.dirX, p.dirY); //다른 플레이어의 이동 방향
@@ -133,7 +176,7 @@ public class Room : GOSingleton<Room>
                 //다른 플레이어의 실제 위치 예측
                 //Myplayer는 프레임당 dir * Speed * Time.deltaTime 만큼 더한 위치로 이동하며 Time.deltaTime은 프레임당 흐른 시간초이다. 즉 dir * Speed는 1초당 이동한 속도가 된다. 즉 1초당 이동거리가 20
                 //그럼 dir * Speed * RTT는 RTT초 만큼 이동한 위치이다. 서버에서 온 위치 + dir * Speed * RTT 가 상대의 현재 위치라고 가정하고, 내 클라에서 돌린 위치랑 보간을 실시
-                player.IsLerping = true; 
+                player.IsLerping = true;
             }
         }
     }

@@ -20,12 +20,9 @@ namespace Server
 
             listener.Init(endPoint, () => { return new ClientSession(); }, 100); //연결 시 Session 생성
 
-
-            JobTimer.Instance.Flush(); //타이머 계속 체크
-
-            while (true)
+            while(true)
             {
-
+                JobTimer.Instance.Flush(); //타이머 계속 체크
             };
 
         }

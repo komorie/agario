@@ -9,6 +9,7 @@ namespace Server.Game
 
         private int total = 0;
         private int playerSpeed = 20;
+        private int foodCount = 20;
         private float roomSizeX = 50;
         private float roomSizeY = 50;
         private float currentSecond;
@@ -24,8 +25,8 @@ namespace Server.Game
 
         public GameRoom()
         {
-            //foodlist에 랜덤 -45, 45 float 좌표를 가진 food 6개 추가
-            for (int i = 0; i < 6; i++)
+            //foodlist에 랜덤 -45, 45 float 좌표를 가진 food 20개 추가
+            for (int i = 0; i < foodCount; i++)
             {
                 foodList.Add(new Food()
                 {
@@ -50,7 +51,7 @@ namespace Server.Game
         {
             DateTime now = DateTime.UtcNow;
             float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
-            float deltaTime = currentSecond - this.currentSecond;   
+            float deltaTime = currentSecond - this.currentSecond;
 
             foreach (ClientSession s in Sessions)
             {
@@ -165,9 +166,6 @@ namespace Server.Game
         public void Move(ClientSession session, C_Move movePacket) //얘 움직인다
         {
             Player sp = session.MyPlayer;
-
-
-            //기본적으로 플레이어가 보낸 위치로 서버에서 플레이어 좌표 변경하되, 서버에 저장된 좌표와 너무 차이가 크면 무시한다 -> 해당 플레이어를 서버에 저장된 좌표로 강제 이동
 
             //해당하는 플레이어 좌표 변경
             sp.DirX = movePacket.dirX;
