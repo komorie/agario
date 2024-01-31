@@ -51,7 +51,7 @@ namespace Server.Game
         {
             DateTime now = DateTime.UtcNow;
             float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
-            float deltaTime = currentSecond - this.currentSecond;   
+            float deltaTime = currentSecond - this.currentSecond;
 
             foreach (ClientSession s in Sessions)
             {
@@ -166,9 +166,6 @@ namespace Server.Game
         public void Move(ClientSession session, C_Move movePacket) //얘 움직인다
         {
             Player sp = session.MyPlayer;
-
-
-            //기본적으로 플레이어가 보낸 위치로 서버에서 플레이어 좌표 변경하되, 서버에 저장된 좌표와 너무 차이가 크면 무시한다 -> 해당 플레이어를 서버에 저장된 좌표로 강제 이동
 
             //해당하는 플레이어 좌표 변경
             sp.DirX = movePacket.dirX;

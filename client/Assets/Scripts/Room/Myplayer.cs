@@ -94,7 +94,6 @@ public class Myplayer : Player
 
     //이 방법의 문제점이 평범한 플레이 방식이면 주기적으로 보내는 것보다 패킷을 덜 보낼 수도 있지만
     //키보드를 일부러 연타하거나 하면 패킷을 엄청나게 많이 보내고 받게 될텐데, 그것에 관한 처리는 나중에 서버에 대한 배움이 깊어지면 생각해 보자
-    //아직 동기화의 방식이 실제로 이런식으로 수행되는게 맞는지도 제대로 모르기 때문
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
         inputVector = context.ReadValue<Vector2>(); 
