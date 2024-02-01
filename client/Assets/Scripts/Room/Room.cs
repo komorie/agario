@@ -7,6 +7,9 @@ using static S_RoomList;
 
 public class Room : GOSingleton<Room>   
 {
+    int roomSizeX;
+    int roomSizeY;
+
     Myplayer myPlayer;
     RainSpawner rainSpawner;
     NetworkManager network;
@@ -51,25 +54,31 @@ public class Room : GOSingleton<Room>
         packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
     }
 
-/*    public void CheckPlayerInMap()
+    private void Update()
+    {
+        CheckPlayerInMap();
+    }
+
+
+    public void CheckPlayerInMap()
     {
         if (myPlayer != null)
         {
             Vector3 myPos = myPlayer.transform.position;
 
             //프레임이 낮으면 벽 넘어갈 수도 있으므로 체크
-            if (myPos.x < -roomSizeX + myPlayer.Radius)
+            if (myPos.x < -roomSizeX + myPlayer.Radius - 1)
                 myPos.x = -roomSizeX + myPlayer.Radius;
-            else if (myPos.x > roomSizeX - myPlayer.Radius)
+            else if (myPos.x > roomSizeX - myPlayer.Radius + 1)
                 myPos.x = roomSizeX - myPlayer.Radius;
-            if (myPos.y < -roomSizeY + myPlayer.Radius)
+            if (myPos.y < -roomSizeY + myPlayer.Radius - 1)
                 myPos.y = -roomSizeY + myPlayer.Radius;
-            else if (myPos.y > roomSizeY - myPlayer.Radius)
+            else if (myPos.y > roomSizeY - myPlayer.Radius + 1)
                 myPos.y = roomSizeY - myPlayer.Radius;
 
             myPlayer.transform.position = myPos;
         }
-    }*/
+    }
 
     public void InitRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
     {

@@ -9,7 +9,7 @@ public class Myplayer : Player
     private NetworkManager network;
     private DefaultInputActions inputActions;
     public InputAction moveAction;
-    public bool isMoving = false;
+    private bool isMoving = false;
     public bool isAttachedOnWall = false;
     private Vector2 inputVector; 
 
