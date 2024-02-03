@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class NewRoom : GOSingleton<NewRoom>
 {
-    public bool IsNetworkGame { get; set; } = true;
-
     NewPlayer myPlayer;
     RainSpawner rainSpawner;
     NetworkManager network;
@@ -33,22 +31,16 @@ public class NewRoom : GOSingleton<NewRoom>
 
     private void OnEnable() //특정 패킷 받을 시 수행할 함수들 구독
     {
-        if (IsNetworkGame)
-        {
-            packetReceiver.OnRoomList += RecvRoomList;
-            packetReceiver.OnBroadcastEnterGame += RecvEnterGame;
-            packetReceiver.OnBroadcastLeaveGame += RecvLeaveGame;  
-        }
+        packetReceiver.OnRoomList += RecvRoomList;
+        packetReceiver.OnBroadcastEnterGame += RecvEnterGame;
+        packetReceiver.OnBroadcastLeaveGame += RecvLeaveGame;
     }
 
     private void OnDisable()
     {
-        if (IsNetworkGame)
-        {
-            packetReceiver.OnRoomList -= RecvRoomList;
-            packetReceiver.OnBroadcastEnterGame -= RecvEnterGame;
-            packetReceiver.OnBroadcastLeaveGame -= RecvLeaveGame;
-        }
+        packetReceiver.OnRoomList -= RecvRoomList;
+        packetReceiver.OnBroadcastEnterGame -= RecvEnterGame;
+        packetReceiver.OnBroadcastLeaveGame -= RecvLeaveGame;
     }
 
     public void RecvRoomList(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
@@ -146,6 +138,12 @@ public class NewRoom : GOSingleton<NewRoom>
             Players.Remove(p.playerId);
             Destroy(player.gameObject);
         }
+
+        if (Players.Count == 1) //게임 종료 조건을 만족할 시 처리
+        {
+            ShowGameOverUI();
+            DestroyRoom();
+        }
     }
 
     public void OnPlayerEatFood(EatFoodEventArgs args) //어떤 플레이어가 음식을 먹었을 때
@@ -174,24 +172,33 @@ public class NewRoom : GOSingleton<NewRoom>
 
         if (args.preyId == myPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
         {
-            //방 오브젝트 전부 파괴
-            Destroy(myPlayer.gameObject);
-            Destroy(rainSpawner.gameObject);
-            foreach (var player in Players.Values) Destroy(player.gameObject);
-            foreach (var food in Foods.Values) Destroy(food.gameObject);
+            ShowGameOverUI(args.preyId != myPlayer.PlayerId);
+            DestroyRoom(args.packet != null); 
+        }
+    }
 
-            ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
-            string endString = args.preyId == myPlayer.PlayerId ? "게임 오버" : "게임 승리";
-            gameOverUI.Init(endString, "타이틀로", () => { SceneManager.LoadScene("TitleScene"); });
+    private void ShowGameOverUI(bool condition = true) //게임 오버 UI
+    {
+        ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
+        string endString = condition ? "게임 승리" : "게임 패배";
+        gameOverUI.Init(endString, "타이틀로", () => { SceneManager.LoadScene("TitleScene"); });
+    }
 
-            myPlayer = null;
-            Players.Clear();
-            Foods.Clear();
+    private void DestroyRoom(bool isMultiPlayer = true) //방 파괴
+    {
+        //방 오브젝트 전부 파괴
+        Destroy(myPlayer.gameObject);
+        Destroy(rainSpawner.gameObject);
+        foreach (var player in Players.Values) Destroy(player.gameObject);
+        foreach (var food in Foods.Values) Destroy(food.gameObject);
 
-            if(args.packet != null) //멀티플레이 중이면 연결 해제
-            {
-                network.Disconnect();
-            }
+        myPlayer = null;
+        Players.Clear();
+        Foods.Clear();
+
+        if (isMultiPlayer) //멀티플레이 중이면 연결 해제
+        {
+            network.Disconnect();
         }
     }
 }

@@ -42,7 +42,9 @@ public class NetMyEater : Eater
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.TryGetComponent(out eatenPlayer) == true) //상대 플레이어랑 겹쳤다
+        if (eatenPlayer != null) return;
+
+        if (other.TryGetComponent(out eatenPlayer) == true) //상대 플레이어랑 거리 내에서 겹쳤는지 확인
         {
             if (eatenPlayer.PlayerEater.Radius < Radius && Vector3.Distance(eatenPlayer.transform.position, transform.position) < Radius)
             {
@@ -50,12 +52,16 @@ public class NetMyEater : Eater
                 transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
                 if (packetSender != null) packetSender.SendEatPlayerPacket(myPlayer.PlayerId, eatenPlayer.PlayerId);
             }
+            else
+            {
+                eatenPlayer = null;
+            }
         }
     }
 
     private void RecvEatFood(S_BroadcastEatFood p)
     {
-        if(p.playerId == myPlayer.PlayerId)
+        if(eatenFood != null && p.playerId == myPlayer.PlayerId)
         {
             OnEatFood(eatenFood.FoodId, p);
             eatenFood = null;
@@ -63,7 +69,7 @@ public class NetMyEater : Eater
     }
     private void RecvEatPlayer(S_BroadcastEatPlayer p)
     {
-        if (p.predatorId == myPlayer.PlayerId)
+        if (eatenPlayer != null && p.predatorId == myPlayer.PlayerId)
         {
             OnEatPlayer(eatenPlayer.PlayerId, p);
             Destroy(eatenPlayer.gameObject);
