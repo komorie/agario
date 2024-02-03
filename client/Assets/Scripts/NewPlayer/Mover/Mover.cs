@@ -9,25 +9,27 @@ public abstract class Mover : MonoBehaviour
     public int Speed { get; set; } = 20;
     public Vector2 MoveVector { get; set; }
 
-    public event Action<Vector2> OnMoveVectorChanged;
+    public event Action<Vector2> MoveVectorChanged;
 
     public HashSet<Collider> TouchingColliders { get; set; } = new HashSet<Collider>();
 
-    protected void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Wall"))
         {
             TouchingColliders.Add(other);
             MoveAttachedOnWall();
         }
-    }
-    protected void OnTriggerExit(Collider other)
+     }
+    protected virtual void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Wall"))
         {
-            TouchingColliders.Remove(other);
+            TouchingColliders.Remove(other); 
         }
     }
+
+    protected virtual void OnMoveVectorChanged(Vector2 moveVector) => MoveVectorChanged?.Invoke(moveVector);
 
     //벽에 닿은 상태에서 움직일때, 충돌지점을 계산해 이동 벡터를 조정해주는 함수
     protected void MoveAttachedOnWall()
@@ -48,6 +50,7 @@ public abstract class Mover : MonoBehaviour
             if (dot < 0)
             {
                 MoveVector -= wallNormal2D * dot; //이동벡터에서 정사영의 크기만한 법선벡터만큼 추가로 이동 -> 벽을 향해 가는 성분 제거
+                OnMoveVectorChanged(MoveVector);
             }
         }
     }

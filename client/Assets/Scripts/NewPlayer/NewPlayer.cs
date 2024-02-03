@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static S_RoomList;
 
 public class NewPlayer : MonoBehaviour
 {
@@ -8,12 +9,12 @@ public class NewPlayer : MonoBehaviour
 
     public Mover PlayerMover { get; set; }
     public Eater PlayerEater { get; set; }
-    public PlayerPacketSender PlayerPacketSender { get; set; }
+    public PlayerPacketSender PacketSender { get; set; }
 
     private void Awake()
     {
         PlayerMover = GetComponent<Mover>();
         PlayerEater = GetComponent<Eater>();    
-        PlayerPacketSender = GetComponent<PlayerPacketSender>();    
+        PacketSender = GetComponent<PlayerPacketSender>();    
     }
 }

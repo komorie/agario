@@ -1,12 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static S_RoomList;
-using static UnityEditor.Experimental.GraphView.GraphView;
+
 
 //타 플레이어가 네트워크를 통해 움직이는 물체의 이동 처리를 담당하는 컴포넌트
-public class NetworkMover : Mover
+public class NetOtherMover : Mover
 {
 
     private NewPlayer player;
@@ -68,6 +65,8 @@ public class NetworkMover : Mover
             //Myplayer는 프레임당 dir * Speed * Time.deltaTime 만큼 더한 위치로 이동하며 Time.deltaTime은 프레임당 흐른 시간초이다. 즉 dir * Speed는 1초당 이동한 속도가 된다. 즉 1초당 이동거리가 20
             //그럼 dir * Speed * RTT는 RTT초 만큼 이동한 위치이다. 서버에서 온 위치 + dir * Speed * RTT 가 상대의 현재 위치라고 가정하고, 내 클라에서 돌린 위치랑 보간을 실시
             isLerping = true;
+
+            OnMoveVectorChanged(MoveVector);
         }
     }
 

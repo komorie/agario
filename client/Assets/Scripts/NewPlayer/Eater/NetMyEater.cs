@@ -1,0 +1,73 @@
+using System;
+using UnityEngine;
+
+//네트워크 플레이 시 자신 플레이어의 음식, 플레이어 섭취를 담당하는 컴포넌트
+public class NetMyEater : Eater
+{
+    Food eatenFood;
+    NewPlayer myPlayer; 
+    NewPlayer eatenPlayer;
+    private PlayerPacketSender packetSender;
+    private PacketReceiver packetReceiver;
+
+    private void Awake()
+    {
+        packetReceiver = PacketReceiver.Instance;
+        packetSender = GetComponent<PlayerPacketSender>();
+        myPlayer = GetComponent<NewPlayer>();
+    }
+
+    private void OnEnable()
+    {
+        packetReceiver.OnBroadcastEatFood += RecvEatFood; //음식 먹었다는 패킷 받을 시 실행
+        packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer; //플레이어 먹었다는 패킷 받을 시 실행
+    }
+
+    private void OnDisable()
+    {
+        packetReceiver.OnBroadcastEatFood -= RecvEatFood;
+        packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
+    }
+
+    protected void OnTriggerEnter(Collider other)
+    {
+        // 충돌한 객체가 'Food'
+        if (other.TryGetComponent(out eatenFood) == true)
+        {
+            Radius += 0.05f;
+            transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
+            if(packetSender != null) packetSender.SendEatPacket(eatenFood.FoodId);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.TryGetComponent(out eatenPlayer) == true) //상대 플레이어랑 겹쳤다
+        {
+            if (eatenPlayer.PlayerEater.Radius < Radius && Vector3.Distance(eatenPlayer.transform.position, transform.position) < Radius)
+            {
+                Radius += (eatenPlayer.PlayerEater.Radius / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
+                transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
+                if (packetSender != null) packetSender.SendEatPlayerPacket(myPlayer.PlayerId, eatenPlayer.PlayerId);
+            }
+        }
+    }
+
+    private void RecvEatFood(S_BroadcastEatFood p)
+    {
+        if(p.playerId == myPlayer.PlayerId)
+        {
+            OnEatFood(eatenFood.FoodId, p);
+            eatenFood = null;
+        }
+    }
+    private void RecvEatPlayer(S_BroadcastEatPlayer p)
+    {
+        if (p.predatorId == myPlayer.PlayerId)
+        {
+            OnEatPlayer(eatenPlayer.PlayerId, p);
+            Destroy(eatenPlayer.gameObject);
+            eatenPlayer = null;
+        }
+    }
+}

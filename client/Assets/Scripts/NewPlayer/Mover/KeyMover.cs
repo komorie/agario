@@ -7,27 +7,45 @@ using UnityEngine.InputSystem;
 public class KeyMover : Mover
 {
     private DefaultInputActions inputActions;
-    public InputAction moveAction;
+    private PlayerPacketSender packetSender;  
     private bool isMoving = false;
     private Vector2 inputVector;
+
+    public InputAction MoveAction { get; set; }
 
     private void Awake()
     {
         inputActions = new DefaultInputActions();
         inputActions.Enable();
-        moveAction = inputActions.Player.Move;
+        MoveAction = inputActions.Player.Move;
+        packetSender = GetComponent<PlayerPacketSender>();
     }
-
     private void OnEnable()
     {
-        moveAction.performed += OnMovePerformed;
-        moveAction.canceled += OnMoveCanceled;
+        MoveAction.performed += OnMovePerformed;
+        MoveAction.canceled += OnMoveCanceled;
+        if(packetSender != null) MoveVectorChanged += packetSender.SendMovePacket; //멀티 플레이어에서, 직접 조작하는 플레이어일 경우만 이동 패킷 전송하도록 등록
     }
 
     private void OnDisable()
     {
-        moveAction.performed -= OnMovePerformed;
-        moveAction.canceled -= OnMoveCanceled;
+        MoveAction.performed -= OnMovePerformed;
+        MoveAction.canceled -= OnMoveCanceled;
+        if (packetSender != null) MoveVectorChanged -= packetSender.SendMovePacket;
+    }
+
+    protected override void OnTriggerExit(Collider other)
+    {
+        base.OnTriggerExit(other);
+
+        if (other.CompareTag("Wall"))
+        {
+            if (TouchingColliders.Count == 0)
+            {
+                MoveVector = inputVector;
+                OnMoveVectorChanged(MoveVector);
+            }
+        }
     }
 
     private void Update()
@@ -49,6 +67,7 @@ public class KeyMover : Mover
         {
             MoveVector = context.ReadValue<Vector2>();
             isMoving = true;
+            OnMoveVectorChanged(MoveVector);
         }
 
         if (TouchingColliders.Count != 0)
@@ -62,5 +81,6 @@ public class KeyMover : Mover
         inputVector = Vector2.zero;
         MoveVector = Vector2.zero;
         isMoving = false;
+        OnMoveVectorChanged(MoveVector);
     }
 }
