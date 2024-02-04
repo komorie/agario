@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static S_RoomList;
 
-public class Player : MonoBehaviour
+public class OldPlayer : MonoBehaviour
 {
     public int PlayerId { get; set; }
     public int Speed { get; set; } = 20;
@@ -18,7 +18,6 @@ public class Player : MonoBehaviour
     protected virtual void Awake()
     {  
         TargetPosition = transform.position;
-/*        StartCoroutine(Distance1F());*/
     }
 
 
@@ -46,14 +45,6 @@ public class Player : MonoBehaviour
         {
 
             float currentDistance = Vector3.Distance(transform.position, TargetPosition); //상대 클라가 서버로 보낸 위치(+예측 들어간 위치)와 그전까지 내 클라가 추측해서 이동시킨 위치의 거리 비교
-
-
-/*            if (currentDistance > 10f) //오차가 너무 크면 그냥 그 위치로 이동
-            {
-                transform.position = TargetPosition;
-                IsLerping = false;
-                return;
-            }*/
 
             Vector3 newDes = Vector3.Lerp(transform.position, TargetPosition, 0.5f);   //상대의 현재 추정 위치로 이동하되, 선형 보간법을 사용해 현재 위치와 목표 위치의 중간 위치 지정
 
@@ -99,17 +90,4 @@ public class Player : MonoBehaviour
         }
     }
 
-
-    /*    public virtual IEnumerator Distance1F()
-        {
-            //1초당 이동거리 체크
-            while (true)
-            {
-                Vector3 oldPos = transform.position;
-                yield return new WaitForSeconds(1.0f);
-                Vector3 newPos = transform.position;
-                float distance = Vector3.Distance(oldPos, newPos);
-                Debug.Log($"플레이어 {PlayerId} 1초당 이동거리: {distance}");
-            }
-        }*/
 }

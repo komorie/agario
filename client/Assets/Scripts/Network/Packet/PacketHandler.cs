@@ -1,6 +1,4 @@
 ﻿using Core;
-using System;
-using UnityEngine;
 
 public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이, 해당 패킷으로 할 동작만 여기서 구현해 주면 될 것.
                            //유니티에서는 여기 접근하는 스레드는 메인 스레드(Network Manager) 하나므로 쓰레드 안전 신경쓸 필요 없음.
