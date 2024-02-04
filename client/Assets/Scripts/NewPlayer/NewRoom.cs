@@ -177,10 +177,10 @@ public class NewRoom : GOSingleton<NewRoom>
         }
     }
 
-    private void ShowGameOverUI(bool condition = true) //게임 오버 UI
+    private void ShowGameOverUI(bool isWin = true) //게임 오버 UI
     {
         ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
-        string endString = condition ? "게임 승리" : "게임 패배";
+        string endString = isWin ? "게임 승리" : "게임 패배";
         gameOverUI.Init(endString, "타이틀로", () => { SceneManager.LoadScene("TitleScene"); });
     }
 

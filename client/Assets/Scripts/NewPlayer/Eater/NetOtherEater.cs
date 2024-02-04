@@ -5,13 +5,13 @@ using UnityEngine;
 public class NetOtherEater : Eater
 {
     private NewRoom room;
-    private NewPlayer player;
+    private NewPlayer myPlayer;
     private PacketReceiver packetReceiver;
 
     private void Awake()
     {
         room = NewRoom.Instance;
-        player = GetComponent<NewPlayer>();
+        myPlayer = GetComponent<NewPlayer>();
         packetReceiver = PacketReceiver.Instance;
     }
 
@@ -29,7 +29,7 @@ public class NetOtherEater : Eater
 
     public void RecvEatFood(S_BroadcastEatFood p) //음식 섭취 처리
     {
-        if(p.playerId == player.PlayerId)
+        if(p.playerId == myPlayer.PlayerId)
         {
             Radius += 0.05f;
             transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
@@ -40,7 +40,7 @@ public class NetOtherEater : Eater
     public void RecvEatPlayer(S_BroadcastEatPlayer p) //플레이어 포식 처리
     {
         NewPlayer prey;
-        if (p.predatorId == player.PlayerId)
+        if (p.predatorId == myPlayer.PlayerId)
         {
             if (room.Players.TryGetValue(p.preyId, out prey))
             { 

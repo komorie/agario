@@ -34,8 +34,6 @@ public class NetMyEater : Eater
         // 충돌한 객체가 'Food'
         if (other.TryGetComponent(out eatenFood) == true)
         {
-            Radius += 0.05f;
-            transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
             if(packetSender != null) packetSender.SendEatPacket(eatenFood.FoodId);
         }
     }
@@ -48,8 +46,6 @@ public class NetMyEater : Eater
         {
             if (eatenPlayer.PlayerEater.Radius < Radius && Vector3.Distance(eatenPlayer.transform.position, transform.position) < Radius)
             {
-                Radius += (eatenPlayer.PlayerEater.Radius / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
-                transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
                 if (packetSender != null) packetSender.SendEatPlayerPacket(myPlayer.PlayerId, eatenPlayer.PlayerId);
             }
             else
@@ -63,6 +59,8 @@ public class NetMyEater : Eater
     {
         if(eatenFood != null && p.playerId == myPlayer.PlayerId)
         {
+            Radius += 0.05f;
+            transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
             OnEatFood(eatenFood.FoodId, p);
             eatenFood = null;
         }
@@ -71,6 +69,8 @@ public class NetMyEater : Eater
     {
         if (eatenPlayer != null && p.predatorId == myPlayer.PlayerId)
         {
+            Radius += (eatenPlayer.PlayerEater.Radius / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
+            transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
             OnEatPlayer(eatenPlayer.PlayerId, p);
             Destroy(eatenPlayer.gameObject);
             eatenPlayer = null;
