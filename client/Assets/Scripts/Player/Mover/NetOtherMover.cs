@@ -6,14 +6,14 @@ using UnityEngine;
 public class NetOtherMover : Mover
 {
 
-    private NewPlayer player;
+    private Player player;
     private PacketReceiver packetReceiver;
     private bool isLerping = false;
     private Vector3 targetPosition;
 
     private void Awake()
     {
-        player = GetComponent<NewPlayer>(); 
+        player = GetComponent<Player>(); 
         packetReceiver = PacketReceiver.Instance;   
     }
 

@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static S_RoomList;
 
-public class NewPlayer : MonoBehaviour
+public class Player : MonoBehaviour
 {
     public int PlayerId { get; set; }
 

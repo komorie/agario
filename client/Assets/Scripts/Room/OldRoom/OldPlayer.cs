@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static S_RoomList;
 
-public class Player : MonoBehaviour
+public class OldPlayer : MonoBehaviour
 {
     public int PlayerId { get; set; }
     public int Speed { get; set; } = 20;

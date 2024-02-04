@@ -4,14 +4,14 @@ using UnityEngine;
 //네트워크 플레이 시 타 플레이어의 음식, 플레이어 섭취를 담당하는 컴포넌트
 public class NetOtherEater : Eater
 {
-    private NewRoom room;
-    private NewPlayer myPlayer;
+    private Room room;
+    private Player myPlayer;
     private PacketReceiver packetReceiver;
 
     private void Awake()
     {
-        room = NewRoom.Instance;
-        myPlayer = GetComponent<NewPlayer>();
+        room = Room.Instance;
+        myPlayer = GetComponent<Player>();
         packetReceiver = PacketReceiver.Instance;
     }
 
@@ -39,7 +39,7 @@ public class NetOtherEater : Eater
 
     public void RecvEatPlayer(S_BroadcastEatPlayer p) //플레이어 포식 처리
     {
-        NewPlayer prey;
+        Player prey;
         if (p.predatorId == myPlayer.PlayerId)
         {
             if (room.Players.TryGetValue(p.preyId, out prey))

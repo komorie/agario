@@ -1,12 +1,11 @@
-using System;
 using UnityEngine;
 
 //네트워크 플레이 시 자신 플레이어의 음식, 플레이어 섭취를 담당하는 컴포넌트
 public class NetMyEater : Eater
 {
     Food eatenFood;
-    NewPlayer myPlayer; 
-    NewPlayer eatenPlayer;
+    Player myPlayer; 
+    Player eatenPlayer;
     private PlayerPacketSender packetSender;
     private PacketReceiver packetReceiver;
 
@@ -14,7 +13,7 @@ public class NetMyEater : Eater
     {
         packetReceiver = PacketReceiver.Instance;
         packetSender = GetComponent<PlayerPacketSender>();
-        myPlayer = GetComponent<NewPlayer>();
+        myPlayer = GetComponent<Player>();
     }
 
     private void OnEnable()

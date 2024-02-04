@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Myplayer : Player
+public class OldMyplayer : OldPlayer
 {
     private NetworkManager network;
     private DefaultInputActions inputActions;
@@ -55,7 +55,7 @@ public class Myplayer : Player
 
     private void OnTriggerStay(Collider other)
     {
-        Player preyPlayer;
+        OldPlayer preyPlayer;
         if (other.TryGetComponent(out preyPlayer) == true) //»ó´ë ÇÃ·¹ÀÌ¾î¶û °ãÃÆ´Ù
         {
             Debug.Log($"°Å¸®: {Vector3.Distance(preyPlayer.transform.position, transform.position)}");
