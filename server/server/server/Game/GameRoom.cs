@@ -10,8 +10,8 @@ namespace Server.Game
         private int total = 0;
         private int playerSpeed = 20;
         private int foodCount = 20;
-        private float roomSizeX = 50;
-        private float roomSizeY = 50;
+        private float roomSizeX = 100;
+        private float roomSizeY = 100;
         private float currentSecond;
 
         List<ClientSession> Sessions { get; set; } = new List<ClientSession>();
@@ -25,7 +25,7 @@ namespace Server.Game
 
         public GameRoom()
         {
-            //foodlist에 랜덤 -45, 45 float 좌표를 가진 food 20개 추가
+            //foodlist에 랜덤 float 좌표를 가진 food 20개 추가
             for (int i = 0; i < foodCount; i++)
             {
                 foodList.Add(new Food()
@@ -87,8 +87,8 @@ namespace Server.Game
             int newPlayerX, newPlayerY;
             do
             {
-                newPlayerX = rand.Next(-40, 40);
-                newPlayerY = rand.Next(-40, 40);
+                newPlayerX = rand.Next((int)-roomSizeX + 10, (int)roomSizeX - 10);
+                newPlayerY = rand.Next((int)-roomSizeY + 10, (int)roomSizeY - 10);
             }
             while (OverlapWithPlayer(newPlayerX, newPlayerY));
 
@@ -193,7 +193,7 @@ namespace Server.Game
         public void EatFood(ClientSession session, C_EatFood eatPacket)
         {
             Player sp = session.MyPlayer;
-            sp.Radius += 0.05f; //반지름 증가
+            sp.Radius += 0.1f; //반지름 증가
 
             Food f = foodList[eatPacket.foodId];
 
@@ -202,8 +202,8 @@ namespace Server.Game
             //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
             do
             {
-                newFoodX = (float)(rand.NextDouble() * 90 - 45);
-                newFoodY = (float)(rand.NextDouble() * 90 - 45);
+                newFoodX = (float)rand.NextDouble() * (roomSizeX - 5) * 2 - (roomSizeX - 5);
+                newFoodY = (float)rand.NextDouble() * (roomSizeY - 5) * 2 - (roomSizeY - 5);
             }
             while (OverlapWithPlayer(newFoodX, newFoodY));
 

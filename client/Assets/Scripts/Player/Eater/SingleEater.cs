@@ -9,7 +9,7 @@ public class SingleEater : Eater
         // 충돌한 객체가 'Food'
         if (other.TryGetComponent(out food) == true)
         {
-            Radius += 0.05f;
+            Radius += 0.1f;
             transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
             OnEatFood(food.FoodId);
         }

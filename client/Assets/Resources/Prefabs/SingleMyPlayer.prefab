@@ -12,12 +12,13 @@ GameObject:
   - component: {fileID: 3218436964734193793}
   - component: {fileID: 3218436964734193792}
   - component: {fileID: 3218436964734193795}
-  - component: {fileID: 3498927803898793030}
-  - component: {fileID: -3813659545198612203}
-  - component: {fileID: 353586849268245259}
-  - component: {fileID: 8800066482681051102}
+  - component: {fileID: 8665078986293992970}
+  - component: {fileID: -4048487073592606373}
+  - component: {fileID: 5391119209385223520}
+  - component: {fileID: -2097191123754535206}
+  - component: {fileID: 5909522180157312020}
   m_Layer: 0
-  m_Name: NewPlayer
+  m_Name: SingleMyPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -66,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: b098be6d7798b634f82efa257b06c1d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -96,12 +97,42 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3218436964734193794}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &3498927803898793030
+--- !u!114 &8665078986293992970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218436964734193794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_NotificationBehavior: 3
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: Keyboard&Mouse
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!54 &-4048487073592606373
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,7 +148,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-3813659545198612203
+--- !u!114 &5391119209385223520
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a6e18fb267faca439638aeeac4ce3e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &353586849268245259
+--- !u!114 &-2097191123754535206
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,10 +169,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3218436964734193794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7b01411345cdda40ae64efa9c797252, type: 3}
+  m_Script: {fileID: 11500000, guid: b5292069a9560374391a0b3298bda331, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &8800066482681051102
+--- !u!114 &5909522180157312020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,6 +181,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3218436964734193794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a88b12533bcee94e980771f6292e14c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1cc3d436dd7e2dc4291a4ea3a3c7e77b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

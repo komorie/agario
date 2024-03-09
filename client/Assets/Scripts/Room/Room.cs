@@ -1,11 +1,13 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class Room : GOSingleton<Room>
 {
-    private const int ROOMSIZE_X = 50;
-    private const int ROOMSIZE_Y = 50;
+    private const int ROOMSIZE_X = 100;
+    private const int ROOMSIZE_Y = 100;
     private const int FOOD_COUNT = 50;
     private const int AIPLAYER_COUNT = 10;
 
@@ -15,17 +17,21 @@ public class Room : GOSingleton<Room>
 
     public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
     public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>();
-
-    GameObject playerPrefab;
+    
     GameObject foodPrefab;
-    GameObject myPlayerPrefab;
+    GameObject aiPlayerPrefab;
+    GameObject netPlayerPrefab;
+    GameObject singleMyPlayerPrefab;
+    GameObject multiMyPlayerPrefab;
     GameObject ConfirmUI;
 
     private void Awake()
     {
-        playerPrefab = Resources.Load<GameObject>("Prefabs/NewPlayer");
         foodPrefab = Resources.Load<GameObject>("Prefabs/food");
-        myPlayerPrefab = Resources.Load<GameObject>("Prefabs/NewMyPlayer");
+        aiPlayerPrefab = Resources.Load<GameObject>("Prefabs/AIPlayer");
+        netPlayerPrefab = Resources.Load<GameObject>("Prefabs/NetPlayer");
+        singleMyPlayerPrefab = Resources.Load<GameObject>("Prefabs/SingleMyPlayer");
+        multiMyPlayerPrefab = Resources.Load<GameObject>("Prefabs/MultiMyPlayer");
         ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
         packetReceiver = PacketReceiver.Instance;
 
@@ -52,23 +58,33 @@ public class Room : GOSingleton<Room>
         for (int p = 1; p <= AIPLAYER_COUNT; p++) //AI 플레이어 랜덤 생성
         {
             //플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
+            float newPlayerX, newPlayerY;
+            do
+            {
+                newPlayerX = Random.value * (ROOMSIZE_X - 10) * 2 - (ROOMSIZE_X - 10);
+                newPlayerY = Random.value * (ROOMSIZE_Y - 10) * 2 - (ROOMSIZE_Y - 10);
+            }
+            while (OverlapWithPlayer(newPlayerX, newPlayerY));
+
             //반지름 받아와서 사이즈 결정
             Player player;
 
             if (p == 1)
             {
-                player = Instantiate(myPlayerPrefab).GetComponent<Player>();
+                player = Instantiate(singleMyPlayerPrefab).GetComponent<Player>();
                 myPlayer = player;
             }
             else
             {
-                player = Instantiate(playerPrefab).GetComponent<Player>();
+                player = Instantiate(aiPlayerPrefab).GetComponent<Player>();
             }
 
             player.PlayerId = p;
             player.PlayerEater.Radius = 1.5f;
             player.PlayerEater.EatFood += OnPlayerEatFood;
             player.PlayerEater.EatPlayer += OnPlayerEatPlayer;
+
+            player.transform.position = new Vector3(newPlayerX, newPlayerY, 0);
 
             Players.Add(player.PlayerId, player); //딕셔너리에 추가
         }
@@ -93,12 +109,12 @@ public class Room : GOSingleton<Room>
 
             if (p.isSelf)
             {
-                player = Instantiate(myPlayerPrefab).GetComponent<Player>();
+                player = Instantiate(multiMyPlayerPrefab).GetComponent<Player>();
                 myPlayer = player;
             }
             else
             {
-                player = Instantiate(playerPrefab).GetComponent<Player>();
+                player = Instantiate(netPlayerPrefab).GetComponent<Player>();
             }
 
             player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
@@ -156,7 +172,7 @@ public class Room : GOSingleton<Room>
     {
         if (p.playerId == myPlayer.PlayerId) return; 
 
-        Player player = Instantiate(playerPrefab).GetComponent<Player>(); //새 플레이어 추가
+        Player player = Instantiate(netPlayerPrefab).GetComponent<Player>(); //새 플레이어 추가
 
         player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
         player.PlayerId = p.playerId;
@@ -195,14 +211,24 @@ public class Room : GOSingleton<Room>
 
     public void OnPlayerEatFood(EatFoodEventArgs args) //어떤 플레이어가 음식을 먹었을 때
     {
+        Food food = Foods[args.foodId];
         if (!GameScene.IsMulti)
         {
-            //싱글 플레이 시 로직
+            //싱글 플레이 시 로직: 직접 음식의 새로운 위치 지정
+            float posX, posY;
+
+            do
+            {
+                posX = Random.value * (ROOMSIZE_X - 5) * 2 - (ROOMSIZE_X - 5);
+                posY = Random.value * (ROOMSIZE_Y - 5) * 2 - (ROOMSIZE_Y - 5);
+            }
+            while (OverlapWithPlayer(posX, posY)); //플레이어와 겹치지 않는 위치
+
+            food.transform.position = new Vector3(posX, posY, 0);
         }
         else
         {
             //멀티 플레이 시 로직: 서버에서 음식의 새로운 위치 지정
-            Food food = Foods[args.packet.foodId];
             food.transform.position = new Vector3(args.packet.posX, args.packet.posY, 0);
         }
     }
@@ -246,5 +272,18 @@ public class Room : GOSingleton<Room>
         {
             network.Disconnect();
         }
+    }
+    private bool OverlapWithPlayer(float x, float y)
+    {
+        foreach (var p in Players)
+        {
+            Vector3 pVec = p.Value.gameObject.transform.position;
+            float distance = (float)Math.Sqrt(Math.Pow(pVec.x - x, 2) + Math.Pow(pVec.y - y, 2));
+            if (distance < p.Value.PlayerEater.Radius)
+            {
+                return true;  // 겹치는 플레이어 발견
+            }
+        }
+        return false;  // 겹치는 플레이어 없음
     }
 }
