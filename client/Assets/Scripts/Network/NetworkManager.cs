@@ -23,7 +23,7 @@ public class NetworkManager : GOSingleton<NetworkManager>
 
     public void Disconnect()
     {
-        session.Disconnect();
+        session?.Disconnect();
     }
 
     private void Awake()
@@ -50,7 +50,7 @@ public class NetworkManager : GOSingleton<NetworkManager>
 
     private void OnApplicationQuit()
     {
-        session.Disconnect();
+        Disconnect();
     }
 
     // 일정 주기마다 지속적으로 호출

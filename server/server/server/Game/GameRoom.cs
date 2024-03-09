@@ -30,8 +30,8 @@ namespace Server.Game
             {
                 foodList.Add(new Food()
                 {
-                    posX = (float)(rand.NextDouble() * 90 - 45),
-                    posY = (float)(rand.NextDouble() * 90 - 45)
+                    posX = (float)(rand.NextDouble() * (roomSizeX - 5) * 2 - (roomSizeX - 5)),
+                    posY = (float)(rand.NextDouble() * (roomSizeY - 5) * 2 - (roomSizeY - 5))
                 });
             }
 

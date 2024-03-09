@@ -5,7 +5,7 @@ public class RainSpawner : MonoBehaviour
     public GameObject rainPrefab;
     private string objName = "Rain";
     private Pool pool;
-    private float spawnRate = 0.01f;  
+    private float spawnRate = 0.1f;  
     private float nextSpawnTime;
 
     private void Awake()

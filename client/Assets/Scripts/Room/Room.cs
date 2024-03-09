@@ -1,12 +1,15 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Room : GOSingleton<Room>
 {
+    private const int ROOMSIZE_X = 50;
+    private const int ROOMSIZE_Y = 50;
+    private const int FOOD_COUNT = 50;
+    private const int AIPLAYER_COUNT = 10;
+
     Player myPlayer;
-    RainSpawner rainSpawner;
     NetworkManager network;
     PacketReceiver packetReceiver;
 
@@ -24,9 +27,10 @@ public class Room : GOSingleton<Room>
         foodPrefab = Resources.Load<GameObject>("Prefabs/food");
         myPlayerPrefab = Resources.Load<GameObject>("Prefabs/NewMyPlayer");
         ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
-        network = NetworkManager.Instance;
         packetReceiver = PacketReceiver.Instance;
-        rainSpawner = GameObject.Find("RainSpawner").GetOrAddComponent<RainSpawner>();
+
+        if (GameScene.IsMulti) network = NetworkManager.Instance;
+        if (!GameScene.IsMulti) InitSingleRoom();
     }
 
     private void OnEnable() //특정 패킷 받을 시 수행할 함수들 구독
@@ -43,7 +47,45 @@ public class Room : GOSingleton<Room>
         packetReceiver.OnBroadcastLeaveGame -= RecvLeaveGame;
     }
 
-    public void RecvRoomList(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
+    public void InitSingleRoom()
+    {
+        for (int p = 1; p <= AIPLAYER_COUNT; p++) //AI 플레이어 랜덤 생성
+        {
+            //플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
+            //반지름 받아와서 사이즈 결정
+            Player player;
+
+            if (p == 1)
+            {
+                player = Instantiate(myPlayerPrefab).GetComponent<Player>();
+                myPlayer = player;
+            }
+            else
+            {
+                player = Instantiate(playerPrefab).GetComponent<Player>();
+            }
+
+            player.PlayerId = p;
+            player.PlayerEater.Radius = 1.5f;
+            player.PlayerEater.EatFood += OnPlayerEatFood;
+            player.PlayerEater.EatPlayer += OnPlayerEatPlayer;
+
+            Players.Add(player.PlayerId, player); //딕셔너리에 추가
+        }
+
+        for (int f = 0; f < FOOD_COUNT; f++) //음식 랜덤 생성
+        {
+            Food food = Instantiate(foodPrefab).GetComponent<Food>();
+
+            food.FoodId = f;
+            float posX = Random.value * (ROOMSIZE_X - 5) * 2 - (ROOMSIZE_X - 5);
+            float posY = Random.value * (ROOMSIZE_Y - 5) * 2 - (ROOMSIZE_Y - 5);
+            food.transform.position = new Vector3(posX, posY, 0);
+            Foods.Add(f, food);
+        }
+    }
+
+    public void InitMultiRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
     {
         foreach (S_RoomList.Player p in packet.players)
         {
@@ -61,14 +103,14 @@ public class Room : GOSingleton<Room>
 
             player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
             player.transform.localScale = new Vector3(p.radius * 2, p.radius * 2, p.radius * 2); //반지름 받아와서 사이즈 결정
-            
+
             player.PlayerId = p.playerId;
             player.PlayerEater.Radius = p.radius;
             player.PlayerEater.EatFood += OnPlayerEatFood;
             player.PlayerEater.EatPlayer += OnPlayerEatPlayer;
 
             Players.Add(p.playerId, player); //딕셔너리에 추가
-           
+
         }
 
         for (int f = 0; f < packet.foods.Count; f++) //맵에 있는 음식들 관리 딕셔너리에 추가
@@ -103,6 +145,11 @@ public class Room : GOSingleton<Room>
             KeyMover mover = myPlayer.PlayerMover as KeyMover;
             mover.MoveAction.Disable();
         }
+    }
+
+    public void RecvRoomList(S_RoomList packet)
+    {
+        InitMultiRoom(packet);
     }
 
     public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우
@@ -141,14 +188,14 @@ public class Room : GOSingleton<Room>
 
         if (Players.Count == 1) //게임 종료 조건을 만족할 시 처리
         {
-            ShowGameOverUI();
+            ShowGameOverUI(true);
             DestroyRoom();
         }
     }
 
     public void OnPlayerEatFood(EatFoodEventArgs args) //어떤 플레이어가 음식을 먹었을 때
     {
-        if (args.packet == null)
+        if (!GameScene.IsMulti)
         {
             //싱글 플레이 시 로직
         }
@@ -173,7 +220,7 @@ public class Room : GOSingleton<Room>
         if (args.preyId == myPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
         {
             ShowGameOverUI(args.preyId != myPlayer.PlayerId);
-            DestroyRoom(args.packet != null); 
+            DestroyRoom(); 
         }
     }
 
@@ -184,11 +231,10 @@ public class Room : GOSingleton<Room>
         gameOverUI.Init(endString, "타이틀로", () => { SceneManager.LoadScene("TitleScene"); });
     }
 
-    private void DestroyRoom(bool isMultiPlayer = true) //방 파괴
+    private void DestroyRoom() //방 파괴
     {
         //방 오브젝트 전부 파괴
         Destroy(myPlayer.gameObject);
-        Destroy(rainSpawner.gameObject);
         foreach (var player in Players.Values) Destroy(player.gameObject);
         foreach (var food in Foods.Values) Destroy(food.gameObject);
 
@@ -196,7 +242,7 @@ public class Room : GOSingleton<Room>
         Players.Clear();
         Foods.Clear();
 
-        if (isMultiPlayer) //멀티플레이 중이면 연결 해제
+        if (GameScene.IsMulti) //멀티플레이 중이면 연결 해제
         {
             network.Disconnect();
         }

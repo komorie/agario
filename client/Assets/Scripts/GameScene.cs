@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class GameScene : MonoBehaviour
 {
+    public static bool IsMulti { get; set; } = false;
+
     private void Awake()
     {
-        NetworkManager.Instance.Connect();
+        if(IsMulti) { NetworkManager.Instance.Connect(); }
     }
 }
