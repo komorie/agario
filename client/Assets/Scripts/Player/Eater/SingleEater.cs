@@ -3,6 +3,13 @@ using UnityEngine;
 //싱글 플레이 시 음식, 플레이어 섭취를 담당하는 컴포넌트
 public class SingleEater : Eater
 {
+    private Player myPlayer;
+
+    private void Awake()
+    {
+        myPlayer = GetComponent<Player>();
+    }
+
     protected void OnTriggerEnter(Collider other)
     {
         Food food;
@@ -11,7 +18,7 @@ public class SingleEater : Eater
         {
             Radius += 0.1f;
             transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
-            OnEatFood(food.FoodId);
+            OnEatFood(myPlayer.PlayerId, food.FoodId);
         }
     }
 
@@ -24,7 +31,7 @@ public class SingleEater : Eater
             {
                 Radius += (prey.PlayerEater.Radius / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
                 transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
-                OnEatPlayer(prey.PlayerId);
+                OnEatPlayer(myPlayer.PlayerId, prey.PlayerId);
                 Destroy(prey.gameObject); //먹힌 플레이어 오브젝트 삭제
             }
         }

@@ -22,14 +22,14 @@ public class KeyMover : Mover
     {
         MoveAction.performed += OnMovePerformed;
         MoveAction.canceled += OnMoveCanceled;
-        if(packetSender != null) MoveVectorChanged += packetSender.SendMovePacket; //멀티 플레이어에서, 직접 조작하는 플레이어일 경우만 이동 패킷 전송하도록 등록
+        if(packetSender != null) MoveVectorChangeEvent += packetSender.SendMovePacket; //멀티 플레이어에서, 직접 조작하는 플레이어일 경우만 이동 패킷 전송하도록 등록
     }
 
     private void OnDisable()
     {
         MoveAction.performed -= OnMovePerformed;
         MoveAction.canceled -= OnMoveCanceled;
-        if (packetSender != null) MoveVectorChanged -= packetSender.SendMovePacket;
+        if (packetSender != null) MoveVectorChangeEvent -= packetSender.SendMovePacket;
     }
 
     protected override void OnTriggerExit(Collider other)

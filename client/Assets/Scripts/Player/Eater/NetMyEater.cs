@@ -60,7 +60,7 @@ public class NetMyEater : Eater
         {
             Radius += 0.05f;
             transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
-            OnEatFood(eatenFood.FoodId, p);
+            OnEatFood(myPlayer.PlayerId, eatenFood.FoodId, p);
             eatenFood = null;
         }
     }
@@ -70,7 +70,7 @@ public class NetMyEater : Eater
         {
             Radius += (eatenPlayer.PlayerEater.Radius / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
             transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
-            OnEatPlayer(eatenPlayer.PlayerId, p);
+            OnEatPlayer(myPlayer.PlayerId, eatenPlayer.PlayerId, p);
             Destroy(eatenPlayer.gameObject);
             eatenPlayer = null;
         }

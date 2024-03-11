@@ -8,7 +8,7 @@ public abstract class Mover : MonoBehaviour
     public int Speed { get; set; } = 20;
     public Vector2 MoveVector { get; set; }
 
-    public event Action<Vector2> MoveVectorChanged;
+    public event Action<Vector2> MoveVectorChangeEvent;
 
     public HashSet<Collider> TouchingColliders { get; set; } = new HashSet<Collider>();
 
@@ -28,7 +28,7 @@ public abstract class Mover : MonoBehaviour
         }
     }
 
-    protected virtual void OnMoveVectorChanged(Vector2 moveVector) => MoveVectorChanged?.Invoke(moveVector);
+    protected virtual void OnMoveVectorChanged(Vector2 moveVector) => MoveVectorChangeEvent?.Invoke(moveVector);
 
     //벽에 닿은 상태에서 움직일때, 충돌지점을 계산해 이동 벡터를 조정해주는 함수
     protected void MoveAttachedOnWall()

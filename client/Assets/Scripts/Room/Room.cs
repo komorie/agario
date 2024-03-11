@@ -10,8 +10,9 @@ public class Room : GOSingleton<Room>
     private const int ROOMSIZE_Y = 100;
     private const int FOOD_COUNT = 50;
     private const int AIPLAYER_COUNT = 10;
+    public const float DEFAULT_RADIUS = 1.5f;
 
-    Player myPlayer;
+    public Player MyPlayer { get; set; }
     NetworkManager network;
     PacketReceiver packetReceiver;
 
@@ -23,7 +24,13 @@ public class Room : GOSingleton<Room>
     GameObject netPlayerPrefab;
     GameObject singleMyPlayerPrefab;
     GameObject multiMyPlayerPrefab;
-    GameObject ConfirmUI;
+    GameObject confirmUIPrefab;
+    GameObject scoreBoardPrefab;
+
+    ConfirmUI matchUI;
+
+    public Action InitEvent;
+    public Action<Player> AddPlayerEvent;
 
     private void Awake()
     {
@@ -32,7 +39,9 @@ public class Room : GOSingleton<Room>
         netPlayerPrefab = Resources.Load<GameObject>("Prefabs/NetPlayer");
         singleMyPlayerPrefab = Resources.Load<GameObject>("Prefabs/SingleMyPlayer");
         multiMyPlayerPrefab = Resources.Load<GameObject>("Prefabs/MultiMyPlayer");
-        ConfirmUI = Resources.Load<GameObject>("Prefabs/ConfirmUI");
+        confirmUIPrefab = Resources.Load<GameObject>("Prefabs/ConfirmUI");
+        scoreBoardPrefab = Resources.Load<GameObject>("Prefabs/ScoreBoard");
+
         packetReceiver = PacketReceiver.Instance;
 
         if (GameScene.IsMulti) network = NetworkManager.Instance;
@@ -72,7 +81,7 @@ public class Room : GOSingleton<Room>
             if (p == 1)
             {
                 player = Instantiate(singleMyPlayerPrefab).GetComponent<Player>();
-                myPlayer = player;
+                MyPlayer = player;
             }
             else
             {
@@ -80,9 +89,9 @@ public class Room : GOSingleton<Room>
             }
 
             player.PlayerId = p;
-            player.PlayerEater.Radius = 1.5f;
-            player.PlayerEater.EatFood += OnPlayerEatFood;
-            player.PlayerEater.EatPlayer += OnPlayerEatPlayer;
+            player.PlayerEater.Radius = DEFAULT_RADIUS;
+            player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+            player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
 
             player.transform.position = new Vector3(newPlayerX, newPlayerY, 0);
 
@@ -99,6 +108,9 @@ public class Room : GOSingleton<Room>
             food.transform.position = new Vector3(posX, posY, 0);
             Foods.Add(f, food);
         }
+
+        InitEvent?.Invoke();
+
     }
 
     public void InitMultiRoom(S_RoomList packet) //처음에 접속했을 때, 이미 접속해 있던 플레이어들 목록 받아서 관리 딕셔너리에 추가함.
@@ -110,7 +122,7 @@ public class Room : GOSingleton<Room>
             if (p.isSelf)
             {
                 player = Instantiate(multiMyPlayerPrefab).GetComponent<Player>();
-                myPlayer = player;
+                MyPlayer = player;
             }
             else
             {
@@ -122,8 +134,8 @@ public class Room : GOSingleton<Room>
 
             player.PlayerId = p.playerId;
             player.PlayerEater.Radius = p.radius;
-            player.PlayerEater.EatFood += OnPlayerEatFood;
-            player.PlayerEater.EatPlayer += OnPlayerEatPlayer;
+            player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+            player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
 
             Players.Add(p.playerId, player); //딕셔너리에 추가
 
@@ -141,16 +153,14 @@ public class Room : GOSingleton<Room>
         if (packet.players.Count < 2) //내가 첫번째로 접속한 경우면 실행 불가
         {
             //confirmUI를 띄워서 매칭 중이라고 표시하고 다른 플레이어 대기
-            GameObject go = Instantiate(Resources.Load<GameObject>("Prefabs/ConfirmUI"));
-            go.name = "MatchUI";
-            ConfirmUI confirmUI = go.GetComponent<ConfirmUI>();
+            matchUI = Instantiate(confirmUIPrefab).GetComponent<ConfirmUI>();
 
-            confirmUI.Init(
+            matchUI.Init(
                 "매칭 중입니다.",
                 "취소하기",
                 () => {
-                    Destroy(go);
-                    myPlayer = null;
+                    Destroy(matchUI.gameObject);
+                    MyPlayer = null;
                     Players.Clear();
                     Foods.Clear();
                     network.Disconnect();
@@ -158,9 +168,11 @@ public class Room : GOSingleton<Room>
                 }
             );
 
-            KeyMover mover = myPlayer.PlayerMover as KeyMover;
+            KeyMover mover = MyPlayer.PlayerMover as KeyMover;
             mover.MoveAction.Disable();
         }
+
+        InitEvent?.Invoke();
     }
 
     public void RecvRoomList(S_RoomList packet)
@@ -170,27 +182,28 @@ public class Room : GOSingleton<Room>
 
     public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우
     {
-        if (p.playerId == myPlayer.PlayerId) return; 
+        if (p.playerId == MyPlayer.PlayerId) return; 
 
         Player player = Instantiate(netPlayerPrefab).GetComponent<Player>(); //새 플레이어 추가
 
         player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
         player.PlayerId = p.playerId;
-        player.PlayerEater.EatFood += OnPlayerEatFood;
-        player.PlayerEater.EatPlayer += OnPlayerEatPlayer;
+        player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+        player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
 
         Players.Add(p.playerId, player);
 
         if (Players.Count == 2) //매칭 대기중인 상황에서 누가 들어옴
         {
-            GameObject matchUI = GameObject.Find("MatchUI");
             if (matchUI != null)
             {
-                Destroy(matchUI); //대기 UI 삭제
-                KeyMover mover = myPlayer.PlayerMover as KeyMover;
+                Destroy(matchUI.gameObject); //대기 UI 삭제
+                KeyMover mover = MyPlayer.PlayerMover as KeyMover;
                 mover.MoveAction.Enable();
             }
         }
+
+        AddPlayerEvent?.Invoke(player);
     }
 
     public void RecvLeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
@@ -239,20 +252,20 @@ public class Room : GOSingleton<Room>
         if (Players.TryGetValue(args.preyId, out prey)) //먹힌 플레이어 딕셔너리에서 삭제
         {
             Players.Remove(args.preyId);
-            prey.PlayerEater.EatFood -= OnPlayerEatFood;
-            prey.PlayerEater.EatPlayer -= OnPlayerEatPlayer;
+            prey.PlayerEater.EatFoodEvent -= OnPlayerEatFood;
+            prey.PlayerEater.EatPlayerEvent -= OnPlayerEatPlayer;
         }
 
-        if (args.preyId == myPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
+        if (args.preyId == MyPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
         {
-            ShowGameOverUI(args.preyId != myPlayer.PlayerId);
+            ShowGameOverUI(args.preyId != MyPlayer.PlayerId);
             DestroyRoom(); 
         }
     }
 
     private void ShowGameOverUI(bool isWin = true) //게임 오버 UI
     {
-        ConfirmUI gameOverUI = Instantiate(ConfirmUI).GetComponent<ConfirmUI>(); //게임오버 UI
+        ConfirmUI gameOverUI = Instantiate(confirmUIPrefab).GetComponent<ConfirmUI>(); //게임오버 UI
         string endString = isWin ? "게임 승리" : "게임 패배";
         gameOverUI.Init(endString, "타이틀로", () => { SceneManager.LoadScene("TitleScene"); });
     }
@@ -260,11 +273,11 @@ public class Room : GOSingleton<Room>
     private void DestroyRoom() //방 파괴
     {
         //방 오브젝트 전부 파괴
-        Destroy(myPlayer.gameObject);
+        Destroy(MyPlayer.gameObject);
         foreach (var player in Players.Values) Destroy(player.gameObject);
         foreach (var food in Foods.Values) Destroy(food.gameObject);
 
-        myPlayer = null;
+        MyPlayer = null;
         Players.Clear();
         Foods.Clear();
 

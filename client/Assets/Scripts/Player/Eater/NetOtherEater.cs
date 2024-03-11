@@ -33,7 +33,7 @@ public class NetOtherEater : Eater
         {
             Radius += 0.05f;
             transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
-            OnEatFood(p.foodId, p);
+            OnEatFood(myPlayer.PlayerId, p.foodId, p);
         }
     }
 
@@ -46,7 +46,7 @@ public class NetOtherEater : Eater
             { 
                 Radius += (prey.PlayerEater.Radius / 2); //먹힌 플레이어 크기 반만큼 먹은 플레이어 크기 증가
                 transform.localScale = new Vector3(Radius * 2, Radius * 2, Radius * 2);
-                OnEatPlayer(p.preyId, p);
+                OnEatPlayer(myPlayer.PlayerId, p.preyId, p);
                 Destroy(prey.gameObject); //먹힌 플레이어 오브젝트 삭제
             }
         }
