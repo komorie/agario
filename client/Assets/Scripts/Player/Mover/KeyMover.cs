@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 //플레이어가 움직이는 물체의 이동 처리를 담당하는 컴포넌트
 public class KeyMover : Mover
 {
-    private DefaultInputActions inputActions;
+    private PlayerInputActions inputActions;
     private PlayerPacketSender packetSender;  
     private bool isMoving = false;
     private Vector2 inputVector;
@@ -13,7 +13,7 @@ public class KeyMover : Mover
 
     private void Awake()
     {
-        inputActions = new DefaultInputActions();
+        inputActions = InputActionsWrapper.inputActions;
         inputActions.Enable();
         MoveAction = inputActions.Player.Move;
         packetSender = GetComponent<PlayerPacketSender>();
@@ -60,10 +60,13 @@ public class KeyMover : Mover
     {
         inputVector = context.ReadValue<Vector2>();
 
+        if (inputVector.magnitude < 0.6f) return;
+        else inputVector = Vector3.Normalize(inputVector);    //모바일 컨트롤러 기준 일정 범위를 넘어야 움직이고, 넘으면 속도 같도록 Normalize
+
         //moveVector에 context에서 vector2값 가져오기
-        if (isMoving == false || MoveVector != context.ReadValue<Vector2>()) //이동방향 달라지면 
+        if (isMoving == false || MoveVector != inputVector) //이동방향 달라지면 
         {
-            MoveVector = context.ReadValue<Vector2>();
+            MoveVector = inputVector;
             isMoving = true;
             OnMoveVectorChanged(MoveVector);
         }
