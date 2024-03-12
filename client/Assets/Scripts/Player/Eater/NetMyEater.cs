@@ -33,7 +33,7 @@ public class NetMyEater : Eater
         // 충돌한 객체가 'Food'
         if (other.TryGetComponent(out eatenFood) == true)
         {
-            if(packetSender != null) packetSender.SendEatPacket(eatenFood.FoodId);
+            packetSender.SendEatPacket(eatenFood.FoodId);
         }
     }
 
@@ -45,7 +45,7 @@ public class NetMyEater : Eater
         {
             if (eatenPlayer.PlayerEater.Radius < Radius && Vector3.Distance(eatenPlayer.transform.position, transform.position) < Radius)
             {
-                if (packetSender != null) packetSender.SendEatPlayerPacket(myPlayer.PlayerId, eatenPlayer.PlayerId);
+                packetSender.SendEatPlayerPacket(myPlayer.PlayerId, eatenPlayer.PlayerId);
             }
             else
             {

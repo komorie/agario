@@ -28,9 +28,7 @@ public class Room : GOSingleton<Room>
     GameObject scoreBoardPrefab;
 
     ConfirmUI matchUI;
-
-    public Action InitEvent;
-    public Action<Player> AddPlayerEvent;
+    ScoreBoard scoreBoard;
 
     private void Awake()
     {
@@ -43,6 +41,7 @@ public class Room : GOSingleton<Room>
         scoreBoardPrefab = Resources.Load<GameObject>("Prefabs/ScoreBoard");
 
         packetReceiver = PacketReceiver.Instance;
+        scoreBoard = FindObjectOfType<ScoreBoard>();    
 
         if (GameScene.IsMulti) network = NetworkManager.Instance;
         if (!GameScene.IsMulti) InitSingleRoom();
@@ -109,7 +108,7 @@ public class Room : GOSingleton<Room>
             Foods.Add(f, food);
         }
 
-        InitEvent?.Invoke();
+        scoreBoard.Init(this);
 
     }
 
@@ -172,54 +171,7 @@ public class Room : GOSingleton<Room>
             mover.MoveAction.Disable();
         }
 
-        InitEvent?.Invoke();
-    }
-
-    public void RecvRoomList(S_RoomList packet)
-    {
-        InitMultiRoom(packet);
-    }
-
-    public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우
-    {
-        if (p.playerId == MyPlayer.PlayerId) return; 
-
-        Player player = Instantiate(netPlayerPrefab).GetComponent<Player>(); //새 플레이어 추가
-
-        player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
-        player.PlayerId = p.playerId;
-        player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
-        player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
-
-        Players.Add(p.playerId, player);
-
-        if (Players.Count == 2) //매칭 대기중인 상황에서 누가 들어옴
-        {
-            if (matchUI != null)
-            {
-                Destroy(matchUI.gameObject); //대기 UI 삭제
-                KeyMover mover = MyPlayer.PlayerMover as KeyMover;
-                mover.MoveAction.Enable();
-            }
-        }
-
-        AddPlayerEvent?.Invoke(player);
-    }
-
-    public void RecvLeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
-    {
-        Player player;
-        if (Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
-        {
-            Players.Remove(p.playerId);
-            Destroy(player.gameObject);
-        }
-
-        if (Players.Count == 1) //게임 종료 조건을 만족할 시 처리
-        {
-            ShowGameOverUI(true);
-            DestroyRoom();
-        }
+        scoreBoard.Init(this);
     }
 
     public void OnPlayerEatFood(EatFoodEventArgs args) //어떤 플레이어가 음식을 먹었을 때
@@ -244,6 +196,9 @@ public class Room : GOSingleton<Room>
             //멀티 플레이 시 로직: 서버에서 음식의 새로운 위치 지정
             food.transform.position = new Vector3(args.packet.posX, args.packet.posY, 0);
         }
+
+        scoreBoard.UpdateEatFood();
+
     }
 
     public void OnPlayerEatPlayer(EatPlayerEventArgs args) //어떤 플레이어가 다른 플레이어를 먹었을 때
@@ -256,10 +211,12 @@ public class Room : GOSingleton<Room>
             prey.PlayerEater.EatPlayerEvent -= OnPlayerEatPlayer;
         }
 
+        scoreBoard.UpdateRemovePlayer(prey);
+
         if (args.preyId == MyPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
         {
             ShowGameOverUI(args.preyId != MyPlayer.PlayerId);
-            DestroyRoom(); 
+            DestroyRoom();
         }
     }
 
@@ -298,5 +255,54 @@ public class Room : GOSingleton<Room>
             }
         }
         return false;  // 겹치는 플레이어 없음
+    }
+
+    public void RecvRoomList(S_RoomList packet)
+    {
+        InitMultiRoom(packet);
+    }
+
+    public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우
+    {
+        if (p.playerId == MyPlayer.PlayerId) return; 
+
+        Player player = Instantiate(netPlayerPrefab).GetComponent<Player>(); //새 플레이어 추가
+
+        player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
+        player.PlayerId = p.playerId;
+        player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+        player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
+
+        Players.Add(p.playerId, player);
+
+        if (Players.Count == 2) //매칭 대기중인 상황에서 누가 들어옴
+        {
+            if (matchUI != null)
+            {
+                Destroy(matchUI.gameObject); //대기 UI 삭제
+                KeyMover mover = MyPlayer.PlayerMover as KeyMover;
+                mover.MoveAction.Enable();
+            }
+        }
+
+        scoreBoard.UpdateAddPlayer(player);
+
+    }
+
+    public void RecvLeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
+    {
+        Player player;
+        if (Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
+        {
+            scoreBoard.UpdateRemovePlayer(player);
+            Players.Remove(p.playerId);
+            Destroy(player.gameObject);
+        }
+
+        if (Players.Count == 1) //게임 종료 조건을 만족할 시 처리
+        {
+            ShowGameOverUI(true);
+            DestroyRoom();
+        }
     }
 }
