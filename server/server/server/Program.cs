@@ -18,6 +18,8 @@ namespace Server
             IPEndPoint endPoint = new IPEndPoint(iPAddr, 777); //현재 호스트의 IP주소와 포트 번호 가져오기
             JobTimer jobTimer = new JobTimer(); //타이머 생성
 
+            Console.WriteLine(iPAddr);
+
             listener.Init(endPoint, () => { return new ClientSession(); }, 100); //연결 시 Session 생성
 
             while(true)

@@ -168,7 +168,7 @@ public class Room : GOSingleton<Room>
             );
 
             KeyMover mover = MyPlayer.PlayerMover as KeyMover;
-            mover.MoveAction.Disable();
+            mover?.MoveAction.Disable();
         }
 
         scoreBoard.Init(this);
@@ -281,7 +281,7 @@ public class Room : GOSingleton<Room>
             {
                 Destroy(matchUI.gameObject); //대기 UI 삭제
                 KeyMover mover = MyPlayer.PlayerMover as KeyMover;
-                mover.MoveAction.Enable();
+                mover?.MoveAction.Enable();
             }
         }
 
