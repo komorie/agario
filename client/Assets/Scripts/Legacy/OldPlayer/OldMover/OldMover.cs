@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //모든 물체들의 공통적인 이동 처리(벽) 를 담당하는 컴포넌트
-public abstract class Mover : MonoBehaviour
+public abstract class OldMover : MonoBehaviour
 {
     public int Speed { get; set; } = 20;
     public Vector2 MoveVector { get; set; }

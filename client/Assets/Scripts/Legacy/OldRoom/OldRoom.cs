@@ -4,20 +4,21 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
-public class Room : GOSingleton<Room>
+public class OldRoom : GOSingleton<OldRoom>
 {
     private const int ROOMSIZE_X = 100;
     private const int ROOMSIZE_Y = 100;
     private const int FOOD_COUNT = 50;
     private const int AIPLAYER_COUNT = 10;
+    public const float DEFAULT_RADIUS = 1.5f;
 
-    public MyPlayer MyPlayer { get; set; }
+    public OldPlayer MyPlayer { get; set; }
     NetworkManager network;
     PacketReceiver packetReceiver;
 
-    public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
+    public Dictionary<int, OldPlayer> Players { get; set; } = new Dictionary<int, OldPlayer>();
     public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>();
-
+    
     GameObject foodPrefab;
     GameObject aiPlayerPrefab;
     GameObject netPlayerPrefab;
@@ -40,7 +41,7 @@ public class Room : GOSingleton<Room>
         scoreBoardPrefab = Resources.Load<GameObject>("Prefabs/ScoreBoard");
 
         packetReceiver = PacketReceiver.Instance;
-        scoreBoard = FindObjectOfType<ScoreBoard>();
+        scoreBoard = FindObjectOfType<ScoreBoard>();    
 
         if (GameScene.IsMulti) network = NetworkManager.Instance;
         if (!GameScene.IsMulti) InitSingleRoom();
@@ -74,19 +75,22 @@ public class Room : GOSingleton<Room>
             while (OverlapWithPlayer(newPlayerX, newPlayerY));
 
             //반지름 받아와서 사이즈 결정
-            Player player;
+            OldPlayer player;
 
             if (p == 1)
             {
-                player = Instantiate(singleMyPlayerPrefab).GetComponent<Player>();
-                MyPlayer = player as MyPlayer;
+                player = Instantiate(singleMyPlayerPrefab).GetComponent<OldPlayer>();
+                MyPlayer = player;
             }
             else
             {
-                player = Instantiate(aiPlayerPrefab).GetComponent<Player>();
+                player = Instantiate(aiPlayerPrefab).GetComponent<OldPlayer>();
             }
 
             player.PlayerId = p;
+            player.PlayerEater.Radius = DEFAULT_RADIUS;
+            player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+            player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
 
             player.transform.position = new Vector3(newPlayerX, newPlayerY, 0);
 
@@ -104,7 +108,7 @@ public class Room : GOSingleton<Room>
             Foods.Add(f, food);
         }
 
-        scoreBoard.Init(this);
+/*        scoreBoard.Init(this);*/
 
     }
 
@@ -112,23 +116,25 @@ public class Room : GOSingleton<Room>
     {
         foreach (S_RoomList.Player p in packet.players)
         {
-            Player player;
+            OldPlayer player;
 
             if (p.isSelf)
             {
-                player = Instantiate(multiMyPlayerPrefab).GetComponent<Player>();
-                MyPlayer = player as MyPlayer;
+                player = Instantiate(multiMyPlayerPrefab).GetComponent<OldPlayer>();
+                MyPlayer = player;
             }
             else
             {
-                player = Instantiate(netPlayerPrefab).GetComponent<Player>();
+                player = Instantiate(netPlayerPrefab).GetComponent<OldPlayer>();
             }
 
             player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
             player.transform.localScale = new Vector3(p.radius * 2, p.radius * 2, p.radius * 2); //반지름 받아와서 사이즈 결정
 
             player.PlayerId = p.playerId;
-            player.Radius = p.radius;
+            player.PlayerEater.Radius = p.radius;
+            player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+            player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
 
             Players.Add(p.playerId, player); //딕셔너리에 추가
 
@@ -161,59 +167,16 @@ public class Room : GOSingleton<Room>
                 }
             );
 
-            MyPlayer.ToggleMoveAction();
+            OldKeyMover mover = MyPlayer.PlayerMover as OldKeyMover;
+            mover?.MoveAction.Disable();
         }
 
-        scoreBoard.Init(this);
+/*        scoreBoard.Init(this);*/
     }
 
-    public void RecvRoomList(S_RoomList packet)
+    public void OnPlayerEatFood(EatFoodEventArgs args) //어떤 플레이어가 음식을 먹었을 때
     {
-        InitMultiRoom(packet);
-    }
-
-    public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우
-    {
-        if (p.playerId == MyPlayer.PlayerId) return;
-
-        Player player = Instantiate(netPlayerPrefab).GetComponent<Player>(); //새 플레이어 추가
-
-        player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
-        player.PlayerId = p.playerId;
-
-        Players.Add(p.playerId, player);
-
-        if (Players.Count == 2) //매칭 대기중인 상황에서 누가 들어옴
-        {
-            if (matchUI != null)
-            {
-                Destroy(matchUI.gameObject); //대기 UI 삭제
-            }
-            MyPlayer.ToggleMoveAction(); //이동 허용
-        }
-
-        scoreBoard.UpdateAddPlayer(player);
-
-    }
-
-    public void RecvLeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
-    {
-        if (Players.TryGetValue(p.playerId, out Player player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
-        {
-            scoreBoard.UpdateRemovePlayer(player);
-            Players.Remove(p.playerId);
-            Destroy(player.gameObject);
-        }
-
-        if (Players.Count == 1) //게임 종료 조건을 만족할 시 처리
-        {
-            ShowGameOverUI(true);
-            DestroyRoom();
-        }
-    }
-
-    public void PlayerEatFood(Food food, S_BroadcastEatFood p = null) //어떤 플레이어가 음식을 먹었을 때
-    {
+        Food food = Foods[args.foodId];
         if (!GameScene.IsMulti)
         {
             //싱글 플레이 시 로직: 직접 음식의 새로운 위치 지정
@@ -231,25 +194,28 @@ public class Room : GOSingleton<Room>
         else
         {
             //멀티 플레이 시 로직: 서버에서 음식의 새로운 위치 지정
-            food.transform.position = new Vector3(p.posX, p.posY, 0);
+            food.transform.position = new Vector3(args.packet.posX, args.packet.posY, 0);
         }
 
         scoreBoard.UpdateEatFood();
 
     }
 
-    public void PlayerEatPlayer(Player prey, S_BroadcastEatPlayer p) //어떤 플레이어가 다른 플레이어를 먹었을 때
+    public void OnPlayerEatPlayer(EatPlayerEventArgs args) //어떤 플레이어가 다른 플레이어를 먹었을 때
     {
-        if (Players.TryGetValue(prey.PlayerId, out prey)) //먹힌 플레이어 딕셔너리에서 삭제
+        OldPlayer prey;
+        if (Players.TryGetValue(args.preyId, out prey)) //먹힌 플레이어 딕셔너리에서 삭제
         {
-            Players.Remove(prey.PlayerId);
+            Players.Remove(args.preyId);
+            prey.PlayerEater.EatFoodEvent -= OnPlayerEatFood;
+            prey.PlayerEater.EatPlayerEvent -= OnPlayerEatPlayer;
         }
 
-        scoreBoard.UpdateRemovePlayer(prey);
+/*        scoreBoard.UpdateRemovePlayer(prey);*/
 
-        if (prey.PlayerId == MyPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
+        if (args.preyId == MyPlayer.PlayerId || Players.Count == 1) //게임 종료 조건을 만족할 시 처리
         {
-            ShowGameOverUI(prey.PlayerId != MyPlayer.PlayerId);
+            ShowGameOverUI(args.preyId != MyPlayer.PlayerId);
             DestroyRoom();
         }
     }
@@ -283,11 +249,60 @@ public class Room : GOSingleton<Room>
         {
             Vector3 pVec = p.Value.gameObject.transform.position;
             float distance = (float)Math.Sqrt(Math.Pow(pVec.x - x, 2) + Math.Pow(pVec.y - y, 2));
-            if (distance < p.Value.Radius)
+            if (distance < p.Value.PlayerEater.Radius)
             {
                 return true;  // 겹치는 플레이어 발견
             }
         }
         return false;  // 겹치는 플레이어 없음
+    }
+
+    public void RecvRoomList(S_RoomList packet)
+    {
+        InitMultiRoom(packet);
+    }
+
+    public void RecvEnterGame(S_BroadcastEnterGame p) //서버에게서 새로운 유저가 들어왔다는 패킷을 받는 경우
+    {
+        if (p.playerId == MyPlayer.PlayerId) return; 
+
+        OldPlayer player = Instantiate(netPlayerPrefab).GetComponent<OldPlayer>(); //새 플레이어 추가
+
+        player.transform.position = new Vector3(p.posX, p.posY, p.posZ);
+        player.PlayerId = p.playerId;
+        player.PlayerEater.EatFoodEvent += OnPlayerEatFood;
+        player.PlayerEater.EatPlayerEvent += OnPlayerEatPlayer;
+
+        Players.Add(p.playerId, player);
+
+        if (Players.Count == 2) //매칭 대기중인 상황에서 누가 들어옴
+        {
+            if (matchUI != null)
+            {
+                Destroy(matchUI.gameObject); //대기 UI 삭제
+                OldKeyMover mover = MyPlayer.PlayerMover as OldKeyMover;
+                mover?.MoveAction.Enable();
+            }
+        }
+
+/*        scoreBoard.UpdateAddPlayer(player);*/
+
+    }
+
+    public void RecvLeaveGame(S_BroadcastLeaveGame p) //누군가 게임 종료(Disconnect)했다는 패킷이 왔을 때
+    {
+        OldPlayer player;
+        if (Players.TryGetValue(p.playerId, out player)) //종료한 플레이어 오브젝트 있나 확인하고, 있으면 삭제
+        {
+/*            scoreBoard.UpdateRemovePlayer(player);*/
+            Players.Remove(p.playerId);
+            Destroy(player.gameObject);
+        }
+
+        if (Players.Count == 1) //게임 종료 조건을 만족할 시 처리
+        {
+            ShowGameOverUI(true);
+            DestroyRoom();
+        }
     }
 }

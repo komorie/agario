@@ -22,7 +22,7 @@ public class ScoreBoard : MonoBehaviour
 
     private void UpdateUI() //UI 갱신
     {
-        players.Sort((x, y) => y.PlayerEater.Radius.CompareTo(x.PlayerEater.Radius)); //점수 기준으로 정렬한 랭킹 배열
+        players.Sort((x, y) => y.Radius.CompareTo(x.Radius)); //점수 기준으로 정렬한 랭킹 배열
 
         for (int i = 0; i < 5; i++) //상위 5위권 출력
         {
@@ -34,7 +34,7 @@ public class ScoreBoard : MonoBehaviour
             }
 
             idTexts[i].text = $"Player {players[i].PlayerId}";
-            scoreTexts[i].text = players[i].PlayerEater.Radius.ToString("F2");
+            scoreTexts[i].text = players[i].Radius.ToString("F2");
 
             if (players[i].PlayerId == myPlayerId)
             {

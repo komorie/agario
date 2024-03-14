@@ -1,30 +1,22 @@
 using UnityEngine;
+using static S_RoomList;
 
 public class OtherPlayer : Player
 {
-    private NewMover mover;
-    private PacketReceiver packetReceiver;
-
     private Vector2 inputVector = Vector2.zero;
-
-    void Awake()
-    {
-        PlayerMover = GetComponent<Mover>();
-        PlayerEater = GetComponent<Eater>();
-        PacketSender = GetComponent<PlayerPacketSender>();
-
-        mover = GetComponent<NewMover>();
-        packetReceiver = PacketReceiver.Instance;
-    }
 
     private void OnEnable()
     {
         packetReceiver.OnBroadcastMove += RecvBroadcastMove;
+        packetReceiver.OnBroadcastEatFood += RecvEatFood;
+        packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer; 
     }
 
     private void OnDisable()
     {
         packetReceiver.OnBroadcastMove -= RecvBroadcastMove;
+        packetReceiver.OnBroadcastEatFood -= RecvEatFood;
+        packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
     }
 
     // Update is called once per frame
@@ -35,7 +27,6 @@ public class OtherPlayer : Player
 
     private void RecvBroadcastMove(S_BroadcastMove p)
     {
-        //온 패킷대로 위치 조정
         if (PlayerId == p.playerId)
         {
             inputVector = new Vector2(p.dirX, p.dirY); //다른 플레이어의 이동 방향
@@ -43,6 +34,22 @@ public class OtherPlayer : Player
             float lastTime = p.time;
 
             mover.StartLerp(inputVector, lastPos, lastTime);
+        }
+    }
+    private void RecvEatFood(S_BroadcastEatFood p)
+    {
+        if(p.playerId == PlayerId)
+        {
+            Debug.Log("Receive Eat!");
+            eater.EatFoodComplete(p);
+        }
+    }
+    private void RecvEatPlayer(S_BroadcastEatPlayer p)
+    {
+        if(p.predatorId == PlayerId)
+        {
+            Debug.Log("Receive Eat!");
+            eater.EatPlayerComplete(p);
         }
     }
 }

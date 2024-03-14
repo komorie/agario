@@ -3,17 +3,17 @@ using UnityEngine;
 
 
 //타 플레이어가 네트워크를 통해 움직이는 물체의 이동 처리를 담당하는 컴포넌트
-public class NetOtherMover : Mover
+public class OldNetOtherMover : OldMover
 {
 
-    private Player player;
+    private OldPlayer player;
     private PacketReceiver packetReceiver;
     private bool isLerping = false;
     private Vector3 targetPosition;
 
     private void Awake()
     {
-        player = GetComponent<Player>(); 
+        player = GetComponent<OldPlayer>(); 
         packetReceiver = PacketReceiver.Instance;   
     }
 

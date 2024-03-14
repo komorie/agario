@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class NewMover : MonoBehaviour
+public class Mover : MonoBehaviour
 {
     private int speed = 20;
     private bool isDirChanged = false;

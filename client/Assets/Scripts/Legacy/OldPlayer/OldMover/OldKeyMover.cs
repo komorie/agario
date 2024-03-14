@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 //플레이어가 움직이는 물체의 이동 처리를 담당하는 컴포넌트
-public class KeyMover : Mover
+public class OldKeyMover : OldMover
 {
     private PlayerInputActions inputActions;
     private PlayerPacketSender packetSender;  

@@ -30,7 +30,7 @@ public struct EatPlayerEventArgs
 }
 
 //음식, 플레이어 섭취를 담당하는 공통 컴포넌트
-public class Eater : MonoBehaviour
+public class OldEater : MonoBehaviour
 {
     public float Radius { get; set; } = 1.5f;
     public event Action<EatFoodEventArgs> EatFoodEvent;

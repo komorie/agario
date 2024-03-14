@@ -1,13 +1,13 @@
 using UnityEngine;
 
 //싱글 플레이 시 음식, 플레이어 섭취를 담당하는 컴포넌트
-public class SingleEater : Eater
+public class OldSingleEater : OldEater
 {
-    private Player myPlayer;
+    private OldPlayer myPlayer;
 
     private void Awake()
     {
-        myPlayer = GetComponent<Player>();
+        myPlayer = GetComponent<OldPlayer>();
     }
 
     protected void OnTriggerEnter(Collider other)
@@ -24,7 +24,7 @@ public class SingleEater : Eater
 
     private void OnTriggerStay(Collider other)
     {
-        Player prey;
+        OldPlayer prey;
         if (other.TryGetComponent(out prey) == true) //상대 플레이어랑 겹쳤다
         {
             if (prey.PlayerEater.Radius < Radius && Vector3.Distance(prey.transform.position, transform.position) < Radius)
