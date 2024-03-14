@@ -88,23 +88,26 @@ public class NewMover : MonoBehaviour
         float RTT = currentSecond - lastTime; //타 플레이어가 이동을 시작한 시간과 현재 시간의 차이
 
         Vector3 target = lastPos + new Vector3(vec.x, vec.y, 0) * speed * RTT;  //서버상으로 온 위치에서 소요 시간에 따른 이동 벡터를 더해 계산한 최신 예측 위치
-        transform.position += new Vector3(vec.x, vec.y, 0) * speed * RTT; //내가 추측해서 이동시킨 현재 플레이어의 위치
+        Vector3 current = transform.position += new Vector3(vec.x, vec.y, 0) * speed * RTT; //내가 추측한 현재 위치에서 이동시킬 위치
 
         while (isLerping)
         {
-            float currentDistance = Vector3.Distance(transform.position, target); //최신 예측 위치와 현재 플레이어의 위치의 거리 차이
+            float currentDistance = Vector3.Distance(current, target); //최신 예측 위치와 현재 플레이어의 위치의 거리 차이
 
             if (currentDistance > 0.1f)
             {
-                Vector3 newDes = Vector3.Lerp(transform.position, target, 0.5f); //최신 예측 위치로 이동하되, 선형 보간을 사용해 현재 위치와 최신 위치의 중간 위치 지정
-                transform.position = Vector3.MoveTowards(transform.position, newDes, (speed + currentDistance) * Time.deltaTime); //중간 위치로 이동
                 target += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //다음 프레임의 최신 예측 위치
+                current = transform.position += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //다음 프레임의 내가 추측한 위치
+                Vector3 newDes = Vector3.Lerp(current, target, 0.5f); //최신 예측 위치로 이동하되, 선형 보간을 사용해 내 추측 위치와 최신 추측 위치의 중간 위치 지정
+                transform.position = Vector3.MoveTowards(transform.position, newDes, speed * Time.deltaTime * 3); //중간 위치로 이동
             }
             else
             {
                 isLerping = false;
                 currentLerp = null;
             }
+
+/*            Debug.Log($"{isLerping} {vec.x} {vec.y} {currentDistance}");*/
 
             yield return null;
         }
