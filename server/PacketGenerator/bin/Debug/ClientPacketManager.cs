@@ -33,12 +33,24 @@ class PacketManager //인터페이스와 딕셔너리로 패킷을 생성하는 
         handler.Add((ushort)PacketID.S_BroadcastLeaveGame, PacketHandler.S_BroadcastLeaveGameHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 
 		
-        makeFunc.Add((ushort)PacketID.S_PlayerList, MakePacket<S_PlayerList>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
-        handler.Add((ushort)PacketID.S_PlayerList, PacketHandler.S_PlayerListHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+        makeFunc.Add((ushort)PacketID.S_BroadcastServerTime, MakePacket<S_BroadcastServerTime>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.S_BroadcastServerTime, PacketHandler.S_BroadcastServerTimeHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+
+		
+        makeFunc.Add((ushort)PacketID.S_RoomList, MakePacket<S_RoomList>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.S_RoomList, PacketHandler.S_RoomListHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 
 		
         makeFunc.Add((ushort)PacketID.S_BroadcastMove, MakePacket<S_BroadcastMove>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
         handler.Add((ushort)PacketID.S_BroadcastMove, PacketHandler.S_BroadcastMoveHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+
+		
+        makeFunc.Add((ushort)PacketID.S_BroadcastEatFood, MakePacket<S_BroadcastEatFood>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.S_BroadcastEatFood, PacketHandler.S_BroadcastEatFoodHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
+
+		
+        makeFunc.Add((ushort)PacketID.S_BroadcastEatPlayer, MakePacket<S_BroadcastEatPlayer>); //패킷에 종류에 따라, 바이트 배열로부터 패킷을 생성할 때 수행될 함수를 등록
+        handler.Add((ushort)PacketID.S_BroadcastEatPlayer, PacketHandler.S_BroadcastEatPlayerHandler); //이쪽은 해당 패킷 생성 이후에 수행되어야 할 이벤트 핸들러 함수를 등록
 
 		
     }

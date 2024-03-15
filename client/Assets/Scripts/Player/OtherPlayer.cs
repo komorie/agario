@@ -33,14 +33,13 @@ public class OtherPlayer : Player
             Vector3 lastPos = new Vector3(p.posX, p.posY, p.posZ);
             float lastTime = p.time;
 
-            mover.StartLerp(inputVector, lastPos, lastTime);
+            mover.LerpStart(inputVector, lastPos, lastTime);
         }
     }
     private void RecvEatFood(S_BroadcastEatFood p)
     {
         if(p.playerId == PlayerId)
         {
-            Debug.Log("Receive Eat!");
             eater.EatFoodComplete(p);
         }
     }
@@ -48,7 +47,6 @@ public class OtherPlayer : Player
     {
         if(p.predatorId == PlayerId)
         {
-            Debug.Log("Receive Eat!");
             eater.EatPlayerComplete(p);
         }
     }

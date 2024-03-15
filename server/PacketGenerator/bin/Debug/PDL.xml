@@ -17,6 +17,10 @@
     <int name="playerId"/>
   </packet>
 
+  <packet name="S_BroadcastServerTime">
+    <float name="serverTime"/>
+  </packet>
+
   <packet name="S_RoomList">
     <!--현재 방에 있는 모든 정보 알려준다-->
     <list name="player">

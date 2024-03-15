@@ -1,11 +1,17 @@
+using System;
 using UnityEngine;
 
 public class GameScene : MonoBehaviour
 {
-    public static bool IsMulti { get; set; } = false;
+    public static bool isMulti = false;
 
-    private void Awake()
+    private void Start()
     {
-        if(IsMulti) { NetworkManager.Instance.Connect(); }
+        if (isMulti) 
+        { 
+            NetworkManager.Instance.Connect(NetworkManager.connectingAddress);
+            FindObjectOfType<MobileHUD>().UpdateUI(NetworkManager.connectingAddress);
+        }
     }
+
 }

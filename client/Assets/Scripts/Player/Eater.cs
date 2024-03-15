@@ -19,7 +19,7 @@ public class Eater : MonoBehaviour
         if(this.food == null)
         {
             this.food = food;
-            if (!GameScene.IsMulti) EatFoodComplete();
+            if (!GameScene.isMulti) EatFoodComplete();
             return true;
         }
         return false;
@@ -30,7 +30,7 @@ public class Eater : MonoBehaviour
         if (this.prey == null && prey.Radius < predator.Radius && Vector3.Distance(prey.transform.position, predator.transform.position) < predator.Radius)
         {
             this.prey = prey;
-            if (!GameScene.IsMulti) EatPlayerComplete();
+            if (!GameScene.isMulti) EatPlayerComplete();
             return true;
         }
         return false;

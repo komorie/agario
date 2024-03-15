@@ -5,14 +5,14 @@ public class TitleUI : MonoBehaviour
 {
     public void SingleButtonClick()
     {
-        GameScene.IsMulti = false;
+        GameScene.isMulti = false;
         SceneManager.LoadSceneAsync("GameScene"); //게임 화면으로 이동
     }
 
     public void MultiButtonClick()
     {
-        GameScene.IsMulti = true;
-        SceneManager.LoadSceneAsync("GameScene"); //게임 화면으로 이동
+        GameScene.isMulti = true;
+        Instantiate(Resources.Load<GameObject>("Prefabs/IPInputUI"));
     }
 
     public void ExitButtonClick()

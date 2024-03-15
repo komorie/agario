@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using UnityEngine;
 
 //네트워크 플레이 시 상황에 맞는 패킷 전송.
@@ -15,10 +16,7 @@ public class PlayerPacketSender : MonoBehaviour
     {
         C_Move movePacket = new C_Move();
 
-        DateTime now = DateTime.UtcNow;
-        float sendTime = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
-
-        movePacket.time = sendTime;
+        movePacket.time = CustomTimer.Instance.StopWatch.ElapsedSeconds;
         movePacket.dirX = moveVector.x;
         movePacket.dirY = moveVector.y;
         movePacket.posX = transform.position.x;

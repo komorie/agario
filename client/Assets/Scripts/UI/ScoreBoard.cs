@@ -13,10 +13,10 @@ public class ScoreBoard : MonoBehaviour
     int myPlayerId;
     private List<Player> players;
 
-    public void Init(Room room) //초기화(Room이 초기화된 이후)
+    public void Init(Dictionary<int, Player> players, int myPlayerId) //초기화(Room이 초기화된 이후)
     {
-        players = new List<Player>(room.Players.Values);
-        myPlayerId = room.MyPlayer.PlayerId;
+        this.players = new List<Player>(players.Values);
+        this.myPlayerId = myPlayerId;
         UpdateUI();
     }
 

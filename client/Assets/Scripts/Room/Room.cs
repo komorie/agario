@@ -42,8 +42,8 @@ public class Room : GOSingleton<Room>
         packetReceiver = PacketReceiver.Instance;
         scoreBoard = FindObjectOfType<ScoreBoard>();
 
-        if (GameScene.IsMulti) network = NetworkManager.Instance;
-        if (!GameScene.IsMulti) InitSingleRoom();
+        if (GameScene.isMulti) network = NetworkManager.Instance;
+        if (!GameScene.isMulti) InitSingleRoom();
     }
 
     private void OnEnable() //특정 패킷 받을 시 수행할 함수들 구독
@@ -104,7 +104,7 @@ public class Room : GOSingleton<Room>
             Foods.Add(f, food);
         }
 
-        scoreBoard.Init(this);
+        scoreBoard.Init(Players, MyPlayer.PlayerId);
 
     }
 
@@ -149,7 +149,7 @@ public class Room : GOSingleton<Room>
             matchUI = Instantiate(confirmUIPrefab).GetComponent<ConfirmUI>();
 
             matchUI.Init(
-                "매칭 중입니다.",
+                "접속 완료. 타 플레이어 대기 중",
                 "취소하기",
                 () => {
                     Destroy(matchUI.gameObject);
@@ -164,7 +164,7 @@ public class Room : GOSingleton<Room>
             MyPlayer.ToggleMoveAction();
         }
 
-        scoreBoard.Init(this);
+        scoreBoard.Init(Players, MyPlayer.PlayerId);
     }
 
     public void RecvRoomList(S_RoomList packet)
@@ -214,7 +214,7 @@ public class Room : GOSingleton<Room>
 
     public void PlayerEatFood(Food food, S_BroadcastEatFood p = null) //어떤 플레이어가 음식을 먹었을 때
     {
-        if (!GameScene.IsMulti)
+        if (!GameScene.isMulti)
         {
             //싱글 플레이 시 로직: 직접 음식의 새로운 위치 지정
             float posX, posY;
@@ -272,7 +272,7 @@ public class Room : GOSingleton<Room>
         Players.Clear();
         Foods.Clear();
 
-        if (GameScene.IsMulti) //멀티플레이 중이면 연결 해제
+        if (GameScene.isMulti) //멀티플레이 중이면 연결 해제
         {
             network.Disconnect();
         }

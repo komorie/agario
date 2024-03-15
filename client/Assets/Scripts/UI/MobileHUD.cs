@@ -1,18 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using TMPro;
 using UnityEngine;
 
 public class MobileHUD : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField]    
+    TMP_Text connectAddress;
 
-    // Update is called once per frame
-    void Update()
+    [SerializeField]
+    TMP_Text elapsedTime;
+
+    public void UpdateUI(string address)
     {
-        
+        connectAddress.text = address;
     }
 }

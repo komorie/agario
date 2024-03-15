@@ -1,6 +1,7 @@
 ﻿using Server.Session;
 using Core;
 using static S_RoomList;
+using System.Diagnostics;
 
 namespace Server.Game
 {
@@ -13,6 +14,8 @@ namespace Server.Game
         private float roomSizeX = 100;
         private float roomSizeY = 100;
         private float currentSecond;
+
+        private Stopwatch stopwatch = new Stopwatch();
 
         List<ClientSession> Sessions { get; set; } = new List<ClientSession>();
 
@@ -35,10 +38,26 @@ namespace Server.Game
                 });
             }
 
-            DateTime now = DateTime.UtcNow;
-            currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
+            // Stopwatch 시작
+            stopwatch.Start();
+            currentSecond = 0;
 
             Simulate();
+            SyncTime();
+        }
+
+        public void SyncTime()
+        {
+            Push(BroadCastTime);
+            JobTimer.Instance.Push(SyncTime, 30000); //30초 뒤에 Simulate 또 호출 -> 클라이언트에게 시간 전송 -> 30초마다 시계 동기화
+        }
+
+        public void BroadCastTime()
+        {
+            Console.WriteLine($"Elapsed Second: {stopwatch.Elapsed.TotalSeconds}");
+            S_BroadcastServerTime st = new S_BroadcastServerTime();
+            st.serverTime = (float)stopwatch.Elapsed.TotalSeconds;
+            BroadCast(st); //서버의 시간 전송
         }
 
         public void Simulate()
@@ -49,8 +68,7 @@ namespace Server.Game
 
         public void SimulatePlayersPosition() //함수가 호출되는 시점에서, 현재 방에 있는 플레이어들의 위치를 흐른 시간 time에 비례해, dir 방향으로 pos를 업데이트해야 함. 1초당 이동 속도는 Speed
         {
-            DateTime now = DateTime.UtcNow;
-            float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
+            float currentSecond = (float)stopwatch.Elapsed.TotalSeconds;
             float deltaTime = currentSecond - this.currentSecond;
 
             foreach (ClientSession s in Sessions)
@@ -82,6 +100,9 @@ namespace Server.Game
 
         public void Enter(ClientSession session) //클라 A가 게임방 입장
         {
+            S_BroadcastServerTime st = new S_BroadcastServerTime();
+            st.serverTime = (float)stopwatch.Elapsed.TotalSeconds;
+            session.Send(st.Write()); //서버의 시간 전송
 
             //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
             int newPlayerX, newPlayerY;

@@ -1,8 +1,11 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class Mover : MonoBehaviour
 {
@@ -11,7 +14,7 @@ public class Mover : MonoBehaviour
     private bool isLerping = false;
     private Vector2 moveVector = Vector2.zero;
     private HashSet<Collider> touchingColliders = new HashSet<Collider>();
-    private Coroutine currentLerp = null;
+    private Coroutine currentLerp;
 
     void OnTriggerEnter(Collider other)
     {
@@ -29,86 +32,94 @@ public class Mover : MonoBehaviour
         }
     }
 
-    //º®¿¡ ´êÀº »óÅÂ¿¡¼­ ¿òÁ÷ÀÏ¶§, Ãæµ¹ÁöÁ¡À» °è»êÇØ ÀÌµ¿ º¤ÅÍ¸¦ Á¶Á¤ÇØÁÖ´Â ÇÔ¼ö
+    //ë²½ì— ë‹¿ì€ ìƒíƒœì—ì„œ ì›€ì§ì¼ë•Œ, ì¶©ëŒì§€ì ì„ ê³„ì‚°í•´ ì´ë™ ë²¡í„°ë¥¼ ì¡°ì •í•´ì£¼ëŠ” í•¨ìˆ˜
     public Vector2 WallCalculate(Vector2 vec)
     {
         foreach (Collider col in touchingColliders)
         {
-            //Ãæµ¹ ÁöÁ¡¿¡¼­ ÇöÀç ¿ÀºêÁ§Æ®ÀÇ º¤ÅÍ¸¦ »« -> Ãæµ¹ ÁöÁ¡ÀÇ º®°ú ¼öÁ÷ÀÌ µÇ´Â ¹æÇâ º¤ÅÍ¸¦ °¡Á®¿É´Ï´Ù.
+            //ì¶©ëŒ ì§€ì ì—ì„œ í˜„ì¬ ì˜¤ë¸Œì íŠ¸ì˜ ë²¡í„°ë¥¼ ëº€ -> ì¶©ëŒ ì§€ì ì˜ ë²½ê³¼ ìˆ˜ì§ì´ ë˜ëŠ” ë°©í–¥ ë²¡í„°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
             Vector3 wallNormal = transform.position - col.ClosestPoint(transform.position);
             wallNormal.Normalize();
             Vector2 wallNormal2D = new Vector2(wallNormal.x, wallNormal.y);
 
-            // MoveVector¸¦ ¹ı¼±º¤ÅÍ¿Í ³»Àû
+            // MoveVectorë¥¼ ë²•ì„ ë²¡í„°ì™€ ë‚´ì 
             float dot = Vector2.Dot(wallNormal, vec);
 
-            // ³»Àû °ªÀÌ ÇÃ·¯½º´Ù -> ÄÚ»çÀÎ ¼¼Å¸°¡ ÇÃ·¯½º -> °°Àº ¹æÇâ -> º®À¸·ÎºÎÅÍ ¸Ö¾îÁø´Ù
-            // ³»Àû °ªÀÌ ¸¶ÀÌ³Ê½º´Ù -> µÎ º¤ÅÍ°¡ µĞ°¢À» ÀÌ·é´Ù -> Áï MoveVector°¡ º®À» ÇâÇØ °£´Ù´Â °Í
+            // ë‚´ì  ê°’ì´ í”ŒëŸ¬ìŠ¤ë‹¤ -> ì½”ì‚¬ì¸ ì„¸íƒ€ê°€ í”ŒëŸ¬ìŠ¤ -> ê°™ì€ ë°©í–¥ -> ë²½ìœ¼ë¡œë¶€í„° ë©€ì–´ì§„ë‹¤
+            // ë‚´ì  ê°’ì´ ë§ˆì´ë„ˆìŠ¤ë‹¤ -> ë‘ ë²¡í„°ê°€ ë‘”ê°ì„ ì´ë£¬ë‹¤ -> ì¦‰ MoveVectorê°€ ë²½ì„ í–¥í•´ ê°„ë‹¤ëŠ” ê²ƒ
 
             if (dot < 0)
             {
-                vec -= wallNormal2D * dot; //ÀÌµ¿º¤ÅÍ¿¡¼­ Á¤»ç¿µÀÇ Å©±â¸¸ÇÑ ¹ı¼±º¤ÅÍ¸¸Å­ Ãß°¡·Î ÀÌµ¿ -> º®À» ÇâÇØ °¡´Â ¼ººĞ Á¦°Å
+                vec -= wallNormal2D * dot; //ì´ë™ë²¡í„°ì—ì„œ ì •ì‚¬ì˜ì˜ í¬ê¸°ë§Œí•œ ë²•ì„ ë²¡í„°ë§Œí¼ ì¶”ê°€ë¡œ ì´ë™ -> ë²½ì„ í–¥í•´ ê°€ëŠ” ì„±ë¶„ ì œê±°
             }
         }
 
         return vec;
     }
 
-    public Vector2 Move(Vector2 vec) //ÀÌµ¿
+    public Vector2 Move(Vector2 vec) //ì´ë™
     {
         if (isLerping)
         {
-            vec = Vector2.zero;
+            return vec;
         }
 
-        transform.position += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //°è»êµÈ º¤ÅÍ°ª°ú ¼Óµµ¿¡ µû¶ó ÀÌµ¿
+        transform.position += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //ê³„ì‚°ëœ ë²¡í„°ê°’ê³¼ ì†ë„ì— ë”°ë¼ ì´ë™
 
-        isDirChanged = (moveVector != vec); //ÀÌµ¿ ¹æÇâÀÌ ¹Ù²î¾ú´ÂÁö
+        isDirChanged = (moveVector != vec); //ì´ë™ ë°©í–¥ì´ ë°”ë€Œì—ˆëŠ”ì§€
         moveVector = vec;
 
         return vec;
 
     }
 
-    public void StartLerp(Vector2 vec, Vector3 lastPos, float lastTime)
+    public void LerpStart(Vector2 vec, Vector3 lastPos, float lastTime)
     {
-        if(currentLerp != null)
+        float dis = Vector3.Distance(transform.position, lastPos);
+        isLerping = false;
+
+        if (currentLerp != null)
         {
             StopCoroutine(currentLerp);
         }
 
-        isLerping = true;
-        currentLerp = StartCoroutine(Lerp(vec, lastPos, lastTime));
+        if (dis > 10f)
+        {
+            transform.position = lastPos;
+            return;
+        }
+        if (dis > 1.5f)
+        {
+            isLerping = true;
+            currentLerp = StartCoroutine(Lerp(vec, lastPos, lastTime));
+        }
     }
 
-    public IEnumerator Lerp(Vector2 vec, Vector3 lastPos, float lastTime) //³»°¡ °è»êÇÑ Å¸ ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡¿Í ¼­¹ö»óÀÇ Å¸ ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡°¡ ´Ù¸¥ °æ¿ì ÀÌµ¿ º¤ÅÍ Á¶Àı
+    //ë‚´ê°€ ê³„ì‚°í•œ íƒ€ í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ì™€ ì„œë²„ìƒì˜ íƒ€ í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ê°€ ë‹¤ë¥¸ ê²½ìš° ë³´ê°„
+    //ìµœëŒ€í•œ ì‹œë„í•´ ë³´ì•˜ìœ¼ë‚˜ ë‹¤ë¥¸(ëª¨ë°”ì¼) ê¸°ê¸°ì—ì„œ PCì™€ í†µì‹  ì‹œ í„±í„± ê±¸ë¦¬ëŠ” ëŠë‚Œ. ì¼ë‹¨ ë™ê¸°í™”ê°€ ê¸°ëŠ¥ì€ í•´ì„œ ê°œì„ ì€ ë³´ë¥˜.
+    public IEnumerator Lerp(Vector2 vec, Vector3 lastPos, float lastTime)
     {
-        DateTime now = DateTime.UtcNow;
-        float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
-        float RTT = currentSecond - lastTime; //Å¸ ÇÃ·¹ÀÌ¾î°¡ ÀÌµ¿À» ½ÃÀÛÇÑ ½Ã°£°ú ÇöÀç ½Ã°£ÀÇ Â÷ÀÌ
-
-        Vector3 target = lastPos + new Vector3(vec.x, vec.y, 0) * speed * RTT;  //¼­¹ö»óÀ¸·Î ¿Â À§Ä¡¿¡¼­ ¼Ò¿ä ½Ã°£¿¡ µû¸¥ ÀÌµ¿ º¤ÅÍ¸¦ ´õÇØ °è»êÇÑ ÃÖ½Å ¿¹Ãø À§Ä¡
-        Vector3 current = transform.position += new Vector3(vec.x, vec.y, 0) * speed * RTT; //³»°¡ ÃßÃøÇÑ ÇöÀç À§Ä¡¿¡¼­ ÀÌµ¿½ÃÅ³ À§Ä¡
+        /*float RTT = NetworkManager.stopWatch.ElapsedSeconds - lastTime > 0 ? NetworkManager.stopWatch.ElapsedSeconds - lastTime : 0; //*í˜„ì¬ íƒ€ì´ë¨¸ ë™ê¸°í™” ë¬¸ì œ ìˆìŒ**/
+        Vector3 target = lastPos; /* + new Vector3(vec.x, vec.y, 0) * speed * RTT; */ //ì„œë²„ìƒìœ¼ë¡œ ì˜¨ ìœ„ì¹˜ì—
+        Vector3 current = transform.position; /* + new Vector3(vec.x, vec.y, 0) * speed * RTT;*/ //ë‚´ê°€ ì¶”ì¸¡í•œ í˜„ì¬ ìœ„ì¹˜
 
         while (isLerping)
         {
-            float currentDistance = Vector3.Distance(current, target); //ÃÖ½Å ¿¹Ãø À§Ä¡¿Í ÇöÀç ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡ÀÇ °Å¸® Â÷ÀÌ
+            float currentDistance = Vector3.Distance(current, target); //ìµœì‹  ì˜ˆì¸¡ ìœ„ì¹˜ì™€ í˜„ì¬ í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ì˜ ê±°ë¦¬ ì°¨ì´
+/*            Debug.Log(currentDistance);*/
 
-            if (currentDistance > 0.1f)
+            if (currentDistance > 1f)
             {
-                target += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //´ÙÀ½ ÇÁ·¹ÀÓÀÇ ÃÖ½Å ¿¹Ãø À§Ä¡
-                current = transform.position += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //´ÙÀ½ ÇÁ·¹ÀÓÀÇ ³»°¡ ÃßÃøÇÑ À§Ä¡
-                Vector3 newDes = Vector3.Lerp(current, target, 0.5f); //ÃÖ½Å ¿¹Ãø À§Ä¡·Î ÀÌµ¿ÇÏµÇ, ¼±Çü º¸°£À» »ç¿ëÇØ ³» ÃßÃø À§Ä¡¿Í ÃÖ½Å ÃßÃø À§Ä¡ÀÇ Áß°£ À§Ä¡ ÁöÁ¤
-                transform.position = Vector3.MoveTowards(transform.position, newDes, speed * Time.deltaTime * 3); //Áß°£ À§Ä¡·Î ÀÌµ¿
+                target += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //ë‹¤ìŒ í”„ë ˆì„ì˜ ìµœì‹  ì˜ˆì¸¡ ìœ„ì¹˜
+                current = transform.position + new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //ë‹¤ìŒ í”„ë ˆì„ì˜ ë‚´ê°€ ì¶”ì¸¡í•œ ìœ„ì¹˜
+                Vector3 newDes = Vector3.Lerp(current, target, 0.5f); //ìµœì‹  ì˜ˆì¸¡ ìœ„ì¹˜ë¡œ ì´ë™í•˜ë˜, ì„ í˜• ë³´ê°„ì„ ì‚¬ìš©í•´ ë‚´ ì¶”ì¸¡ ìœ„ì¹˜ì™€ ìµœì‹  ì¶”ì¸¡ ìœ„ì¹˜ì˜ ì¤‘ê°„ ìœ„ì¹˜ ì§€ì •
+                transform.position = Vector3.MoveTowards(transform.position, newDes, (speed + currentDistance) * Time.deltaTime); //ì¤‘ê°„ ìœ„ì¹˜ë¡œ ì´ë™
             }
             else
             {
                 isLerping = false;
                 currentLerp = null;
             }
-
-/*            Debug.Log($"{isLerping} {vec.x} {vec.y} {currentDistance}");*/
-
             yield return null;
         }
     }

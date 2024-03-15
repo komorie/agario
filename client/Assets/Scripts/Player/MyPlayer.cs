@@ -23,7 +23,7 @@ public class MyPlayer : Player
         moveAction.performed += OnMovePerformed;
         moveAction.canceled += OnMoveCanceled;
 
-        if(GameScene.IsMulti)
+        if(GameScene.isMulti)
         {
             packetReceiver.OnBroadcastEatFood += RecvEatFood;
             packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer;
@@ -35,7 +35,7 @@ public class MyPlayer : Player
         moveAction.performed -= OnMovePerformed;
         moveAction.canceled -= OnMoveCanceled;
 
-        if (GameScene.IsMulti)
+        if (GameScene.isMulti)
         {
             packetReceiver.OnBroadcastEatFood -= RecvEatFood;
             packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
@@ -47,7 +47,7 @@ public class MyPlayer : Player
         // 충돌한 객체가 'Food'
         if (other.TryGetComponent(out Food food) == true)
         {
-            if (eater.TryEatFood(food) && GameScene.IsMulti) //먹기 시도 -> 한번만 패킷 보내기
+            if (eater.TryEatFood(food) && GameScene.isMulti) //먹기 시도 -> 한번만 패킷 보내기
             {
                 packetSender.SendEatPacket(food.FoodId);
                 Debug.Log("Send Eat!");
@@ -55,9 +55,9 @@ public class MyPlayer : Player
         }
         if (other.TryGetComponent(out Player prey) == true) //상대 플레이어랑 거리 내에서 겹쳤는지 확인
         {
-            if (eater.TryEatPlayer(prey) && GameScene.IsMulti) //먹기 시도 -> 한번만 패킷 보내기
+            if (eater.TryEatPlayer(prey) && GameScene.isMulti) //먹기 시도 -> 한번만 패킷 보내기
             {
-                Debug.Log("Send Eat!");
+/*                Debug.Log("Send Eat!");*/
                 packetSender.SendEatPlayerPacket(PlayerId, prey.PlayerId); 
             }
         }
@@ -67,7 +67,7 @@ public class MyPlayer : Player
     void Update()
     {
         Vector2 moveVec = mover.Move(mover.WallCalculate(inputVector)); //움직이고 움직인 벡터 리턴
-        if (mover.IsDirChanged() && GameScene.IsMulti)
+        if (mover.IsDirChanged() && GameScene.isMulti)
         {
             packetSender.SendMovePacket(moveVec); //방향 바꼈으면 패킷 보내기
         }
@@ -106,7 +106,7 @@ public class MyPlayer : Player
     {
         if (p.playerId == PlayerId)
         {
-            Debug.Log("Receive Eat!");
+/*            Debug.Log("Receive Eat!");*/
             eater.EatFoodComplete(p);
         }
     }

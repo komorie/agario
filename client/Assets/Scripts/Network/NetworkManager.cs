@@ -1,10 +1,17 @@
 using Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Net;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class NetworkManager : GOSingleton<NetworkManager> 
 {
+
+    public static string connectingAddress = null;
+
     private ServerSession session;
     private IPEndPoint endPoint;
     private Connecter connector = new Connecter();
@@ -13,8 +20,18 @@ public class NetworkManager : GOSingleton<NetworkManager>
         session.Send(sendBuff);
     }
 
-    public void Connect()
+    public void Connect(string address = null)
     {
+        if(address != null && address != "")
+        {
+            IPAddress ipAdd = IPAddress.Parse(address);
+            endPoint = new IPEndPoint(ipAdd, 777); //주소를 입력하면 해당 주소로 접속
+        }
+        else
+        {
+            connectingAddress = endPoint.Address.ToString();
+        }
+
         connector.Connect(endPoint, () => {
             session = new ServerSession();
             return session;
@@ -28,10 +45,12 @@ public class NetworkManager : GOSingleton<NetworkManager>
 
     private void Awake()
     {
+        DontDestroyOnLoad(this);
+
         string host = Dns.GetHostName();
         IPHostEntry ipHost = Dns.GetHostEntry(host);
-        IPAddress iPAddr = ipHost.AddressList[0];
-        endPoint = new IPEndPoint(iPAddr, 777); //현재 호스트의 IP주소와 포트 번호 가져오기
+        IPAddress iPAddr = ipHost.AddressList[1];
+        endPoint = new IPEndPoint(iPAddr, 777); //현재 호스트의 IP주소와 포트 번호 가져오기(기본 설정)
     }
 
 
@@ -44,10 +63,8 @@ public class NetworkManager : GOSingleton<NetworkManager>
             {
                 PacketManager.Instance.HandlerPacket(session, p);
             }
-        }   
-
+        }
     }
-
     private void OnApplicationQuit()
     {
         Disconnect();
