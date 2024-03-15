@@ -159,6 +159,20 @@ namespace Server.Game
 
             session.Send(roomList.Write()); //새로 들어온 애한테만 리스트 패킷 보내기
 
+            foreach (ClientSession s in Sessions) //움직이고 있다는 패킷 보내기
+            {
+                Player p = s.MyPlayer;
+                S_BroadcastMove move = new S_BroadcastMove();
+                move.playerId = session.SessionId;
+                move.dirX = p.DirX;
+                move.dirY = p.DirY;
+                move.posX = p.PosX;
+                move.posY = p.PosY;
+                move.posZ = p.PosZ;
+                move.time = p.moveTime;
+                session.Send(move.Write());
+            }
+
             S_BroadcastEnterGame enterGame = new S_BroadcastEnterGame
             {
                 playerId = sp.PlayerId,
@@ -194,6 +208,7 @@ namespace Server.Game
             sp.PosX = movePacket.posX;
             sp.PosY = movePacket.posY;
             sp.PosZ = movePacket.posZ;
+            sp.moveTime = movePacket.time;
 
 
             //다른 클라들한테 얘 여기에서 어디로 이동한다고 알리기
