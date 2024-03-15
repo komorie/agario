@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Net;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class Mover : MonoBehaviour
 {
@@ -73,31 +68,32 @@ public class Mover : MonoBehaviour
 
     }
 
-    public void LerpStart(Vector2 vec, Vector3 lastPos, float lastTime)
+    public void AdjustStart(Vector2 vec, Vector3 lastPos)
     {
-        float dis = Vector3.Distance(transform.position, lastPos);
-        isLerping = false;
 
-        if (currentLerp != null)
+        if (isLerping)
         {
             StopCoroutine(currentLerp);
         }
+        isLerping = false;
 
+        float dis = Vector3.Distance(transform.position, lastPos);
+       
         if (dis > 10f)
         {
             transform.position = lastPos;
             return;
         }
-        if (dis > 1.5f)
+        if (dis > 1f)
         {
             isLerping = true;
-            currentLerp = StartCoroutine(Lerp(vec, lastPos, lastTime));
+            currentLerp = StartCoroutine(Adjust(vec, lastPos));
         }
     }
 
     //내가 계산한 타 플레이어의 위치와 서버상의 타 플레이어의 위치가 다른 경우 보간
     //최대한 시도해 보았으나 다른(모바일) 기기에서 PC와 통신 시 턱턱 걸리는 느낌. 일단 동기화가 기능은 해서 개선은 보류.
-    public IEnumerator Lerp(Vector2 vec, Vector3 lastPos, float lastTime)
+    public IEnumerator Adjust(Vector2 vec, Vector3 lastPos)
     {
         /*float RTT = NetworkManager.stopWatch.ElapsedSeconds - lastTime > 0 ? NetworkManager.stopWatch.ElapsedSeconds - lastTime : 0; //*현재 타이머 동기화 문제 있음**/
         Vector3 target = lastPos; /* + new Vector3(vec.x, vec.y, 0) * speed * RTT; */ //서버상으로 온 위치에
@@ -106,9 +102,9 @@ public class Mover : MonoBehaviour
         while (isLerping)
         {
             float currentDistance = Vector3.Distance(current, target); //최신 예측 위치와 현재 플레이어의 위치의 거리 차이
-/*            Debug.Log(currentDistance);*/
+            Debug.Log(currentDistance);
 
-            if (currentDistance > 1f)
+            if (currentDistance > 0.5f)
             {
                 target += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //다음 프레임의 최신 예측 위치
                 current = transform.position + new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //다음 프레임의 내가 추측한 위치
@@ -118,7 +114,6 @@ public class Mover : MonoBehaviour
             else
             {
                 isLerping = false;
-                currentLerp = null;
             }
             yield return null;
         }

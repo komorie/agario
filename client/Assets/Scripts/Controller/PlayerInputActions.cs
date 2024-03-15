@@ -41,17 +41,6 @@ namespace UnityEngine.InputSystem
             ],
             ""bindings"": [
                 {
-                    ""name"": """",
-                    ""id"": ""978bfe49-cc26-4a3d-ab7b-7d7a29327403"",
-                    ""path"": ""<Gamepad>/leftStick"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
                     ""name"": ""WASD"",
                     ""id"": ""edc2726f-d788-4b25-bc81-18f8bf0644a6"",
                     ""path"": ""2DVector"",
@@ -160,6 +149,17 @@ namespace UnityEngine.InputSystem
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""566cac36-f4af-4e9e-84c6-3fd423d9813d"",
+                    ""path"": ""<Gamepad>/dpad"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -187,6 +187,17 @@ namespace UnityEngine.InputSystem
                 },
                 {
                     ""devicePath"": ""<Mouse>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""New control scheme"",
+            ""bindingGroup"": ""New control scheme"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Joystick>"",
                     ""isOptional"": false,
                     ""isOR"": false
                 }
@@ -316,6 +327,15 @@ namespace UnityEngine.InputSystem
             {
                 if (m_KeyboardMouseSchemeIndex == -1) m_KeyboardMouseSchemeIndex = asset.FindControlSchemeIndex("KeyboardMouse");
                 return asset.controlSchemes[m_KeyboardMouseSchemeIndex];
+            }
+        }
+        private int m_NewcontrolschemeSchemeIndex = -1;
+        public InputControlScheme NewcontrolschemeScheme
+        {
+            get
+            {
+                if (m_NewcontrolschemeSchemeIndex == -1) m_NewcontrolschemeSchemeIndex = asset.FindControlSchemeIndex("New control scheme");
+                return asset.controlSchemes[m_NewcontrolschemeSchemeIndex];
             }
         }
         public interface IPlayerActions

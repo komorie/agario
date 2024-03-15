@@ -31,9 +31,8 @@ public class OtherPlayer : Player
         {
             inputVector = new Vector2(p.dirX, p.dirY); //다른 플레이어의 이동 방향
             Vector3 lastPos = new Vector3(p.posX, p.posY, p.posZ);
-            float lastTime = p.time;
 
-            mover.LerpStart(inputVector, lastPos, lastTime);
+            mover.AdjustStart(inputVector, lastPos);
         }
     }
     private void RecvEatFood(S_BroadcastEatFood p)
