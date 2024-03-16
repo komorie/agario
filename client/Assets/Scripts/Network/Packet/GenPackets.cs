@@ -17,6 +17,10 @@ public enum PacketID
 	S_BroadcastEatFood = 9,
 	C_EatPlayer = 10,
 	S_BroadcastEatPlayer = 11,
+	C_BeamStart = 12,
+	S_BroadcastBeamStart = 13,
+	C_BeamHit = 14,
+	S_BroadcastBeamHit = 15,
 	
 }
 
@@ -852,6 +856,298 @@ public class S_BroadcastEatPlayer : IPacket
 		
 		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.preyId); //샌드 버퍼의 부분에 값 작성
 		count += sizeof(int);
+		
+        success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
+
+        if (!success) return null;
+
+        return SendBufferHelper.Close(count); //버퍼에 작성된 용량 이후로 버퍼 인덱스 이동 + 실제로 작성된 버퍼의 부분만 참조
+    }
+}
+
+public class C_BeamStart : IPacket
+{
+    public float dirX;
+	public float dirY;
+
+    public ushort Protocol { get { return (ushort)PacketID.C_BeamStart; } }    
+
+    public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+    {
+        ushort count = 0;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+        count += sizeof(ushort); //size, packetId가 있는 부분
+        
+		this.dirX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+		
+		this.dirY = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+
+    }
+
+    public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+    {
+        ArraySegment<byte> segment = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
+
+        ushort count = 0;
+        bool success = true;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+
+        success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.C_BeamStart); //샌드 버퍼의 부분에 값 작성
+        count += sizeof(ushort);          
+        
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirX); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirY); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+        success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
+
+        if (!success) return null;
+
+        return SendBufferHelper.Close(count); //버퍼에 작성된 용량 이후로 버퍼 인덱스 이동 + 실제로 작성된 버퍼의 부분만 참조
+    }
+}
+
+public class S_BroadcastBeamStart : IPacket
+{
+    public int userId;
+	public float dirX;
+	public float dirY;
+
+    public ushort Protocol { get { return (ushort)PacketID.S_BroadcastBeamStart; } }    
+
+    public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+    {
+        ushort count = 0;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+        count += sizeof(ushort); //size, packetId가 있는 부분
+        
+		this.userId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
+		count += sizeof(int);
+		
+		
+		this.dirX = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+		
+		this.dirY = BitConverter.ToSingle(seg.Slice(count, seg.Length - count));
+		count += sizeof(float);
+		
+
+    }
+
+    public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+    {
+        ArraySegment<byte> segment = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
+
+        ushort count = 0;
+        bool success = true;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+
+        success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.S_BroadcastBeamStart); //샌드 버퍼의 부분에 값 작성
+        count += sizeof(ushort);          
+        
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.userId); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(int);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirX); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.dirY); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(float);
+		
+        success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
+
+        if (!success) return null;
+
+        return SendBufferHelper.Close(count); //버퍼에 작성된 용량 이후로 버퍼 인덱스 이동 + 실제로 작성된 버퍼의 부분만 참조
+    }
+}
+
+public class C_BeamHit : IPacket
+{
+    
+	
+	public List<HitPlayer> hitPlayers = new List<HitPlayer>();
+	
+	public class HitPlayer //멤버 클래스
+	{
+	    public int playerId;
+	
+	    public bool Write(Span<byte> seg, ref ushort count) //구조체 Write
+	    {
+	        bool success = true;
+	        
+			success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.playerId); //샌드 버퍼의 부분에 값 작성
+			count += sizeof(int);
+			
+	        return success;
+	    }
+	
+	    public void Read(ReadOnlySpan<byte> seg, ref ushort count) //구조체 Read
+	    {
+	        
+			this.playerId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
+			count += sizeof(int);
+			
+	    }
+	}
+	
+
+    public ushort Protocol { get { return (ushort)PacketID.C_BeamHit; } }    
+
+    public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+    {
+        ushort count = 0;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+        count += sizeof(ushort); //size, packetId가 있는 부분
+        
+		this.hitPlayers.Clear();
+		ushort hitPlayerLen = BitConverter.ToUInt16(seg.Slice(count, seg.Length - count)); //리스트의 사이즈 가져요기
+		count += sizeof(ushort);
+		for (int i = 0; i < hitPlayerLen; i++)
+		{
+			HitPlayer hitPlayer = new HitPlayer();
+			hitPlayer.Read(seg, ref count); //구조체 Read 함수
+			hitPlayers.Add(hitPlayer);
+		}
+
+    }
+
+    public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+    {
+        ArraySegment<byte> segment = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
+
+        ushort count = 0;
+        bool success = true;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+
+        success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.C_BeamHit); //샌드 버퍼의 부분에 값 작성
+        count += sizeof(ushort);          
+        
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)this.hitPlayers.Count); //리스트를 보내기 위해, 먼저 사이즈 넣고
+		count += sizeof(ushort);
+		foreach (HitPlayer hitPlayer in this.hitPlayers)
+		{
+		    success &= hitPlayer.Write(seg, ref count); //구조체별로 미리 만들어둔 write 함수
+		}
+		
+        success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
+
+        if (!success) return null;
+
+        return SendBufferHelper.Close(count); //버퍼에 작성된 용량 이후로 버퍼 인덱스 이동 + 실제로 작성된 버퍼의 부분만 참조
+    }
+}
+
+public class S_BroadcastBeamHit : IPacket
+{
+    public int userId;
+	
+	
+	public List<HitPlayer> hitPlayers = new List<HitPlayer>();
+	
+	public class HitPlayer //멤버 클래스
+	{
+	    public int playerId;
+	
+	    public bool Write(Span<byte> seg, ref ushort count) //구조체 Write
+	    {
+	        bool success = true;
+	        
+			success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.playerId); //샌드 버퍼의 부분에 값 작성
+			count += sizeof(int);
+			
+	        return success;
+	    }
+	
+	    public void Read(ReadOnlySpan<byte> seg, ref ushort count) //구조체 Read
+	    {
+	        
+			this.playerId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
+			count += sizeof(int);
+			
+	    }
+	}
+	
+
+    public ushort Protocol { get { return (ushort)PacketID.S_BroadcastBeamHit; } }    
+
+    public void Read(ArraySegment<byte> segment) //버퍼로 받은 값 역직렬화해서 패킷에 넣기
+    {
+        ushort count = 0;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+        count += sizeof(ushort); //size, packetId가 있는 부분
+        
+		this.userId = BitConverter.ToInt32(seg.Slice(count, seg.Length - count));
+		count += sizeof(int);
+		
+		
+		this.hitPlayers.Clear();
+		ushort hitPlayerLen = BitConverter.ToUInt16(seg.Slice(count, seg.Length - count)); //리스트의 사이즈 가져요기
+		count += sizeof(ushort);
+		for (int i = 0; i < hitPlayerLen; i++)
+		{
+			HitPlayer hitPlayer = new HitPlayer();
+			hitPlayer.Read(seg, ref count); //구조체 Read 함수
+			hitPlayers.Add(hitPlayer);
+		}
+
+    }
+
+    public ArraySegment<byte> Write() //패킷을 바이트배열로 직렬화 리턴
+    {
+        ArraySegment<byte> segment = SendBufferHelper.Open(4096); //버퍼의 부분 원하는 사이즈 만큼 예약하기
+
+        ushort count = 0;
+        bool success = true;
+
+        Span<byte> seg = new Span<byte>(segment.Array, segment.Offset, segment.Count);
+
+        count += sizeof(ushort);
+
+        success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)PacketID.S_BroadcastBeamHit); //샌드 버퍼의 부분에 값 작성
+        count += sizeof(ushort);          
+        
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), this.userId); //샌드 버퍼의 부분에 값 작성
+		count += sizeof(int);
+		
+		
+		success &= BitConverter.TryWriteBytes(seg.Slice(count, seg.Length - count), (ushort)this.hitPlayers.Count); //리스트를 보내기 위해, 먼저 사이즈 넣고
+		count += sizeof(ushort);
+		foreach (HitPlayer hitPlayer in this.hitPlayers)
+		{
+		    success &= hitPlayer.Write(seg, ref count); //구조체별로 미리 만들어둔 write 함수
+		}
 		
         success &= BitConverter.TryWriteBytes(seg, count); //패킷 사이즈는 마지막에 다 계산한 후, 시작 부분에 넣는다(패킷 사이즈가 가변일 수 있으므로)
 

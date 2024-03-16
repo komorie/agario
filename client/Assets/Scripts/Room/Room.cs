@@ -11,7 +11,7 @@ public class Room : GOSingleton<Room>
     private const int FOOD_COUNT = 50;
     private const int AIPLAYER_COUNT = 10;
 
-    public MyPlayer MyPlayer { get; set; }
+    public InputPlayer MyPlayer { get; set; }
     NetworkManager network;
     PacketReceiver packetReceiver;
 
@@ -79,7 +79,7 @@ public class Room : GOSingleton<Room>
             if (p == 1)
             {
                 player = Instantiate(singleMyPlayerPrefab).GetComponent<Player>();
-                MyPlayer = player as MyPlayer;
+                MyPlayer = player as InputPlayer;
             }
             else
             {
@@ -117,7 +117,7 @@ public class Room : GOSingleton<Room>
             if (p.isSelf)
             {
                 player = Instantiate(multiMyPlayerPrefab).GetComponent<Player>();
-                MyPlayer = player as MyPlayer;
+                MyPlayer = player as InputPlayer;
             }
             else
             {
@@ -161,7 +161,7 @@ public class Room : GOSingleton<Room>
                 }
             );
 
-            MyPlayer.ToggleMoveAction();
+            MyPlayer.ToggleInputActions();
         }
 
         scoreBoard.Init(Players, MyPlayer.PlayerId);
@@ -189,7 +189,7 @@ public class Room : GOSingleton<Room>
             {
                 Destroy(matchUI.gameObject); //대기 UI 삭제
             }
-            MyPlayer.ToggleMoveAction(); //이동 허용
+            MyPlayer.ToggleInputActions(); //이동 허용
         }
 
         scoreBoard.UpdateAddPlayer(player);

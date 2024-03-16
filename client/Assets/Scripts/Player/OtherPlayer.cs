@@ -1,15 +1,18 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static S_RoomList;
 
 public class OtherPlayer : Player
 {
-    private Vector2 inputVector = Vector2.zero;
-
     private void OnEnable()
     {
         packetReceiver.OnBroadcastMove += RecvBroadcastMove;
         packetReceiver.OnBroadcastEatFood += RecvEatFood;
         packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer; 
+        packetReceiver.OnBroadcastBeamStart += RecvBeamStart;   
+        packetReceiver.OnBroadcastBeamHit += RecvBeamHit;
+
     }
 
     private void OnDisable()
@@ -17,6 +20,8 @@ public class OtherPlayer : Player
         packetReceiver.OnBroadcastMove -= RecvBroadcastMove;
         packetReceiver.OnBroadcastEatFood -= RecvEatFood;
         packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
+        packetReceiver.OnBroadcastBeamStart -= RecvBeamStart;
+        packetReceiver.OnBroadcastBeamHit -= RecvBeamHit;
     }
 
     // Update is called once per frame
@@ -47,6 +52,25 @@ public class OtherPlayer : Player
         if(p.predatorId == PlayerId)
         {
             eater.EatPlayerComplete(p);
+        }
+    }
+    private void RecvBeamStart(S_BroadcastBeamStart p)
+    {
+        if(p.userId == PlayerId)
+        {
+            Vector2 dir = new Vector2(p.dirX, p.dirY);
+            StartCoroutine(beamAttack.BeamCharge(dir, Radius));
+        }       
+    }
+
+
+    private void RecvBeamHit(S_BroadcastBeamHit p)
+    {
+        if(p.userId == PlayerId)
+        {
+            List<int> playerIds = new List<int>();
+            foreach (S_BroadcastBeamHit.HitPlayer player in p.hitPlayers) playerIds.Add(player.playerId);
+            beamAttack.BeamHit(playerIds);
         }
     }
 }

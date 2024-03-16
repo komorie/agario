@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Wall
+  - Beam
+  - Food
   layers:
   - Default
   - TransparentFX
@@ -12,10 +14,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Beam
+  - Wall
+  - Food
   - 
   - 
   - 

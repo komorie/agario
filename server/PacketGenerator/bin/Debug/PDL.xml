@@ -79,10 +79,37 @@
     <int name ="preyId"/>
   </packet>
 
-
   <packet name="S_BroadcastEatPlayer">
     <!--얘가 이 녀석 먹었다-->
     <int name ="predatorId"/>
     <int name ="preyId"/>
+  </packet>
+
+  <packet name="C_BeamStart">
+    <!--광선 공격 시작-->
+    <float name ="dirX"/>
+    <float name ="dirY"/>
+  </packet>
+
+  <packet name="S_BroadcastBeamStart">
+    <!--얘가 광선 공격 시작한다-->
+    <int name="userId"/>
+    <float name ="dirX"/>
+    <float name ="dirY"/>
+  </packet>
+
+  <packet name="C_BeamHit">
+    <!--광선 공격 히트당한 사람들-->
+    <list name="hitPlayer">
+      <int name="playerId"/>
+    </list>
+  </packet>
+
+  <packet name="S_BroadcastBeamHit">
+    <!--이사람들이 광선 공격 맞았다-->
+    <int name="userId"/>
+    <list name="hitPlayer">
+      <int name="playerId"/>
+    </list>
   </packet>
 </PDL>

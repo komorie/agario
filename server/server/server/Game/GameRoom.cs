@@ -43,22 +43,22 @@ namespace Server.Game
             currentSecond = 0;
 
             Simulate();
-            SyncTime();
+/*            SyncTime();*/
         }
 
-        public void SyncTime()
+/*        public void SyncTime()
         {
             Push(BroadCastTime);
             JobTimer.Instance.Push(SyncTime, 30000); //30초 뒤에 Simulate 또 호출 -> 클라이언트에게 시간 전송 -> 30초마다 시계 동기화
-        }
+        }*/
 
-        public void BroadCastTime()
+/*        public void BroadCastTime()
         {
             Console.WriteLine($"Elapsed Second: {stopwatch.Elapsed.TotalSeconds}");
             S_BroadcastServerTime st = new S_BroadcastServerTime();
             st.serverTime = (float)stopwatch.Elapsed.TotalSeconds;
             BroadCast(st); //서버의 시간 전송
-        }
+        }*/
 
         public void Simulate()
         {
@@ -258,23 +258,49 @@ namespace Server.Game
             BroadCast(eat); //모든 클라에게 보내기   
         }
 
-        public void EatPlayer(ClientSession clientSession, C_EatPlayer eatPlayerPacket) //얘가 누구 먹었대
+        public void EatPlayer(ClientSession session, C_EatPlayer eatPlayerPacket) //얘가 누구 먹었대
         {
             S_BroadcastEatPlayer eatPlayer = new S_BroadcastEatPlayer();    
-            eatPlayer.predatorId = clientSession.MyPlayer.PlayerId; //먹은 애
+            eatPlayer.predatorId = session.MyPlayer.PlayerId; //먹은 애
 
             for (int i = 0; i < Sessions.Count; i++)
             {
                 if (Sessions[i].SessionId == eatPlayerPacket.preyId) //먹힌 애 찾아서
                 {
                     eatPlayer.preyId = Sessions[i].SessionId; //먹힌 애
-                    clientSession.MyPlayer.Radius += (Sessions[i].MyPlayer.Radius / 2); //포식자 크기 증가
+                    session.MyPlayer.Radius += (Sessions[i].MyPlayer.Radius / 2); //포식자 크기 증가
                     Console.WriteLine($"Player {eatPlayer.predatorId} killed Player {eatPlayer.preyId}");
                     break;
                 }
             }
 
             BroadCast(eatPlayer); //모든 클라에게 알리기
+        }
+
+        public void BeamStart(ClientSession session, C_BeamStart beamStartPacket) //얘가 빔 쏜다 
+        {
+            S_BroadcastBeamStart beamStart = new S_BroadcastBeamStart();
+            beamStart.userId = session.MyPlayer.PlayerId;   
+            beamStart.dirX = beamStartPacket.dirX;
+            beamStart.dirY = beamStartPacket.dirY;
+
+            Console.WriteLine($"Player {session.MyPlayer.PlayerId} Charged Beam"); //로그 출력
+
+            BroadCast(beamStart);
+        }
+
+        public void BeamHit(ClientSession session, C_BeamHit beamHitPacket) //우선 임시적으로 클라에서 맞았는지 처리하고, 시간 나면 서버에서 한번 검증하도록 개선
+        {
+            S_BroadcastBeamHit beamHit = new S_BroadcastBeamHit();  
+            beamHit.userId = session.MyPlayer.PlayerId; 
+            foreach (C_BeamHit.HitPlayer hitPlayer in beamHitPacket.hitPlayers)
+            {
+                S_BroadcastBeamHit.HitPlayer p = new S_BroadcastBeamHit.HitPlayer();
+                p.playerId = hitPlayer.playerId;
+                beamHit.hitPlayers.Add(p);
+            }
+            Console.WriteLine($"Player {session.MyPlayer.PlayerId} Fired Beam"); //로그 출력
+            BroadCast(beamHit);
         }
 
         //sessions를 돌면서, 플레이어의 좌표 posx, posy와 겹치는 위치인지 확인

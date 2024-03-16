@@ -47,4 +47,16 @@ public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이
         S_BroadcastServerTime p = packet as S_BroadcastServerTime;
         PacketReceiver.Instance.RecvBroadcastServerTime(p);
     }
+
+    internal static void S_BroadcastBeamStartHandler(PacketSession session, IPacket packet)
+    {
+        S_BroadcastBeamStart p = packet as S_BroadcastBeamStart;
+        PacketReceiver.Instance.RecvBroadcastBeamStart(p);  
+    }
+
+    internal static void S_BroadcastBeamHitHandler(PacketSession session, IPacket packet)
+    {
+        S_BroadcastBeamHit p = packet as S_BroadcastBeamHit;
+        PacketReceiver.Instance.RecvBroadcastBeamHit(p);    
+    }
 }

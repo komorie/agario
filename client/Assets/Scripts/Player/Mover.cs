@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//2차원 이동 벡터를 그대로 유니티 3차원에서 이동하는 데 쓸 수 있도록 이동/공간을 배치했더니 z축이 음수일때 카메라 기준으로는 위쪽이 되어버렸다.
+//z축을 써먹을 일이 없다고 생각해서 그냥 진행했지만 시간 남으면 수정할 필요성
 public class Mover : MonoBehaviour
 {
     private int speed = 20;
@@ -38,7 +41,7 @@ public class Mover : MonoBehaviour
             Vector2 wallNormal2D = new Vector2(wallNormal.x, wallNormal.y);
 
             // MoveVector를 법선벡터와 내적
-            float dot = Vector2.Dot(wallNormal, vec);
+            float dot = Vector2.Dot(wallNormal2D, vec);
 
             // 내적 값이 플러스다 -> 코사인 세타가 플러스 -> 같은 방향 -> 벽으로부터 멀어진다
             // 내적 값이 마이너스다 -> 두 벡터가 둔각을 이룬다 -> 즉 MoveVector가 벽을 향해 간다는 것
