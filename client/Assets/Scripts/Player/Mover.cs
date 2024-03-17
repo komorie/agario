@@ -16,7 +16,7 @@ public class Mover : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Wall"))
+        if (other.CompareTag("BorderWall") || other.CompareTag("InsideWall"))
         {
             touchingColliders.Add(other);
         }
@@ -24,7 +24,7 @@ public class Mover : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Wall"))
+        if (other.CompareTag("BorderWall") || other.CompareTag("InsideWall"))
         {
             touchingColliders.Remove(other);
         }
@@ -107,7 +107,7 @@ public class Mover : MonoBehaviour
             float currentDistance = Vector3.Distance(current, target); //최신 예측 위치와 현재 플레이어의 위치의 거리 차이
             Debug.Log(currentDistance);
 
-            if (currentDistance > 0.5f)
+            if (currentDistance > 0.1f)
             {
                 target += new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //다음 프레임의 최신 예측 위치
                 current = transform.position + new Vector3(vec.x, vec.y, 0) * speed * Time.deltaTime; //다음 프레임의 내가 추측한 위치

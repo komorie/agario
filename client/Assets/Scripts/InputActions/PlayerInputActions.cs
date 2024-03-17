@@ -46,6 +46,15 @@ namespace UnityEngine.InputSystem
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Stealth"",
+                    ""type"": ""Button"",
+                    ""id"": ""d9d7fea6-7551-4b9d-8a96-38bee180bb8f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -180,6 +189,17 @@ namespace UnityEngine.InputSystem
                     ""action"": ""Beam"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""426bc00d-c4c0-4a00-b928-d8df0587b46c"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Stealth"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -229,6 +249,7 @@ namespace UnityEngine.InputSystem
             m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
             m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
             m_Player_Beam = m_Player.FindAction("Beam", throwIfNotFound: true);
+            m_Player_Stealth = m_Player.FindAction("Stealth", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -292,12 +313,14 @@ namespace UnityEngine.InputSystem
         private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
         private readonly InputAction m_Player_Move;
         private readonly InputAction m_Player_Beam;
+        private readonly InputAction m_Player_Stealth;
         public struct PlayerActions
         {
             private @PlayerInputActions m_Wrapper;
             public PlayerActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
             public InputAction @Move => m_Wrapper.m_Player_Move;
             public InputAction @Beam => m_Wrapper.m_Player_Beam;
+            public InputAction @Stealth => m_Wrapper.m_Player_Stealth;
             public InputActionMap Get() { return m_Wrapper.m_Player; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -313,6 +336,9 @@ namespace UnityEngine.InputSystem
                 @Beam.started += instance.OnBeam;
                 @Beam.performed += instance.OnBeam;
                 @Beam.canceled += instance.OnBeam;
+                @Stealth.started += instance.OnStealth;
+                @Stealth.performed += instance.OnStealth;
+                @Stealth.canceled += instance.OnStealth;
             }
 
             private void UnregisterCallbacks(IPlayerActions instance)
@@ -323,6 +349,9 @@ namespace UnityEngine.InputSystem
                 @Beam.started -= instance.OnBeam;
                 @Beam.performed -= instance.OnBeam;
                 @Beam.canceled -= instance.OnBeam;
+                @Stealth.started -= instance.OnStealth;
+                @Stealth.performed -= instance.OnStealth;
+                @Stealth.canceled -= instance.OnStealth;
             }
 
             public void RemoveCallbacks(IPlayerActions instance)
@@ -371,6 +400,7 @@ namespace UnityEngine.InputSystem
         {
             void OnMove(InputAction.CallbackContext context);
             void OnBeam(InputAction.CallbackContext context);
+            void OnStealth(InputAction.CallbackContext context);
         }
     }
 }

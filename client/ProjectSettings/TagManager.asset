@@ -7,6 +7,8 @@ TagManager:
   - Wall
   - Beam
   - Food
+  - BorderWall
+  - InsideWall
   layers:
   - Default
   - TransparentFX
@@ -16,10 +18,10 @@ TagManager:
   - UI
   - Player
   - Beam
-  - Wall
+  - BorderWall
   - Food
-  - 
-  - 
+  - InsideWall
+  - Transparent
   - 
   - 
   - 

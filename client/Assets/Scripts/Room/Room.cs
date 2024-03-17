@@ -11,12 +11,12 @@ public class Room : GOSingleton<Room>
     private const int FOOD_COUNT = 50;
     private const int AIPLAYER_COUNT = 10;
 
-    public InputPlayer MyPlayer { get; set; }
+    public InputPlayer MyPlayer { get; private set; }
     NetworkManager network;
     PacketReceiver packetReceiver;
 
-    public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
-    public Dictionary<int, Food> Foods { get; set; } = new Dictionary<int, Food>();
+    public Dictionary<int, Player> Players { get; private set; } = new Dictionary<int, Player>();
+    public Dictionary<int, Food> Foods { get; private set; } = new Dictionary<int, Food>();
 
     GameObject foodPrefab;
     GameObject aiPlayerPrefab;
@@ -25,6 +25,7 @@ public class Room : GOSingleton<Room>
     GameObject multiMyPlayerPrefab;
     GameObject confirmUIPrefab;
     GameObject scoreBoardPrefab;
+    GameObject HUDPrefab;
 
     ConfirmUI matchUI;
     ScoreBoard scoreBoard;
@@ -38,6 +39,7 @@ public class Room : GOSingleton<Room>
         multiMyPlayerPrefab = Resources.Load<GameObject>("Prefabs/MultiMyPlayer");
         confirmUIPrefab = Resources.Load<GameObject>("Prefabs/ConfirmUI");
         scoreBoardPrefab = Resources.Load<GameObject>("Prefabs/ScoreBoard");
+        HUDPrefab = Resources.Load<GameObject>("Prefabs/MobileHUD");
 
         packetReceiver = PacketReceiver.Instance;
         scoreBoard = FindObjectOfType<ScoreBoard>();
@@ -105,6 +107,7 @@ public class Room : GOSingleton<Room>
         }
 
         scoreBoard.Init(Players, MyPlayer.PlayerId);
+        Instantiate(HUDPrefab);
 
     }
 
@@ -165,6 +168,7 @@ public class Room : GOSingleton<Room>
         }
 
         scoreBoard.Init(Players, MyPlayer.PlayerId);
+        Instantiate(HUDPrefab).GetComponent<MobileHUD>().UpdateUI(NetworkManager.connectingAddress);
     }
 
     public void RecvRoomList(S_RoomList packet)

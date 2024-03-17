@@ -61,4 +61,11 @@ public class PacketSender : MonoBehaviour
         }
         network.Send(beamHitPacket.Write());    
     }
+
+    public void SendStealthPacket(int userId)
+    {
+        C_Stealth stealth = new C_Stealth();
+        stealth.userId = userId;
+        network.Send(stealth.Write());
+    }
 }

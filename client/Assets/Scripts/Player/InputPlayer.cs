@@ -8,6 +8,7 @@ public class InputPlayer : Player
     private PlayerInputActions inputActions;
     private InputAction moveAction;
     private InputAction beamAction;
+    private InputAction stealthAction;
 
     protected override void Awake()
     {
@@ -16,6 +17,7 @@ public class InputPlayer : Player
         inputActions.Enable();
         moveAction = inputActions.Player.Move;
         beamAction = inputActions.Player.Beam;  
+        stealthAction = inputActions.Player.Stealth;   
     }
 
     private void OnEnable()
@@ -23,12 +25,14 @@ public class InputPlayer : Player
         moveAction.performed += OnMovePerformed;
         moveAction.canceled += OnMoveCanceled;
         beamAction.performed += OnBeamPerformed;
+        stealthAction.performed += OnStealthPerformed;
 
         if(GameScene.isMulti)
         {
             packetReceiver.OnBroadcastEatFood += RecvEatFood;
             packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer;
             packetReceiver.OnBroadcastBeamHit += RecvBeamHit;
+            packetReceiver.OnBroadcastStealth += RecvStealth;
         }
     }
 
@@ -36,13 +40,15 @@ public class InputPlayer : Player
     {
         moveAction.performed -= OnMovePerformed;
         moveAction.canceled -= OnMoveCanceled;
-        beamAction.performed-= OnBeamPerformed; 
+        beamAction.performed -= OnBeamPerformed;
+        stealthAction.performed -= OnStealthPerformed;
 
         if (GameScene.isMulti)
         {
             packetReceiver.OnBroadcastEatFood -= RecvEatFood;
             packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
-            packetReceiver.OnBroadcastBeamHit -= RecvBeamHit;   
+            packetReceiver.OnBroadcastBeamHit -= RecvBeamHit;  
+            packetReceiver.OnBroadcastStealth -= RecvStealth;
         }
     }
 
@@ -101,11 +107,16 @@ public class InputPlayer : Player
         StartCoroutine(beamAttack.BeamCharge(dir, Radius));
     }
 
+    private void OnStealthPerformed(InputAction.CallbackContext context)
+    {
+        stealth.StealthStart();
+        if (GameScene.isMulti && packetSender != null) { packetSender.SendStealthPacket(PlayerId); }
+    }
+
     private void RecvEatFood(S_BroadcastEatFood p)
     {
         if (p.playerId == PlayerId)
         {
-            //Debug.Log("Receive Eat!");
             eater.EatFoodComplete(p);
         }
     }
@@ -113,7 +124,6 @@ public class InputPlayer : Player
     {
         if (p.predatorId == PlayerId)
         {
-            Debug.Log("Receive Eat!");
             eater.EatPlayerComplete(p);
         }
     }
@@ -124,6 +134,14 @@ public class InputPlayer : Player
 
         foreach (S_BroadcastBeamHit.HitPlayer player in p.hitPlayers) playerIds.Add(player.playerId);
         beamAttack.BeamHit(playerIds);
+    }
+
+    private void RecvStealth(S_BroadcastStealth p)
+    {
+        if (p.userId == PlayerId)
+        {
+            stealth.StealthStart();
+        }
     }
 
     public void ToggleInputActions()

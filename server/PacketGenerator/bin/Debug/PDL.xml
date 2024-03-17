@@ -112,4 +112,13 @@
       <int name="playerId"/>
     </list>
   </packet>
+
+  <packet name="C_Stealth">
+    <!--스텔스 사용-->
+    <int name="userId"/>
+  </packet>
+  <packet name="S_BroadcastStealth">
+    <!--스텔스 사용-->
+    <int name="userId"/>
+  </packet>
 </PDL>

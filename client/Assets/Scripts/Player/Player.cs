@@ -2,12 +2,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    protected Mover mover;
+    protected Eater eater;
+    protected PacketSender packetSender;
+    protected PacketReceiver packetReceiver;
 
-    public Mover mover;
-    public Eater eater;
-    public BeamAttack beamAttack;
-    public PacketSender packetSender;
-    public PacketReceiver packetReceiver;
+    public BeamAttack beamAttack { get; private set; }
+    public Stealth stealth { get; private set; }
 
     protected Vector2 inputVector = Vector2.zero;
     protected Vector2 dir = Vector2.right;
@@ -20,6 +21,7 @@ public class Player : MonoBehaviour
         mover = GetComponent<Mover>();
         eater = GetComponent<Eater>();
         beamAttack = GetComponent<BeamAttack>();    
+        stealth = GetComponent<Stealth>();  
         packetSender = GetComponent<PacketSender>();
         packetReceiver = PacketReceiver.Instance;
     }

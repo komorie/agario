@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 3605648614337054826}
   - component: {fileID: -6093870050331086747}
   - component: {fileID: 9190569296331024865}
+  - component: {fileID: 4807343549401140212}
   m_Layer: 6
   m_Name: SingleMyPlayer
   m_TagString: Player
@@ -130,6 +131,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77d5264a9da9984395ae6da2a3b2acf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mover: {fileID: 0}
+  eater: {fileID: 0}
+  beamAttack: {fileID: 0}
+  stealth: {fileID: 0}
+  packetSender: {fileID: 0}
+  packetReceiver: {fileID: 0}
 --- !u!114 &3605648614337054826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,5 +171,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eaa08032d83c7534ea4d688ed124b754, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4807343549401140212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218436964734193794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cece559e97a49241844d8b3ec57600a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

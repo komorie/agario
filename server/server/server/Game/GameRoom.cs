@@ -303,6 +303,14 @@ namespace Server.Game
             BroadCast(beamHit);
         }
 
+        public void Stealth(ClientSession session, C_Stealth stealthPacket)
+        {
+            S_BroadcastStealth stealth = new S_BroadcastStealth();    
+            stealth.userId = stealthPacket.userId;
+            Console.WriteLine($"Player {session.MyPlayer.PlayerId} Hided"); //로그 출력
+            BroadCast(stealth);
+        }
+
         //sessions를 돌면서, 플레이어의 좌표 posx, posy와 겹치는 위치인지 확인
         private bool OverlapWithPlayer(float x, float y)
         {

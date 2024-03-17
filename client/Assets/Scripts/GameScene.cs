@@ -10,7 +10,6 @@ public class GameScene : MonoBehaviour
         if (isMulti) 
         { 
             NetworkManager.Instance.Connect(NetworkManager.connectingAddress);
-            FindObjectOfType<MobileHUD>().UpdateUI(NetworkManager.connectingAddress);
         }
     }
 

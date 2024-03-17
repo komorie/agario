@@ -12,6 +12,7 @@ public class PacketReceiver : GOSingleton<PacketReceiver> //유니티에서 특정 패킷
     public event Action<S_BroadcastServerTime> OnBroadcastServerTime;
     public event Action<S_BroadcastBeamStart> OnBroadcastBeamStart; 
     public event Action<S_BroadcastBeamHit> OnBroadcastBeamHit; 
+    public event Action<S_BroadcastStealth> OnBroadcastStealth; 
 
 
     public void RecvBroadcastEnterGame (S_BroadcastEnterGame packet) => OnBroadcastEnterGame?.Invoke(packet);
@@ -23,5 +24,6 @@ public class PacketReceiver : GOSingleton<PacketReceiver> //유니티에서 특정 패킷
     public void RecvBroadcastServerTime(S_BroadcastServerTime packet) => OnBroadcastServerTime?.Invoke(packet);
     public void RecvBroadcastBeamStart(S_BroadcastBeamStart packet) => OnBroadcastBeamStart?.Invoke(packet);    
     public void RecvBroadcastBeamHit(S_BroadcastBeamHit packet) => OnBroadcastBeamHit?.Invoke(packet);  
+    public void RecvBroadcastStealth(S_BroadcastStealth packet) => OnBroadcastStealth?.Invoke(packet);  
 
 }

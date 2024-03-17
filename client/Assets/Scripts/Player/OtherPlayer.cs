@@ -12,6 +12,7 @@ public class OtherPlayer : Player
         packetReceiver.OnBroadcastEatPlayer += RecvEatPlayer; 
         packetReceiver.OnBroadcastBeamStart += RecvBeamStart;   
         packetReceiver.OnBroadcastBeamHit += RecvBeamHit;
+        packetReceiver.OnBroadcastStealth += RecvStealth;
 
     }
 
@@ -22,6 +23,7 @@ public class OtherPlayer : Player
         packetReceiver.OnBroadcastEatPlayer -= RecvEatPlayer;
         packetReceiver.OnBroadcastBeamStart -= RecvBeamStart;
         packetReceiver.OnBroadcastBeamHit -= RecvBeamHit;
+        packetReceiver.OnBroadcastStealth -= RecvStealth;
     }
 
     // Update is called once per frame
@@ -71,6 +73,14 @@ public class OtherPlayer : Player
             List<int> playerIds = new List<int>();
             foreach (S_BroadcastBeamHit.HitPlayer player in p.hitPlayers) playerIds.Add(player.playerId);
             beamAttack.BeamHit(playerIds);
+        }
+    }
+
+    private void RecvStealth(S_BroadcastStealth p)
+    {
+        if (p.userId == PlayerId)
+        {
+            stealth.StealthStart();
         }
     }
 }

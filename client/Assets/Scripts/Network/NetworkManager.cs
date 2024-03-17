@@ -27,11 +27,8 @@ public class NetworkManager : GOSingleton<NetworkManager>
             IPAddress ipAdd = IPAddress.Parse(address);
             endPoint = new IPEndPoint(ipAdd, 777); //주소를 입력하면 해당 주소로 접속
         }
-        else
-        {
-            connectingAddress = endPoint.Address.ToString();
-        }
 
+        connectingAddress = endPoint.Address.ToString();
         connector.Connect(endPoint, () => {
             session = new ServerSession();
             return session;

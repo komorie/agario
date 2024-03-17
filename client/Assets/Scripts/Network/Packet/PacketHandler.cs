@@ -59,4 +59,10 @@ public class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없이
         S_BroadcastBeamHit p = packet as S_BroadcastBeamHit;
         PacketReceiver.Instance.RecvBroadcastBeamHit(p);    
     }
+
+    internal static void S_BroadcastStealthHandler(PacketSession session, IPacket packet)
+    {
+        S_BroadcastStealth p = packet as S_BroadcastStealth;
+        PacketReceiver.Instance.RecvBroadcastStealth(p);    
+    }
 }
