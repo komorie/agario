@@ -10,23 +10,25 @@ public class BeamAttack : MonoBehaviour
     private Player player;
     private PacketSender packetSender;
     private Room room;
-
     private Color bStartCol = new Color(1f, 0f, 0f, 0f);
     private Color bEndCol = new Color(1f, 0f, 0f, 1f);
     private Color fStartCol = new Color(1f, 1f, 0f, 1f);
     private Color fEndCol = new Color(1f, 1f, 0f, 0f);
     private Color originColor;
-
     private float fillTime = 1.5f; //충전 시간
     private float fadeOutTime = 1.0f; //사라지는 시간
-    private WaitForSeconds waitFor1sec = new WaitForSeconds(1.0f);
-
-    private bool canUse = true;
-    private bool isFlying = false;
     private int coolTime = 5;
-    private int currentCoolTime = -1;
-
+    private WaitForSeconds waitFor1sec = new WaitForSeconds(1.0f);
     public Action<bool, bool, int> StateChanged; //UI 갱신
+
+    private bool pCanUse = true;
+    private bool pIsFlying = false;
+    private int pCurrentCoolTime = -1;
+
+    private bool CanUse { get { return pCanUse; } set { pCanUse = value; StateChanged?.Invoke(pCanUse, pIsFlying, pCurrentCoolTime); } }
+    private bool IsFlying { get { return pIsFlying; } set { pIsFlying = value; StateChanged?.Invoke(pCanUse, pIsFlying, pCurrentCoolTime); } }
+    private int CurrentCoolTime { get { return pCurrentCoolTime; } set { pCurrentCoolTime = value; StateChanged?.Invoke(pCanUse, pIsFlying, pCurrentCoolTime); } }
+
 
     void Awake()
     {
@@ -40,11 +42,10 @@ public class BeamAttack : MonoBehaviour
     //빔 충전
     public IEnumerator BeamCharge(Vector2 vec, float radius)
     {
-        if (!canUse || currentCoolTime != -1) yield break;
-        canUse = false;
+        if (!CanUse || CurrentCoolTime != -1) yield break;
+        CanUse = false;
 
-        if (GameScene.isMulti && packetSender != null) packetSender.SendBeamStartPacket(vec); //차지 시작 패킷
-        StateChanged?.Invoke(canUse, isFlying, currentCoolTime);
+        if (GameScene.isMulti && player is InputPlayer) packetSender.SendBeamStartPacket(vec); //차지 시작 패킷
 
         beam = Instantiate(beamPrefab, transform.position, Quaternion.identity, transform).GetComponent<Beam>(); //빔 생성
 
@@ -65,16 +66,16 @@ public class BeamAttack : MonoBehaviour
             BeamHit(beam.HitPlayers);
         }
 
-        if (GameScene.isMulti && packetSender != null) packetSender.SendBeamHitPacket(beam.HitPlayers); //포지션, 방향 벡터 추가(나중에)
+        if (GameScene.isMulti && player is InputPlayer) packetSender.SendBeamHitPacket(beam.HitPlayers); //포지션, 방향 벡터 추가(나중에)
 
         beam.transform.parent = null;
         yield return ColorChanger.LerpMaterialColor(beam.gameObject, fadeOutTime, fStartCol, fEndCol);
         Destroy(beam.gameObject);
-        canUse = true;
+        CanUse = true;
 
         if (player is InputPlayer)
         {
-            currentCoolTime = coolTime;
+            CurrentCoolTime = coolTime;
             StartCoroutine(Cooldown());
         }
     }
@@ -83,23 +84,20 @@ public class BeamAttack : MonoBehaviour
     {
         foreach (int targetId in hitTargets)
         {
-            Player player = room.Players[targetId];
-            StartCoroutine(player.beamAttack.BeamDamaged());
+            Player p = room.Players[targetId];
+            StartCoroutine(p.beamAttack.BeamDamaged());
         }
     }
 
     public IEnumerator BeamDamaged() //본인이 맞았을 때 색깔 변화시키고 에어본 효과 처리
     {
-
         if (gameObject.layer == LayerMask.NameToLayer("Transparent"))
         {
             yield break; //투명 상태면 안맞음
         }
 
-
-        if (isFlying) yield break; //이미 에어본 상태면 안맞음
-        isFlying = true;
-        StateChanged?.Invoke(canUse, isFlying, currentCoolTime);
+        if (IsFlying) yield break; //이미 에어본 상태면 안맞음
+        IsFlying = true;
 
         ColorChanger.ChangeMaterialColor(gameObject, Color.yellow);
         
@@ -110,8 +108,6 @@ public class BeamAttack : MonoBehaviour
         Vector3 originPos = transform.position; // 원래 위치 저장
         float peak = 10.0f; // 최대 높이
         float duration = 1.0f; // 전체 에어본 지속 시간
-
-        Debug.Log(originPos.z);
 
         float elapsedTime = 0;
         while (elapsedTime < duration)
@@ -130,22 +126,19 @@ public class BeamAttack : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log(originPos.z);
         transform.position = originPos;
 
         ColorChanger.ChangeMaterialColor(gameObject, originColor);
         if (inputPlayer != null) inputPlayer.ToggleInputActions(); //봉인 해제
 
-        isFlying = false;
-        StateChanged?.Invoke(canUse, isFlying, currentCoolTime);
+        IsFlying = false;
     }
 
     private IEnumerator Cooldown()
     {
-        for (currentCoolTime = coolTime; currentCoolTime >= 0; currentCoolTime--)
+        for (CurrentCoolTime = coolTime; CurrentCoolTime >= 0; CurrentCoolTime--)
         {
-            StateChanged?.Invoke(canUse, isFlying, currentCoolTime);
-            if (currentCoolTime > 0) yield return waitFor1sec;
+            if (CurrentCoolTime > 0) yield return waitFor1sec;
         }
     }
 }

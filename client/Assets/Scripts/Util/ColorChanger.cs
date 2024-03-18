@@ -23,7 +23,6 @@ public static class ColorChanger
         {
             elapsed += Time.deltaTime;
             float normalizedTime = elapsed / time;
-            Debug.Log(normalizedTime);
             ChangeMaterialColor(gameObject, Color.Lerp(start, end, normalizedTime));
             yield return null;
         }

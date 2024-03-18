@@ -107,7 +107,7 @@ public class Room : GOSingleton<Room>
         }
 
         scoreBoard.Init(Players, MyPlayer.PlayerId);
-        Instantiate(HUDPrefab);
+        Instantiate(HUDPrefab).GetComponent<MobileHUD>().Init(MyPlayer, NetworkManager.connectingAddress);
 
     }
 
@@ -168,7 +168,7 @@ public class Room : GOSingleton<Room>
         }
 
         scoreBoard.Init(Players, MyPlayer.PlayerId);
-        Instantiate(HUDPrefab).GetComponent<MobileHUD>().UpdateUI(NetworkManager.connectingAddress);
+        Instantiate(HUDPrefab).GetComponent<MobileHUD>().Init(MyPlayer, NetworkManager.connectingAddress);
     }
 
     public void RecvRoomList(S_RoomList packet)

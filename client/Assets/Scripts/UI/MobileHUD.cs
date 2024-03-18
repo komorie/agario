@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +6,9 @@ public class MobileHUD : MonoBehaviour
 {
     [SerializeField]    
     TMP_Text connectAddress;
+
+    [SerializeField]
+    GameObject joyStick;
 
     [SerializeField]
     Button atkButton;
@@ -24,16 +26,16 @@ public class MobileHUD : MonoBehaviour
     private string stlText = "은신";
     private InputPlayer myPlayer;
 
-
     private void Awake()
     {
-        myPlayer = FindObjectOfType<InputPlayer>();
-    }
-
-    private void OnEnable()
-    {
-        myPlayer.beamAttack.StateChanged += OnBeamStateChanged;
-        myPlayer.stealth.StateChanged += OnStealthStateChanged;
+        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer) //모바일에서만 스틱 켜기
+        {
+            joyStick.SetActive(true);
+        }
+        else
+        {
+            joyStick.SetActive(false);
+        }
     }
 
     private void OnDisable()
@@ -42,9 +44,11 @@ public class MobileHUD : MonoBehaviour
         myPlayer.stealth.StateChanged -= OnStealthStateChanged;
     }
 
-
-    public void UpdateUI(string address)
+    public void Init(InputPlayer player, string address)
     {
+        myPlayer = player;
+        myPlayer.beamAttack.StateChanged += OnBeamStateChanged;
+        myPlayer.stealth.StateChanged += OnStealthStateChanged;
         connectAddress.text = address;
     }
 
@@ -69,7 +73,7 @@ public class MobileHUD : MonoBehaviour
         }
     }
 
-    public void OnStealthStateChanged(bool isStealth, float currentCoolTime)
+    public void OnStealthStateChanged(bool isStealth, int currentCoolTime)
     {
         if(isStealth)
         {
