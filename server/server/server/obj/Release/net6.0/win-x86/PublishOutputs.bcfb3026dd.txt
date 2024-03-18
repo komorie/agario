@@ -1,0 +1,2 @@
+D:\Build(Server)\win-x86\Core.pdb
+D:\Build(Server)\win-x86\Server.exe

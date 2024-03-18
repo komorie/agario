@@ -28,7 +28,7 @@ namespace Core
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                 args.UserToken = i;
                 args.Completed += OnAcceptCompleted; //접속 완료 이벤트에 이벤트 핸들러 추가
-                RegisterAccept(args);
+                RegisterAccept(args);   
             }
         }
 

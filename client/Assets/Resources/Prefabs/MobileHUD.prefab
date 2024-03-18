@@ -574,6 +574,14 @@ PrefabInstance:
       propertyPath: m_text
       value: "\uC740\uC2E0\n"
       objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_fontSize
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 2620985854808620335, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -759,6 +767,26 @@ PrefabInstance:
     - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
       propertyPath: m_text
       value: "\uACF5\uACA9\n"
+      objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_fontSize
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 33
+      objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_fontSizeMin
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 125720668382795775, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2620985854808620335, guid: 6f29cf269300842459723e2615dde4d1, type: 3}
       propertyPath: m_Color.b

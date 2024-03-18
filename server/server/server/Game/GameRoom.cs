@@ -11,8 +11,8 @@ namespace Server.Game
         private int total = 0;
         private int playerSpeed = 20;
         private int foodCount = 20;
-        private float roomSizeX = 100;
-        private float roomSizeY = 100;
+        private float roomSizeX = 50;
+        private float roomSizeY = 50;
         private float currentSecond;
 
         private Stopwatch stopwatch = new Stopwatch();

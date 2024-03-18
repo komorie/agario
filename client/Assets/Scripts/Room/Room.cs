@@ -6,8 +6,8 @@ using Random = UnityEngine.Random;
 
 public class Room : GOSingleton<Room>
 {
-    private const int ROOMSIZE_X = 100;
-    private const int ROOMSIZE_Y = 100;
+    private const int ROOMSIZE_X = 50;
+    private const int ROOMSIZE_Y = 50;
     private const int FOOD_COUNT = 50;
     private const int AIPLAYER_COUNT = 10;
 

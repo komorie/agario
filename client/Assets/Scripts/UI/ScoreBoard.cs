@@ -34,7 +34,7 @@ public class ScoreBoard : MonoBehaviour
             }
 
             idTexts[i].text = $"Player {players[i].PlayerId}";
-            scoreTexts[i].text = players[i].Radius.ToString("F2");
+            scoreTexts[i].text = players[i].Radius.ToString("F1");
 
             if (players[i].PlayerId == myPlayerId)
             {

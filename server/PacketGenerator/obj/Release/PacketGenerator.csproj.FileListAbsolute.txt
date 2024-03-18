@@ -1,0 +1,14 @@
+D:\projects\Unity\agario\server\PacketGenerator\bin\Release\PacketGenerator.exe
+D:\projects\Unity\agario\server\PacketGenerator\bin\Release\PacketGenerator.deps.json
+D:\projects\Unity\agario\server\PacketGenerator\bin\Release\PacketGenerator.runtimeconfig.json
+D:\projects\Unity\agario\server\PacketGenerator\bin\Release\PacketGenerator.dll
+D:\projects\Unity\agario\server\PacketGenerator\bin\Release\PacketGenerator.pdb
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.AssemblyInfoInputs.cache
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.AssemblyInfo.cs
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.csproj.CoreCompileInputs.cache
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.dll
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\refint\PacketGenerator.dll
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.pdb
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\PacketGenerator.genruntimeconfig.cache
+D:\projects\Unity\agario\server\PacketGenerator\obj\Release\ref\PacketGenerator.dll
