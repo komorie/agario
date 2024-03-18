@@ -21,6 +21,7 @@ namespace Server.Session
 
             //방에 추가
             Program.gameRoom.Push(() => { Program.gameRoom.Enter(this); });
+
             Thread.Sleep(1000);
         }
 

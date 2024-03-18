@@ -13,7 +13,7 @@ namespace Server
 
         public int CompareTo(JobTimerElem other) //남은 실행주기를 비교해 작은 쪽부터 꺼내도록, 우선순위큐에서 비교하기위해 구현해야함.
         {
-            return other.execTick - this.execTick;
+            return this.execTick - other.execTick;
         }
     }
 

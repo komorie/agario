@@ -45,4 +45,28 @@ internal class PacketHandler //패킷의 생성 과정에 신경 쓸 필요 없�
         GameRoom room = clientSession.Room;
         room.Push(() => { room.EatPlayer(clientSession, eatPlayerPacket); });   
     }
+
+    internal static void C_BeamStartHandler(PacketSession session, IPacket packet)
+    {
+        C_BeamStart beamStartPacket = packet as C_BeamStart;
+        ClientSession clientSession = session as ClientSession;
+        GameRoom room = clientSession.Room;
+        room.Push(() => { room.BeamStart(clientSession, beamStartPacket); });
+    }
+
+    internal static void C_BeamHitHandler(PacketSession session, IPacket packet)
+    {
+        C_BeamHit beamHitPacket = packet as C_BeamHit;
+        ClientSession clientSession = session as ClientSession;
+        GameRoom room = clientSession.Room;
+        room.Push(() => { room.BeamHit(clientSession, beamHitPacket); });
+    }
+
+    internal static void C_StealthHandler(PacketSession session, IPacket packet)
+    {
+        C_Stealth stealthPacket = packet as C_Stealth;
+        ClientSession clientSession = session as ClientSession;
+        GameRoom room = clientSession.Room;
+        room.Push(() => { room.Stealth(clientSession, stealthPacket); });
+    }
 }

@@ -2,16 +2,27 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    protected Mover mover;
+    protected Eater eater;
+    protected PacketSender packetSender;
+    protected PacketReceiver packetReceiver;
+
+    public BeamAttack beamAttack { get; private set; }
+    public Stealth stealth { get; private set; }
+
+    protected Vector2 inputVector = Vector2.zero;
+    protected Vector2 dir = Vector2.right;
+
     public int PlayerId { get; set; }
+    public float Radius { get; set; } = 1.5f;
 
-    public Mover PlayerMover { get; set; }
-    public Eater PlayerEater { get; set; }
-    public PlayerPacketSender PacketSender { get; set; }
-
-    private void Awake()
+    protected virtual void Awake()
     {
-        PlayerMover = GetComponent<Mover>();
-        PlayerEater = GetComponent<Eater>();    
-        PacketSender = GetComponent<PlayerPacketSender>();    
+        mover = GetComponent<Mover>();
+        eater = GetComponent<Eater>();
+        beamAttack = GetComponent<BeamAttack>();    
+        stealth = GetComponent<Stealth>();  
+        packetSender = GetComponent<PacketSender>();
+        packetReceiver = PacketReceiver.Instance;
     }
 }

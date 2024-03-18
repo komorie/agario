@@ -1,6 +1,7 @@
 ﻿using Server.Session;
 using Core;
 using static S_RoomList;
+using System.Diagnostics;
 
 namespace Server.Game
 {
@@ -14,6 +15,8 @@ namespace Server.Game
         private float roomSizeY = 50;
         private float currentSecond;
 
+        private Stopwatch stopwatch = new Stopwatch();
+
         List<ClientSession> Sessions { get; set; } = new List<ClientSession>();
 
         List<Food> foodList = new List<Food>(); //방의 푸드 리스트
@@ -25,21 +28,37 @@ namespace Server.Game
 
         public GameRoom()
         {
-            //foodlist에 랜덤 -45, 45 float 좌표를 가진 food 20개 추가
+            //foodlist에 랜덤 float 좌표를 가진 food 20개 추가
             for (int i = 0; i < foodCount; i++)
             {
                 foodList.Add(new Food()
                 {
-                    posX = (float)(rand.NextDouble() * 90 - 45),
-                    posY = (float)(rand.NextDouble() * 90 - 45)
+                    posX = (float)(rand.NextDouble() * (roomSizeX - 5) * 2 - (roomSizeX - 5)),
+                    posY = (float)(rand.NextDouble() * (roomSizeY - 5) * 2 - (roomSizeY - 5))
                 });
             }
 
-            DateTime now = DateTime.UtcNow;
-            currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
+            // Stopwatch 시작
+            stopwatch.Start();
+            currentSecond = 0;
 
             Simulate();
+/*            SyncTime();*/
         }
+
+/*        public void SyncTime()
+        {
+            Push(BroadCastTime);
+            JobTimer.Instance.Push(SyncTime, 30000); //30초 뒤에 Simulate 또 호출 -> 클라이언트에게 시간 전송 -> 30초마다 시계 동기화
+        }*/
+
+/*        public void BroadCastTime()
+        {
+            Console.WriteLine($"Elapsed Second: {stopwatch.Elapsed.TotalSeconds}");
+            S_BroadcastServerTime st = new S_BroadcastServerTime();
+            st.serverTime = (float)stopwatch.Elapsed.TotalSeconds;
+            BroadCast(st); //서버의 시간 전송
+        }*/
 
         public void Simulate()
         {
@@ -49,8 +68,7 @@ namespace Server.Game
 
         public void SimulatePlayersPosition() //함수가 호출되는 시점에서, 현재 방에 있는 플레이어들의 위치를 흐른 시간 time에 비례해, dir 방향으로 pos를 업데이트해야 함. 1초당 이동 속도는 Speed
         {
-            DateTime now = DateTime.UtcNow;
-            float currentSecond = now.Hour * 3600 + now.Minute * 60 + now.Second + now.Millisecond * 0.001f;
+            float currentSecond = (float)stopwatch.Elapsed.TotalSeconds;
             float deltaTime = currentSecond - this.currentSecond;
 
             foreach (ClientSession s in Sessions)
@@ -82,13 +100,16 @@ namespace Server.Game
 
         public void Enter(ClientSession session) //클라 A가 게임방 입장
         {
+            S_BroadcastServerTime st = new S_BroadcastServerTime();
+            st.serverTime = (float)stopwatch.Elapsed.TotalSeconds;
+            session.Send(st.Write()); //서버의 시간 전송
 
             //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
             int newPlayerX, newPlayerY;
             do
             {
-                newPlayerX = rand.Next(-40, 40);
-                newPlayerY = rand.Next(-40, 40);
+                newPlayerX = rand.Next((int)-roomSizeX + 10, (int)roomSizeX - 10);
+                newPlayerY = rand.Next((int)-roomSizeY + 10, (int)roomSizeY - 10);
             }
             while (OverlapWithPlayer(newPlayerX, newPlayerY));
 
@@ -138,6 +159,20 @@ namespace Server.Game
 
             session.Send(roomList.Write()); //새로 들어온 애한테만 리스트 패킷 보내기
 
+            foreach (ClientSession s in Sessions) //움직이고 있다는 패킷 보내기
+            {
+                Player p = s.MyPlayer;
+                S_BroadcastMove move = new S_BroadcastMove();
+                move.playerId = session.SessionId;
+                move.dirX = p.DirX;
+                move.dirY = p.DirY;
+                move.posX = p.PosX;
+                move.posY = p.PosY;
+                move.posZ = p.PosZ;
+                move.time = p.moveTime;
+                session.Send(move.Write());
+            }
+
             S_BroadcastEnterGame enterGame = new S_BroadcastEnterGame
             {
                 playerId = sp.PlayerId,
@@ -173,6 +208,7 @@ namespace Server.Game
             sp.PosX = movePacket.posX;
             sp.PosY = movePacket.posY;
             sp.PosZ = movePacket.posZ;
+            sp.moveTime = movePacket.time;
 
 
             //다른 클라들한테 얘 여기에서 어디로 이동한다고 알리기
@@ -193,7 +229,7 @@ namespace Server.Game
         public void EatFood(ClientSession session, C_EatFood eatPacket)
         {
             Player sp = session.MyPlayer;
-            sp.Radius += 0.05f; //반지름 증가
+            sp.Radius += 0.1f; //반지름 증가
 
             Food f = foodList[eatPacket.foodId];
 
@@ -202,8 +238,8 @@ namespace Server.Game
             //sessions를 돌면서, 플레이어와 겹치는지 계산해서 안겹치는 위치로 새로 지정
             do
             {
-                newFoodX = (float)(rand.NextDouble() * 90 - 45);
-                newFoodY = (float)(rand.NextDouble() * 90 - 45);
+                newFoodX = (float)rand.NextDouble() * (roomSizeX - 5) * 2 - (roomSizeX - 5);
+                newFoodY = (float)rand.NextDouble() * (roomSizeY - 5) * 2 - (roomSizeY - 5);
             }
             while (OverlapWithPlayer(newFoodX, newFoodY));
 
@@ -222,23 +258,57 @@ namespace Server.Game
             BroadCast(eat); //모든 클라에게 보내기   
         }
 
-        public void EatPlayer(ClientSession clientSession, C_EatPlayer eatPlayerPacket) //얘가 누구 먹었대
+        public void EatPlayer(ClientSession session, C_EatPlayer eatPlayerPacket) //얘가 누구 먹었대
         {
             S_BroadcastEatPlayer eatPlayer = new S_BroadcastEatPlayer();    
-            eatPlayer.predatorId = clientSession.MyPlayer.PlayerId; //먹은 애
+            eatPlayer.predatorId = session.MyPlayer.PlayerId; //먹은 애
 
             for (int i = 0; i < Sessions.Count; i++)
             {
                 if (Sessions[i].SessionId == eatPlayerPacket.preyId) //먹힌 애 찾아서
                 {
                     eatPlayer.preyId = Sessions[i].SessionId; //먹힌 애
-                    clientSession.MyPlayer.Radius += (Sessions[i].MyPlayer.Radius / 2); //포식자 크기 증가
+                    session.MyPlayer.Radius += (Sessions[i].MyPlayer.Radius / 2); //포식자 크기 증가
                     Console.WriteLine($"Player {eatPlayer.predatorId} killed Player {eatPlayer.preyId}");
                     break;
                 }
             }
 
             BroadCast(eatPlayer); //모든 클라에게 알리기
+        }
+
+        public void BeamStart(ClientSession session, C_BeamStart beamStartPacket) //얘가 빔 쏜다 
+        {
+            S_BroadcastBeamStart beamStart = new S_BroadcastBeamStart();
+            beamStart.userId = session.MyPlayer.PlayerId;   
+            beamStart.dirX = beamStartPacket.dirX;
+            beamStart.dirY = beamStartPacket.dirY;
+
+            Console.WriteLine($"Player {session.MyPlayer.PlayerId} Charged Beam"); //로그 출력
+
+            BroadCast(beamStart);
+        }
+
+        public void BeamHit(ClientSession session, C_BeamHit beamHitPacket) //우선 임시적으로 클라에서 맞았는지 처리하고, 시간 나면 서버에서 한번 검증하도록 개선
+        {
+            S_BroadcastBeamHit beamHit = new S_BroadcastBeamHit();  
+            beamHit.userId = session.MyPlayer.PlayerId; 
+            foreach (C_BeamHit.HitPlayer hitPlayer in beamHitPacket.hitPlayers)
+            {
+                S_BroadcastBeamHit.HitPlayer p = new S_BroadcastBeamHit.HitPlayer();
+                p.playerId = hitPlayer.playerId;
+                beamHit.hitPlayers.Add(p);
+            }
+            Console.WriteLine($"Player {session.MyPlayer.PlayerId} Fired Beam"); //로그 출력
+            BroadCast(beamHit);
+        }
+
+        public void Stealth(ClientSession session, C_Stealth stealthPacket)
+        {
+            S_BroadcastStealth stealth = new S_BroadcastStealth();    
+            stealth.userId = stealthPacket.userId;
+            Console.WriteLine($"Player {session.MyPlayer.PlayerId} Hided"); //로그 출력
+            BroadCast(stealth);
         }
 
         //sessions를 돌면서, 플레이어의 좌표 posx, posy와 겹치는 위치인지 확인

@@ -1,9 +1,16 @@
+using System;
 using UnityEngine;
 
 public class GameScene : MonoBehaviour
 {
-    private void Awake()
+    public static bool isMulti = false;
+
+    private void Start()
     {
-        NetworkManager.Instance.Connect();
+        if (isMulti) 
+        { 
+            NetworkManager.Instance.Connect(NetworkManager.connectingAddress);
+        }
     }
+
 }

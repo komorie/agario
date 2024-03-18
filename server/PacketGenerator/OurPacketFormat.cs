@@ -173,7 +173,7 @@ public class {0} : IPacket
 
 public List<{0}> {1}s = new List<{0}>();
 
-public class {0} //멤버 클래스
+public class {0} //멤버 클래스Lis
 {{
     {2}
 
